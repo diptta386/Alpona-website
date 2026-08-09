@@ -15,7 +15,7 @@
   <nav>
     <a href="#shop">Shop</a><a href="#story">Our Story</a><a href="#contact">Contact</a>
     <button class="navBtn" onclick="openCart()">Cart <span id="cartCount">0</span></button>
-    <button class="navBtn owner" onclick="showAdminLogin()">Owner</button>
+    <button id="ownerBtn" class="navBtn owner" onclick="showAdminLogin()" style="display:none;">Owner</button>
   </nav>
 </header>
 
@@ -138,5 +138,12 @@
 <div id="toast" class="toast"></div>
 <script src="app.js"></script>
  <script src="image-upload-patch.js?v=2"></script>
+  <script>
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get("owner") === "1") {
+    document.getElementById("ownerBtn").style.display = "inline-block";
+  }
+</script>
 </body>
 </html>
