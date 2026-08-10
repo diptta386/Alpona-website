@@ -80,10 +80,46 @@
 </form></div></div>
 
 <!-- Owner login -->
-<div id="loginModal" class="modal"><div class="modalCard small"><button class="x" onclick="closeModal('loginModal')">×</button>
-<h2>Owner Login</h2><p class="muted">Prototype password: <b>alpona2026</b></p>
-<form onsubmit="adminLogin(event)"><label>Password<input id="ownerPassword" type="password" required></label><button class="primary full">Open Dashboard</button></form>
-</div></div>
+<!-- Owner login -->
+<div id="loginModal" class="modal">
+  <div class="modalCard small">
+
+    <button class="x" onclick="closeModal('loginModal')">×</button>
+
+    <h2>Owner Login</h2>
+
+    <p class="muted">
+      Private Alpona owner access
+    </p>
+
+    <form onsubmit="adminLogin(event)">
+
+      <label>
+        Email
+        <input
+          id="ownerEmail"
+          type="email"
+          required
+        >
+      </label>
+
+      <label>
+        Password
+        <input
+          id="ownerPassword"
+          type="password"
+          required
+        >
+      </label>
+
+      <button class="primary full">
+        Open Dashboard
+      </button>
+
+    </form>
+
+  </div>
+</div>
 
 <!-- Admin -->
 <section id="adminPanel" class="adminPanel">
