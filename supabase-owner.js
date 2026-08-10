@@ -248,8 +248,10 @@
   window.adminLogin = async function (event) {
     event.preventDefault();
 
-    const email = prompt("Enter owner email:");
-    if (!email) return;
+   const email =
+  document.getElementById("ownerEmail").value.trim();
+
+if (!email) return;
 
     const password =
       document.getElementById("ownerPassword").value;
