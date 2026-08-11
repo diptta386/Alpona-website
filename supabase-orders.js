@@ -14,6 +14,10 @@ window.placeOrder = async function(event) {
   const paymentOption = fd.get("payment_option");
 const advanceMethod = fd.get("advance_method");
 const transactionId = fd.get("advance_transaction_id");
+  if (!paymentOption) {
+  alert("Please select a payment option.");
+  return;
+}
 
   if (!advanceMethod) {
     alert("Please select bKash or Nagad.");
@@ -131,7 +135,7 @@ if (paymentOption === "full_payment") {
     alert(
       "Order submitted successfully!\n\n" +
       "Order Number: " + orderNumber +
-      "\nDelivery Fee Paid: " + money(advanceAmount) +
+      "\nAmount Submitted: " + money(advanceAmount) +
       "\nRemaining COD: " + money(remainingCOD) +
       "\n\nPayment is waiting for verification."
     );
