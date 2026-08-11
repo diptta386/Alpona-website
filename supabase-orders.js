@@ -73,6 +73,7 @@ if (paymentOption === "full_payment") {
     area: fd.get("area"),
 
     payment_method: advanceMethod,
+    payment_option: paymentOption,
 
     subtotal: subtotal,
     delivery_fee: deliveryFee,
