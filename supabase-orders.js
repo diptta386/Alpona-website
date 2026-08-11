@@ -11,11 +11,27 @@ window.placeOrder = async function(event) {
     return;
   }
 
+  const advanceMethod = fd.get("advance_method");
+  const transactionId = fd.get("advance_transaction_id");
+
+  if (!advanceMethod) {
+    alert("Please select bKash or Nagad.");
+    return;
+  }
+
+  if (!transactionId || !transactionId.trim()) {
+    alert("Please enter your Transaction ID.");
+    return;
+  }
+
   const items = cart.map(item => {
 
-    const product = ps.find(p => p.id === item.id);
+    const product = ps.find(
+      p => Number(p.id) === Number(item.id)
+    );
 
     return {
+      product_id: product.id,
       product_name: product.name,
       quantity: item.qty,
       price: Number(product.price)
@@ -33,8 +49,13 @@ window.placeOrder = async function(event) {
 
   const total = subtotal + deliveryFee;
 
-  const orderId = Date.now();
+  // Customer pays delivery fee now
+  const advanceAmount = deliveryFee;
 
+  // Product price will be paid on delivery
+  const remainingCOD = subtotal;
+
+  const orderId = Date.now();
   const orderNumber = "ALP-" + orderId;
 
   const orderData = {
@@ -44,11 +65,20 @@ window.placeOrder = async function(event) {
     phone: fd.get("phone"),
     address: fd.get("address"),
     area: fd.get("area"),
-    payment_method: fd.get("payment"),
+
+    payment_method: advanceMethod,
+
     subtotal: subtotal,
     delivery_fee: deliveryFee,
     total: total,
-    status: "New"
+
+    advance_method: advanceMethod,
+    advance_transaction_id: transactionId.trim(),
+    advance_amount: advanceAmount,
+    remaining_cod: remainingCOD,
+
+    payment_status: "pending_verification",
+    status: "Pending Payment"
   };
 
   try {
@@ -59,13 +89,13 @@ window.placeOrder = async function(event) {
         .insert([orderData]);
 
     if (orderError) {
-      console.error(orderError);
+      console.error("Order error:", orderError);
       throw orderError;
     }
 
     const orderItems = items.map(item => ({
       order_id: orderId,
-      product_id: null,
+      product_id: item.product_id,
       product_name: item.product_name,
       quantity: item.quantity,
       price: item.price
@@ -77,7 +107,7 @@ window.placeOrder = async function(event) {
         .insert(orderItems);
 
     if (itemsError) {
-      console.error(itemsError);
+      console.error("Order items error:", itemsError);
       throw itemsError;
     }
 
@@ -92,9 +122,11 @@ window.placeOrder = async function(event) {
     closeModal("checkoutModal");
 
     alert(
-      "Order successfully placed!\n\n" +
+      "Order submitted successfully!\n\n" +
       "Order Number: " + orderNumber +
-      "\nTotal: " + money(total)
+      "\nDelivery Fee Paid: " + money(advanceAmount) +
+      "\nRemaining COD: " + money(remainingCOD) +
+      "\n\nPayment is waiting for verification."
     );
 
   } catch (error) {
