@@ -224,7 +224,19 @@
       `
       : ""
   }
+${(
+  o.payment_status === "verified" &&
+  Number(o.remaining_cod || 0) > 0
+) ? `
+  <br><br>
 
+  <button
+    class="primary"
+    onclick="markCodReceived(${o.id}, ${Number(o.remaining_cod || 0)})"
+  >
+    Mark COD Received
+  </button>
+` : ""}
 </td>
 
               <td>
