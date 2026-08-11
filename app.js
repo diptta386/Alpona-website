@@ -35,11 +35,53 @@ function openProduct(id){
  <button class="primary full" ${p.stock<1?"disabled":""} onclick="addToCart(${p.id});closeModal('productModal')">Add to cart</button></div></div>`;
  document.getElementById("productModal").classList.add("show");
 }
-function addToCart(id){const p=products().find(x=>x.id===id); if(!p||p.stock<1)return; const item=cart.find(x=>x.id===id); if(item)item.qty++;else cart.push({id,qty:1});set("alpona_cart",cart);renderCart();toast("Added to cart")}
-function removeCart(id){cart=cart.filter(x=>x.id!==id);set("alpona_cart",cart);renderCart()}
+function addToCart(id) {
+
+  const productId = Number(id);
+
+  const p = products().find(
+    x => Number(x.id) === productId
+  );
+
+  if (!p || Number(p.stock) < 1) {
+    toast("Product is unavailable");
+    return;
+  }
+
+  const item = cart.find(
+    x => Number(x.id) === productId
+  );
+
+  if (item) {
+    item.qty++;
+  } else {
+    cart.push({
+      id: productId,
+      qty: 1
+    });
+  }
+
+  set("alpona_cart", cart);
+
+  renderCart();
+}
+function removeCart(id) {
+
+  cart = cart.filter(
+    x => Number(x.id) !== Number(id)
+  );
+
+  set("alpona_cart", cart);
+
+  renderCart();
+function removeCart(id){
+  cart=cart.filter(x=>Number(x.id)!==Number(id));
+  set("alpona_cart",cart);
+  renderCart();
+}
 function renderCart(){
  const ps=products(); let total=0,count=0;
- document.getElementById("cartItems").innerHTML=cart.length?cart.map(i=>{const p=ps.find(x=>x.id===i.id);if(!p)return"";total+=p.price*i.qty;count+=i.qty;return `<div class="cartItem"><img src="${p.image}"><div><h4>${p.name}</h4><span>${i.qty} × ${money(p.price)}</span></div><button onclick="removeCart(${p.id})">×</button></div>`}).join(""):"<p>Your cart is empty.</p>";
+ document.getElementById("cartItems").innerHTML=cart.length?cart.map(i=>{const p=ps.find(x=>Number(x.id)===Number(i.id)));if(!p)return"";total+=p.price*i.qty;count+=i.qty;return `<div class="cartItem"><img src="${p.image}"><div><h4>${p.name}</h4><span>${i.qty} × ${money(p.price)}</span></div><button onclick="removeCart(${p.id})">×</button></div>`}).join(""):"<p>Your cart is empty.</p>";
  document.getElementById("cartTotal").textContent=money(total);document.getElementById("cartCount").textContent=count;
 }
 function openCart(){document.getElementById("overlay").classList.add("show");document.getElementById("cartDrawer").classList.add("show")}
