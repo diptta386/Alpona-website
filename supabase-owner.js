@@ -347,6 +347,7 @@ window.verifyPayment = async function(id) {
 
   await renderSupabaseAdmin();
 };
+  
 
 
 window.rejectPayment = async function(id) {
@@ -366,6 +367,28 @@ window.rejectPayment = async function(id) {
   }
 
   alert("Payment rejected.");
+
+  await renderSupabaseAdmin();
+};
+  window.markCodReceived = async function(id, remainingCod) {
+
+  const { error } = await db
+    .from("orders")
+    .update({
+      cod_received: Number(remainingCod || 0),
+      cod_received_at: new Date().toISOString(),
+      payment_status: "fully_paid",
+      status: "Delivered"
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    alert("Could not mark COD as received.");
+    return;
+  }
+
+  alert("COD payment marked as received.");
 
   await renderSupabaseAdmin();
 };
