@@ -76,7 +76,16 @@
 <label>Delivery Address<textarea name="address" required></textarea></label>
 <label>Delivery Area<select name="area"><option>Inside Dhaka</option><option>Outside Dhaka</option></select></label>
 <label>
-Advance Payment Method
+Payment Option
+<select name="payment_option" id="paymentOption" required>
+  <option value="">Select payment option</option>
+  <option value="delivery_only">Pay delivery fee now + product amount COD</option>
+  <option value="full_payment">Pay full amount now</option>
+</select>
+</label>
+
+<label>
+Payment Method
 <select name="advance_method" id="advanceMethod" required>
   <option value="">Select payment method</option>
   <option value="bKash">bKash</option>
@@ -84,6 +93,23 @@ Advance Payment Method
 </select>
 </label>
 
+<div id="paymentInfo" style="padding:12px;margin:10px 0;background:#fff4df;border:1px solid #e5cda7;">
+  <b>Payment Number</b><br><br>
+
+  bKash: <b>+880 1812-368844</b><br>
+  Nagad: <b>+880 1812-368844</b><br><br>
+
+  Choose your payment option above. The website will calculate how much you need to send.
+</div>
+
+<label>
+Transaction ID
+<input
+  name="advance_transaction_id"
+  type="text"
+  required
+  placeholder="Enter bKash/Nagad Transaction ID">
+</label>
 <div style="padding:12px;margin:10px 0;background:#fff4df;border:1px solid #e5cda7;">
   <b>Pay the delivery fee first</b><br><br>
 
