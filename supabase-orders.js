@@ -55,8 +55,10 @@ window.placeOrder = async function(event) {
         );
 
         alert(
-          "One of the products in your cart has changed. Please clear your cart and add the product again."
-        );
+  "Product ID problem.\n\n" +
+  "Cart product ID: " + item.id + "\n" +
+  "Available product IDs: " + ps.map(p => p.id).join(", ")
+);
 
         return;
       }
