@@ -187,7 +187,45 @@
 
               <td>${money(o.total)}</td>
 
-              <td>${o.payment_method || ""}</td>
+             <td>
+
+  <b>Method:</b> ${o.advance_method || o.payment_method || ""}
+  <br>
+
+  <b>Transaction:</b> ${o.advance_transaction_id || "N/A"}
+  <br>
+
+  <b>Paid:</b> ${money(o.advance_amount || 0)}
+  <br>
+
+  <b>Remaining COD:</b> ${money(o.remaining_cod || 0)}
+  <br>
+
+  <b>Payment Status:</b> ${o.payment_status || "pending_verification"}
+
+  <br><br>
+
+  ${
+    o.payment_status === "pending_verification"
+      ? `
+        <button
+          class="primary"
+          onclick="verifyPayment(${o.id})"
+        >
+          Verify Payment
+        </button>
+
+        <button
+          class="danger"
+          onclick="rejectPayment(${o.id})"
+        >
+          Reject Payment
+        </button>
+      `
+      : ""
+  }
+
+</td>
 
               <td>
                 <select
