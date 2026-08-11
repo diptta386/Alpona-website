@@ -65,11 +65,7 @@ function addToCart(id) {
 
   renderCart();
 }
-function removeCart(id) {
 
-  cart = cart.filter(
-    x => Number(x.id) !== Number(id)
-  );
 
   set("alpona_cart", cart);
 
