@@ -299,7 +299,6 @@ alert(
 
 };
 
-
 document.getElementById("acForm").onsubmit = function(event){
 
 event.preventDefault();
@@ -318,6 +317,16 @@ addMessage(
 message,
 true
 );
+
+/*
+Stop automatic AI replies after
+customer requests a real person.
+*/
+if(window.alponaHumanMode === true){
+
+return;
+
+}
 
 setTimeout(function(){
 
