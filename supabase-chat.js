@@ -114,6 +114,8 @@
 
     if (!session) return;
 
+window.alponaHumanMode = true;
+
 
     const { error } = await db
       .from("chat_sessions")
@@ -197,6 +199,7 @@
 
 
     (data || []).forEach(msg => {
+      window.alponaHumanMode = true;
 
       if (
         shown.has(
