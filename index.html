@@ -150,6 +150,28 @@
   <div class="panelHead"><h3>Expenses</h3><button class="primary" onclick="openExpenseForm()">+ Add Expense</button></div>
   <div id="expenseList"></div>
 </div>
+  <div id="tab-messages" class="tabBody hidden">
+
+  <div class="panelHead">
+
+    <h3>Customer Messages</h3>
+
+    <button
+      class="secondary"
+      onclick="loadOwnerChats()"
+    >
+      Refresh
+    </button>
+
+  </div>
+
+  <div id="ownerChatList">
+
+    <p>No customer chats yet.</p>
+
+  </div>
+
+</div>
 </section>
 
 <!-- Admin product form -->
@@ -182,6 +204,7 @@
   <script src="supabase-products.js"></script>
   
 <script src="alpona-chat.js"></script>
+  <script src="supabase-chat.js"></script>
   <script>
   const params = new URLSearchParams(window.location.search);
 
