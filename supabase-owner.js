@@ -289,5 +289,46 @@ if (!email) return;
     oldOpenAdmin();
     renderSupabaseAdmin();
   };
+window.verifyPayment = async function(id) {
 
+  const { error } = await db
+    .from("orders")
+    .update({
+      payment_status: "verified",
+      status: "Confirmed"
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    alert("Could not verify payment.");
+    return;
+  }
+
+  alert("Payment verified.");
+
+  await renderSupabaseAdmin();
+};
+
+
+window.rejectPayment = async function(id) {
+
+  const { error } = await db
+    .from("orders")
+    .update({
+      payment_status: "rejected",
+      status: "Pending Payment"
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    alert("Could not reject payment.");
+    return;
+  }
+
+  alert("Payment rejected.");
+
+  await renderSupabaseAdmin();
+};
 })();
