@@ -568,28 +568,33 @@
 
 
 
-  setInterval(
-    function () {
+ setInterval(
+  async function () {
 
-      const admin =
-        document.getElementById(
-          "adminPanel"
+    const admin =
+      document.getElementById(
+        "adminPanel"
+      );
+
+    if (
+      admin &&
+      admin.classList.contains(
+        "show"
+      )
+    ) {
+
+      await loadOwnerChats();
+
+      if (selectedChatSession) {
+        await openOwnerChat(
+          selectedChatSession
         );
-
-
-      if (
-        admin &&
-        admin.classList.contains(
-          "show"
-        )
-      ) {
-
-        loadOwnerChats();
-
       }
 
-    },
-    5000
-  );
+    }
+
+  },
+  3000
+);
 
 })();
