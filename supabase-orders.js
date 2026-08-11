@@ -49,12 +49,17 @@ const transactionId = fd.get("advance_transaction_id");
     fd.get("area") === "Inside Dhaka" ? 80 : 140;
 
   const total = subtotal + deliveryFee;
+// Customer pays delivery fee now
+ let advanceAmount = 0;
+let remainingCOD = 0;
 
-  // Customer pays delivery fee now
-  const advanceAmount = deliveryFee;
-
-  // Product price will be paid on delivery
-  const remainingCOD = subtotal;
+if (paymentOption === "full_payment") {
+  advanceAmount = total;
+  remainingCOD = 0;
+} else {
+  advanceAmount = deliveryFee;
+  remainingCOD = subtotal;
+}
 
   const orderId = Date.now();
   const orderNumber = "ALP-" + orderId;
