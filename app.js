@@ -77,7 +77,7 @@ function removeCart(id){
 }
 function renderCart(){
  const ps=products(); let total=0,count=0;
- document.getElementById("cartItems").innerHTML=cart.length?cart.map(i=>{const p=ps.find(x=>Number(x.id)===Number(i.id)));if(!p)return"";total+=p.price*i.qty;count+=i.qty;return `<div class="cartItem"><img src="${p.image}"><div><h4>${p.name}</h4><span>${i.qty} × ${money(p.price)}</span></div><button onclick="removeCart(${p.id})">×</button></div>`}).join(""):"<p>Your cart is empty.</p>";
+ document.getElementById("cartItems").innerHTML=cart.length?cart.map(i=>{const p=ps.find(x=>Number(x.id)===Number(i.id));if(!p)return"";total+=p.price*i.qty;count+=i.qty;return `<div class="cartItem"><img src="${p.image}"><div><h4>${p.name}</h4><span>${i.qty} × ${money(p.price)}</span></div><button onclick="removeCart(${p.id})">×</button></div>`}).join(""):"<p>Your cart is empty.</p>";
  document.getElementById("cartTotal").textContent=money(total);document.getElementById("cartCount").textContent=count;
 }
 function openCart(){document.getElementById("overlay").classList.add("show");document.getElementById("cartDrawer").classList.add("show")}
