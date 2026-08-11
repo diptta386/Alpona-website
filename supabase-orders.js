@@ -11,8 +11,9 @@ window.placeOrder = async function(event) {
     return;
   }
 
-  const advanceMethod = fd.get("advance_method");
-  const transactionId = fd.get("advance_transaction_id");
+  const paymentOption = fd.get("payment_option");
+const advanceMethod = fd.get("advance_method");
+const transactionId = fd.get("advance_transaction_id");
 
   if (!advanceMethod) {
     alert("Please select bKash or Nagad.");
