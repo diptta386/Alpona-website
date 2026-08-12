@@ -252,5 +252,64 @@ Transaction ID
     document.getElementById("ownerBtn").style.display = "inline-block";
   }
 </script>
+ <script>
+function updatePaymentAmounts() {
+
+  const area = document.querySelector('[name="area"]');
+  const option = document.querySelector('[name="payment_option"]');
+
+  const totalEl = document.getElementById("paymentTotal");
+  const nowEl = document.getElementById("paymentNow");
+  const codEl = document.getElementById("paymentCod");
+
+  if (!area || !option || !totalEl || !nowEl || !codEl) return;
+
+  const ps = products();
+
+  const subtotal = cart.reduce((sum, item) => {
+    const p = ps.find(x => Number(x.id) === Number(item.id));
+    if (!p) return sum;
+    return sum + Number(p.price) * Number(item.qty);
+  }, 0);
+
+  const deliveryFee =
+    area.value === "Inside Dhaka" ? 80 : 140;
+
+  const total = subtotal + deliveryFee;
+
+  let payNow = 0;
+  let remainingCod = 0;
+
+  if (option.value === "full_payment") {
+    payNow = total;
+    remainingCod = 0;
+  } else if (option.value === "delivery_only") {
+    payNow = deliveryFee;
+    remainingCod = subtotal;
+  }
+
+  totalEl.textContent = money(total);
+  nowEl.textContent = money(payNow);
+  codEl.textContent = money(remainingCod);
+}
+
+document.addEventListener("change", function(e) {
+  if (
+    e.target.name === "area" ||
+    e.target.name === "payment_option"
+  ) {
+    updatePaymentAmounts();
+  }
+});
+
+document.addEventListener("click", function(e) {
+  if (
+    e.target.closest &&
+    e.target.closest('[onclick*="openCheckout"]')
+  ) {
+    setTimeout(updatePaymentAmounts, 100);
+  }
+});
+</script> 
 </body>
 </html>
