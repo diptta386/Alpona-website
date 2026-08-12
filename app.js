@@ -15,7 +15,7 @@ const money=n=>"৳"+Number(n||0).toLocaleString();
 function toast(t){const x=document.getElementById("toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),1800)}
 function closeModal(id){document.getElementById(id).classList.remove("show")}
 
-function products(){return get("alpona_products",DEFAULT_PRODUCTS)}
+function products(){return get("alpona_products",[])}
 function renderProducts(){
  const ps=products(), cat=document.getElementById("categoryFilter"), current=cat.value;
  const cats=[...new Set(ps.map(p=>p.category))];
