@@ -6,7 +6,11 @@ const DEFAULT_PRODUCTS=[
 
 function get(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}}
 function set(key,val){localStorage.setItem(key,JSON.stringify(val))}
-if(!localStorage.getItem("alpona_products"))set("alpona_products",DEFAULT_PRODUCTS);
+if (!localStorage.getItem("alpona_products_cache_fixed")) {
+  localStorage.removeItem("alpona_products");
+  localStorage.removeItem("alpona_cart");
+  localStorage.setItem("alpona_products_cache_fixed", "yes");
+}
 if(!localStorage.getItem("alpona_orders"))set("alpona_orders",[]);
 if(!localStorage.getItem("alpona_expenses"))set("alpona_expenses",[]);
 let cart=get("alpona_cart",[]);
