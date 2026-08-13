@@ -126,6 +126,9 @@ window.placeOrder = async function(event) {
 
       phone:
         fd.get("phone"),
+      
+      customer_email:
+  fd.get("customer_email"),
 
       address:
         fd.get("address"),
