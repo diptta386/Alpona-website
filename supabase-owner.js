@@ -341,67 +341,92 @@ if (!email) return;
   };
 window.verifyPayment = async function(id) {
 
-  const { error } = await db
-    .from("orders")
-    .update({
-      payment_status: "verified",
-      status: "Confirmed"
-    })
-    .eq("id", id);
+  try {
 
-  if (error) {
-    console.error(error);
-    alert("Could not verify payment.");
-    return;
+    // 1. Get the order details first
+    const { data: order, error: orderError } = await db
+      .from("orders")
+      .select(`
+        id,
+        order_number,
+        customer_name,
+        customer_email,
+        total,
+        remaining_cod,
+        payment_status
+      `)
+      .eq("id", id)
+      .single();
+
+    if (orderError) {
+      throw orderError;
+    }
+
+    if (!order.customer_email) {
+      alert("This order has no customer email.");
+      return;
+    }
+
+    // 2. Mark payment verified
+    const { error: verifyError } = await db
+      .from("orders")
+      .update({
+        payment_status: "verified",
+        status: "Confirmed"
+      })
+      .eq("id", id);
+
+    if (verifyError) {
+      throw verifyError;
+    }
+
+    // 3. Send confirmation email
+    const { data: emailData, error: emailError } =
+      await db.functions.invoke(
+        "send-order-confirmation",
+        {
+          body: {
+            customer_email: order.customer_email,
+            customer_name: order.customer_name,
+            order_number: order.order_number,
+            total: order.total,
+            remaining_cod: order.remaining_cod
+          }
+        }
+      );
+
+    if (emailError) {
+      console.error("Email error:", emailError);
+
+      alert(
+        "Payment was verified, but the confirmation email could not be sent."
+      );
+
+      await renderSupabaseAdmin();
+      return;
+    }
+
+    console.log("Email sent:", emailData);
+
+    alert(
+      "Payment verified.\n\n" +
+      "Order confirmed and confirmation email sent to:\n" +
+      order.customer_email
+    );
+
+    await renderSupabaseAdmin();
+
+  } catch (error) {
+
+    console.error(
+      "Verify payment error:",
+      error
+    );
+
+    alert(
+      "Could not verify the payment."
+    );
+
   }
 
-  alert("Payment verified.");
-
-  await renderSupabaseAdmin();
 };
-  
-
-
-window.rejectPayment = async function(id) {
-
-  const { error } = await db
-    .from("orders")
-    .update({
-      payment_status: "rejected",
-      status: "Pending Payment"
-    })
-    .eq("id", id);
-
-  if (error) {
-    console.error(error);
-    alert("Could not reject payment.");
-    return;
-  }
-
-  alert("Payment rejected.");
-
-  await renderSupabaseAdmin();
-};
-  window.markCodReceived = async function(id, remainingCod) {
-
-  const { error } = await db
-    .from("orders")
-    .update({
-      cod_received: Number(remainingCod || 0),
-      cod_received_at: new Date().toISOString(),
-      payment_status: "fully_paid",
-      status: "Delivered"
-    })
-    .eq("id", id);
-
-  if (error) {
-    console.error(error);
-    alert("Could not mark COD as received.");
-    return;
-  }
-
-  alert("COD payment marked as received.");
-
-  await renderSupabaseAdmin();
-};
-})();
