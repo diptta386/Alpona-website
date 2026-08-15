@@ -149,9 +149,40 @@
       orders.length
         ? `
         <div class="panelHead">
-          <h3>All Orders</h3>
-        </div>
+  <h3>All Orders</h3>
+</div>
 
+<div style="margin-bottom:15px; display:flex; gap:8px; flex-wrap:wrap;">
+
+  <button class="secondary" onclick="filterOrders('all')">
+    All
+  </button>
+
+  <button class="secondary" onclick="filterOrders('Pending Payment')">
+    Pending Payment
+  </button>
+
+  <button class="secondary" onclick="filterOrders('Confirmed')">
+    Confirmed
+  </button>
+
+  <button class="secondary" onclick="filterOrders('Processing')">
+    Processing
+  </button>
+
+  <button class="secondary" onclick="filterOrders('Shipped')">
+    Shipped
+  </button>
+
+  <button class="secondary" onclick="filterOrders('Delivered')">
+    Delivered
+  </button>
+
+  <button class="secondary" onclick="filterOrders('Cancelled')">
+    Cancelled
+  </button>
+
+</div>
         <table class="adminTable">
           <tr>
             <th>Order</th>
