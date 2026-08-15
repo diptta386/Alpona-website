@@ -443,10 +443,12 @@ window.verifyPayment = async function(id) {
     const { error } = await db
       .from("orders")
       .update({
-        remaining_cod: 0,
-        payment_status: "paid",
-        status: "Confirmed"
-      })
+  cod_received: Number(amount),
+  cod_received_at: new Date().toISOString(),
+  remaining_cod: 0,
+  payment_status: "fully_paid",
+  status: "Delivered"
+})
       .eq("id", id);
 
     if (error) {
