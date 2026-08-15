@@ -194,7 +194,7 @@
           </tr>
 
           ${orders.map(o => `
-            <tr>
+            <tr data-order-status="${o.status}">
               <td>
                 <b>${o.order_number}</b><br>
                 <span class="muted">
