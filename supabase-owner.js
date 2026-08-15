@@ -430,3 +430,4 @@ window.verifyPayment = async function(id) {
   }
 
 };
+})();
