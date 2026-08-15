@@ -503,4 +503,28 @@ window.verifyPayment = async function(id) {
   }
 
 };
+  window.filterOrders = function(status) {
+
+  const rows =
+    document.querySelectorAll(
+      "#tab-orders .adminTable tr[data-order-status]"
+    );
+
+  rows.forEach(row => {
+
+    const rowStatus =
+      row.getAttribute("data-order-status");
+
+    if (
+      status === "all" ||
+      rowStatus === status
+    ) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+
+  });
+
+};
 })();
