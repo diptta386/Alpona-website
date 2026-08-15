@@ -430,4 +430,44 @@ window.verifyPayment = async function(id) {
   }
 
 };
+  window.markCodReceived = async function(id, amount) {
+
+  try {
+
+    if (!confirm(
+      "Confirm COD payment received?\n\nAmount: " + money(amount)
+    )) {
+      return;
+    }
+
+    const { error } = await db
+      .from("orders")
+      .update({
+        remaining_cod: 0,
+        payment_status: "paid",
+        status: "Confirmed"
+      })
+      .eq("id", id);
+
+    if (error) {
+      console.error("COD update error:", error);
+      alert("Could not mark COD as received.");
+      return;
+    }
+
+    alert(
+      "COD payment received successfully.\n\n" +
+      "Amount received: " + money(amount)
+    );
+
+    await renderSupabaseAdmin();
+
+  } catch (error) {
+
+    console.error("COD error:", error);
+    alert("Could not mark COD as received.");
+
+  }
+
+};
 })();
