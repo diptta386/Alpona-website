@@ -55,19 +55,84 @@
   }
 
   async function updateSupabaseOrderStatus(id, status) {
-    const { error } = await db
+
+  try {
+
+    const { data: order, error: orderError } = await db
+      .from("orders")
+      .select(`
+        id,
+        order_number,
+        customer_name,
+        customer_email,
+        status
+      `)
+      .eq("id", id)
+      .single();
+
+    if (orderError) {
+      throw orderError;
+    }
+
+    const { error: updateError } = await db
       .from("orders")
       .update({ status })
       .eq("id", id);
 
-    if (error) {
-      alert("Could not update order.");
-      console.error(error);
-      return;
+    if (updateError) {
+      throw updateError;
+    }
+
+    if (
+      status === "Shipped" &&
+      order.customer_email
+    ) {
+
+      const { error: emailError } =
+        await db.functions.invoke(
+          "send-shipped-email",
+          {
+            body: {
+              customer_email: order.customer_email,
+              customer_name: order.customer_name,
+              order_number: order.order_number
+            }
+          }
+        );
+
+      if (emailError) {
+        console.error(
+          "Shipped email error:",
+          emailError
+        );
+
+        alert(
+          "Order was marked Shipped, but the email could not be sent."
+        );
+      } else {
+        alert(
+          "Order marked Shipped and customer email sent."
+        );
+      }
+
     }
 
     await renderSupabaseAdmin();
+
+  } catch (error) {
+
+    console.error(
+      "Order status update error:",
+      error
+    );
+
+    alert(
+      "Could not update order status."
+    );
+
   }
+
+}
 
   async function loadSupabaseExpenses() {
     const { data, error } = await db
