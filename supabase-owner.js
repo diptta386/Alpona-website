@@ -669,4 +669,119 @@ window.verifyPayment = async function(id) {
   }
 
 };
+window.markCodReceived = async function(id, amount) {
+
+  try {
+
+    if (!confirm(
+      "Confirm COD payment received?\n\nAmount: " + money(amount)
+    )) {
+      return;
+    }
+
+    const { error } = await db
+      .from("orders")
+      .update({
+        cod_received: Number(amount),
+        cod_received_at: new Date().toISOString(),
+        remaining_cod: 0,
+        payment_status: "fully_paid",
+        status: "Delivered"
+      })
+      .eq("id", id);
+
+    if (error) {
+      console.error("COD update error:", error);
+      alert("Could not mark COD as received.");
+      return;
+    }
+
+    const { data: order, error: orderLoadError } = await db
+      .from("orders")
+      .select(`
+        order_number,
+        customer_name,
+        customer_email,
+        cod_received
+      `)
+      .eq("id", id)
+      .single();
+
+    if (orderLoadError) {
+      console.error(
+        "Could not load order for payment email:",
+        orderLoadError
+      );
+    }
+
+    if (order && order.customer_email) {
+
+      const { error: paymentEmailError } =
+        await db.functions.invoke(
+          "send-payment-complete-email",
+          {
+            body: {
+              customer_email: order.customer_email,
+              customer_name: order.customer_name,
+              order_number: order.order_number,
+              cod_received: order.cod_received
+            }
+          }
+        );
+
+      if (paymentEmailError) {
+        console.error(
+          "Payment complete email error:",
+          paymentEmailError
+        );
+
+        alert(
+          "COD was marked as received, but the payment email could not be sent."
+        );
+      }
+    }
+
+    alert(
+      "COD payment received successfully.\n\n" +
+      "Amount received: " + money(amount)
+    );
+
+    await renderSupabaseAdmin();
+
+  } catch (error) {
+
+    console.error("COD error:", error);
+    alert("Could not mark COD as received.");
+
+  }
+
+};
+
+
+window.filterOrders = function(status) {
+
+  const rows =
+    document.querySelectorAll(
+      "#tab-orders .adminTable tr[data-order-status]"
+    );
+
+  rows.forEach(row => {
+
+    const rowStatus =
+      row.getAttribute("data-order-status");
+
+    if (
+      status === "all" ||
+      rowStatus === status
+    ) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+
+  });
+
+};
+
+
 })();
