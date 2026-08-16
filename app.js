@@ -162,33 +162,6 @@ function deleteProduct(id){if(!confirm("Delete this product?"))return;set("alpon
 function openExpenseForm(){document.getElementById("expenseModal").classList.add("show")}
 function saveExpense(e){e.preventDefault();const fd=new FormData(e.target),ex=get("alpona_expenses",[]);ex.unshift({id:Date.now(),date:new Date().toLocaleDateString(),description:fd.get("description"),amount:Number(fd.get("amount"))});set("alpona_expenses",ex);e.target.reset();closeModal("expenseModal");renderAdmin();toast("Expense saved")}
 function deleteExpense(id){set("alpona_expenses",get("alpona_expenses",[]).filter(x=>x.id!==id));renderAdmin()}
-async function subscribeCustomer(e) {
-  e.preventDefault();
 
-  const name = document.getElementById("subscriberName").value.trim();
-  const email = document.getElementById("subscriberEmail").value.trim().toLowerCase();
-
-  if (!email) {
-    toast("Please enter your email.");
-    return;
-  }
-
-  const { error } = await db
-    .from("subscribers")
-    .insert({
-      name: name || null,
-      email: email,
-      subscribed: true
-    });
-
-  if (error) {
-    console.error("Subscriber error:", error);
-    toast("Could not subscribe. Please try again.");
-    return;
-  }
-
-  document.getElementById("subscriberForm").reset();
-  toast("You're subscribed! Thank you.");
-}
 renderProducts();renderCart();
 if(sessionStorage.getItem("alpona_admin")==="yes")openAdmin();
