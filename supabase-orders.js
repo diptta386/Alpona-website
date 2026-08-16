@@ -239,7 +239,25 @@ if (window.posthog) {
   );
 
 }
+// PostHog: track each purchased product
+if (window.posthog) {
 
+  items.forEach(item => {
+
+    window.posthog.capture(
+      "product_purchased",
+      {
+        order_number: orderNumber,
+        product_id: item.product_id,
+        product_name: item.product_name,
+        quantity: Number(item.quantity || 0),
+        price: Number(item.price || 0)
+      }
+    );
+
+  });
+
+}
     cart = [];
 
     set("alpona_cart", cart);
