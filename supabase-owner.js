@@ -804,42 +804,7 @@ window.verifyPayment = async function(id) {
 };
 
     
-      return;
-    }
-
-    const { error } = await db
-      .from("orders")
-      .update({
-        payment_status: "rejected",
-        status: "Cancelled"
-      })
-      .eq("id", id);
-
-    if (error) {
-      throw error;
-    }
-
-    alert(
-      "Payment rejected.\n\nOrder has been cancelled."
-    );
-
-    await renderSupabaseAdmin();
-
-  } catch (error) {
-
-    console.error(
-      "Reject payment error:",
-      error
-    );
-
-    alert(
-      "Could not reject payment."
-    );
-
-  }
-
-};
-window.markCodReceived = async function(id, amount) {
+    window.markCodReceived = async function(id, amount) {
 
   try {
 
