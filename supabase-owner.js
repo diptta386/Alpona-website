@@ -116,8 +116,48 @@
       }
 
     }
+// SEND DELIVERED EMAIL
+    if (
+      status === "Delivered" &&
+      order.customer_email
+    ) {
+
+      const { error: deliveredEmailError } =
+        await db.functions.invoke(
+          "send-delivered-email",
+          {
+            body: {
+              customer_email: order.customer_email,
+              customer_name: order.customer_name,
+              order_number: order.order_number
+            }
+          }
+        );
+
+      if (deliveredEmailError) {
+
+        console.error(
+          "Delivered email error:",
+          deliveredEmailError
+        );
+
+        alert(
+          "Order was marked Delivered, but the delivery email could not be sent."
+        );
+
+      } else {
+
+        alert(
+          "Order marked Delivered and customer email sent."
+        );
+
+      }
+
+    }
+
 
     await renderSupabaseAdmin();
+   
 
   } catch (error) {
 
