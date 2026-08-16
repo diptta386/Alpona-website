@@ -155,7 +155,44 @@
 
     }
 
+// SEND CANCELLED EMAIL
+if (
+  status === "Cancelled" &&
+  order.customer_email
+) {
 
+  const { error: cancelledEmailError } =
+    await db.functions.invoke(
+      "send-cancelled-email",
+      {
+        body: {
+          customer_email: order.customer_email,
+          customer_name: order.customer_name,
+          order_number: order.order_number
+        }
+      }
+    );
+
+  if (cancelledEmailError) {
+
+    console.error(
+      "Cancelled email error:",
+      cancelledEmailError
+    );
+
+    alert(
+      "Order was cancelled, but the cancellation email could not be sent."
+    );
+
+  } else {
+
+    alert(
+      "Order cancelled and customer email sent."
+    );
+
+  }
+
+}
     await renderSupabaseAdmin();
    
 
