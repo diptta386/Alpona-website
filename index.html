@@ -327,5 +327,29 @@ document.addEventListener("click", function(e) {
   }
 });
 </script> 
+  </script>
+
+<section class="newsletter">
+  <h2>Get notified about new arrivals</h2>
+  <p>Join our list and be the first to know when new Alpona products arrive.</p>
+
+  <form id="subscriberForm" onsubmit="subscribeCustomer(event)">
+    <input
+      type="text"
+      id="subscriberName"
+      placeholder="Your name"
+    >
+
+    <input
+      type="email"
+      id="subscriberEmail"
+      placeholder="Your email"
+      required
+    >
+
+    <button type="submit">Notify Me</button>
+  </form>
+</section>
+
 </body>
 </html>
