@@ -224,7 +224,41 @@ window.placeOrder = async function(event) {
 
       throw itemsError;
     }
+// PostHog: track successful order
+if (window.posthog) {
 
+  posthog.capture("order_placed", {
+
+    order_number: orderNumber,
+
+    subtotal: subtotal,
+
+    delivery_fee: deliveryFee,
+
+    total: total,
+
+    payment_option: paymentOption,
+
+    payment_method: advanceMethod,
+
+    delivery_area: area,
+
+    item_count: items.reduce(
+      (sum, item) =>
+        sum + Number(item.quantity || 0),
+      0
+    ),
+
+    products: items.map(item => ({
+      product_id: item.product_id,
+      product_name: item.product_name,
+      quantity: item.quantity,
+      price: item.price
+    }))
+
+  });
+
+}
 
     cart = [];
 
