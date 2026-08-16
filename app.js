@@ -104,7 +104,41 @@ function renderCart(){
 }
 function openCart(){document.getElementById("overlay").classList.add("show");document.getElementById("cartDrawer").classList.add("show")}
 function closeCart(){document.getElementById("overlay").classList.remove("show");document.getElementById("cartDrawer").classList.remove("show")}
-function openCheckout(){if(!cart.length)return toast("Your cart is empty");closeCart();document.getElementById("checkoutModal").classList.add("show")}
+function openCheckout(){if(!cart.length)return toast("Your cart is empty");// PostHog: track checkout started
+if (window.posthog) {
+  const ps = products();
+
+  const checkoutItems = cart.map(item => {
+    const p = ps.find(
+      x => Number(x.id) === Number(item.id)
+    );
+
+    return {
+      product_id: item.id,
+      product_name: p ? p.name : "",
+      quantity: Number(item.qty || 0),
+      price: p ? Number(p.price) : 0
+    };
+  });
+
+  const checkoutTotal = checkoutItems.reduce(
+    (sum, item) =>
+      sum + item.price * item.quantity,
+    0
+  );
+
+  window.posthog.capture("checkout_started", {
+    item_count: checkoutItems.reduce(
+      (sum, item) => sum + item.quantity,
+      0
+    ),
+    cart_subtotal: checkoutTotal,
+    product_names: checkoutItems
+      .map(item => item.product_name)
+      .join(", ")
+  });
+}
+                        closeCart();document.getElementById("checkoutModal").classList.add("show")}
 function placeOrder(e){
  e.preventDefault(); const fd=new FormData(e.target), ps=products();
  const items=cart.map(i=>{const p=ps.find(x=>x.id===i.id);return {id:i.id,name:p.name,qty:i.qty,price:p.price,cost:p.cost}});
