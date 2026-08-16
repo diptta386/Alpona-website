@@ -66,7 +66,16 @@ function addToCart(id) {
   }
 
   set("alpona_cart", cart);
-
+// PostHog: track add to cart
+if (window.posthog) {
+  window.posthog.capture("add_to_cart", {
+    product_id: p.id,
+    product_name: p.name,
+    category: p.category,
+    price: Number(p.price),
+    quantity: 1
+  });
+}
   renderCart();
 }
 
