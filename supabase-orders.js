@@ -228,37 +228,21 @@ window.placeOrder = async function(event) {
 // PostHog: track successful order
 if (window.posthog) {
 
-  console.log("PostHog order_placed fired:", orderNumber);
+  console.log(
+    "POSTHOG ORDER EVENT:",
+    orderNumber
+  );
 
   window.posthog.capture(
     "order_placed",
     {
       order_number: orderNumber,
-      subtotal: Number(subtotal),
-      delivery_fee: Number(deliveryFee),
-      total: Number(total),
-
-      payment_option: paymentOption,
-      payment_method: advanceMethod,
-      delivery_area: area,
-
-      item_count: items.reduce(
-        (sum, item) =>
-          sum + Number(item.quantity || 0),
-        0
-      ),
-
-      product_names: items
-        .map(item => item.product_name)
-        .join(", ")
-    },
-    {
-      transport: "sendBeacon",
-      send_instantly: true
+      total: Number(total)
     }
   );
 
 }
+
     cart = [];
 
     set("alpona_cart", cart);
