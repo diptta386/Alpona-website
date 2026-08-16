@@ -224,8 +224,9 @@ window.placeOrder = async function(event) {
 
       throw itemsError;
     }
+    console.log("REACHED ORDER ANALYTICS BLOCK");
 // PostHog: track successful order
-// PostHog: track successful order
+    
 if (window.posthog) {
 
   console.log(
