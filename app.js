@@ -34,6 +34,15 @@ function renderProducts(){
 }
 function openProduct(id){
  const p=products().find(x=>x.id===id); if(!p)return;
+  // PostHog: track product view
+if (window.posthog) {
+  window.posthog.capture("product_viewed", {
+    product_id: p.id,
+    product_name: p.name,
+    category: p.category,
+    price: Number(p.price)
+  });
+}
  document.getElementById("productDetails").innerHTML=`<div class="productDetailGrid"><img src="${p.image}" alt="${p.name}">
  <div><p class="kicker">${p.category}</p><h2>${p.name}</h2><h3 class="price">${money(p.price)}</h3><p>${p.description}</p><p class="stock">${p.stock} in stock</p>
  <button class="primary full" ${p.stock<1?"disabled":""} onclick="addToCart(${p.id});closeModal('productModal')">Add to cart</button></div></div>`;
