@@ -479,7 +479,7 @@ window.verifyPayment = async function(id) {
 
   try {
 
-    // 1. Get the order details first
+    // 1. Load order + ordered products
     const { data: order, error: orderError } = await db
       .from("orders")
       .select(`
@@ -489,7 +489,13 @@ window.verifyPayment = async function(id) {
         customer_email,
         total,
         remaining_cod,
-        payment_status
+        payment_status,
+        stock_reduced,
+        order_items (
+          product_id,
+          product_name,
+          quantity
+        )
       `)
       .eq("id", id)
       .single();
@@ -498,17 +504,99 @@ window.verifyPayment = async function(id) {
       throw orderError;
     }
 
+
+    // 2. Check customer email
     if (!order.customer_email) {
       alert("This order has no customer email.");
       return;
     }
 
-    // 2. Mark payment verified
+
+    // 3. Reduce stock ONLY if it was not reduced before
+    if (order.stock_reduced !== true) {
+
+      const items = order.order_items || [];
+
+      // First check that enough stock exists
+      for (const item of items) {
+
+        if (!item.product_id) continue;
+
+        const { data: product, error: productError } = await db
+          .from("products")
+          .select("id, name, stock")
+          .eq("id", item.product_id)
+          .single();
+
+        if (productError) {
+          throw productError;
+        }
+
+        const currentStock =
+          Number(product.stock || 0);
+
+        const orderedQty =
+          Number(item.quantity || 0);
+
+        if (currentStock < orderedQty) {
+
+          alert(
+            "Not enough stock for " +
+            (product.name || item.product_name) +
+            ".\n\nAvailable: " +
+            currentStock +
+            "\nOrdered: " +
+            orderedQty
+          );
+
+          return;
+        }
+
+      }
+
+
+      // Now reduce stock
+      for (const item of items) {
+
+        if (!item.product_id) continue;
+
+        const { data: product, error: productError } = await db
+          .from("products")
+          .select("stock")
+          .eq("id", item.product_id)
+          .single();
+
+        if (productError) {
+          throw productError;
+        }
+
+        const newStock =
+          Number(product.stock || 0) -
+          Number(item.quantity || 0);
+
+        const { error: stockError } = await db
+          .from("products")
+          .update({
+            stock: newStock
+          })
+          .eq("id", item.product_id);
+
+        if (stockError) {
+          throw stockError;
+        }
+
+      }
+
+    }
+
+
+    // 4. Verify payment and remember stock was reduced
     const { error: verifyError } = await db
       .from("orders")
       .update({
         payment_status: "verified",
-        status: "Confirmed"
+        status: "Confirmed",
+        stock_reduced: true
       })
       .eq("id", id);
 
@@ -516,7 +604,8 @@ window.verifyPayment = async function(id) {
       throw verifyError;
     }
 
-    // 3. Send confirmation email
+
+    // 5. Send confirmation email
     const { data: emailData, error: emailError } =
       await db.functions.invoke(
         "send-order-confirmation",
@@ -531,26 +620,40 @@ window.verifyPayment = async function(id) {
         }
       );
 
+
     if (emailError) {
-      console.error("Email error:", emailError);
+
+      console.error(
+        "Email error:",
+        emailError
+      );
 
       alert(
-        "Payment was verified, but the confirmation email could not be sent."
+        "Payment verified and stock updated, but the confirmation email could not be sent."
       );
 
       await renderSupabaseAdmin();
       return;
     }
 
-    console.log("Email sent:", emailData);
+
+    console.log(
+      "Email sent:",
+      emailData
+    );
+
 
     alert(
-      "Payment verified.\n\n" +
-      "Order confirmed and confirmation email sent to:\n" +
+      "Payment verified!\n\n" +
+      "Stock updated.\n" +
+      "Order confirmed.\n" +
+      "Confirmation email sent to:\n" +
       order.customer_email
     );
 
+
     await renderSupabaseAdmin();
+
 
   } catch (error) {
 
@@ -560,126 +663,9 @@ window.verifyPayment = async function(id) {
     );
 
     alert(
-      "Could not verify the payment."
+      "Could not verify payment or update stock."
     );
 
   }
 
 };
-  window.markCodReceived = async function(id, amount) {
-
-  try {
-
-    if (!confirm(
-      "Confirm COD payment received?\n\nAmount: " + money(amount)
-    )) {
-      return;
-    }
-
-    const { error } = await db
-      .from("orders")
-      .update({
-  cod_received: Number(amount),
-  cod_received_at: new Date().toISOString(),
-  remaining_cod: 0,
-  payment_status: "fully_paid",
-  status: "Delivered"
-})
-      .eq("id", id);
-
-    if (error) {
-      console.error("COD update error:", error);
-      alert("Could not mark COD as received.");
-      return;
-    }
-// Load the order details for the email
-const { data: order, error: orderLoadError } = await db
-  .from("orders")
-  .select(`
-    order_number,
-    customer_name,
-    customer_email,
-    cod_received
-  `)
-  .eq("id", id)
-  .single();
-
-if (orderLoadError) {
-  console.error(
-    "Could not load order for payment email:",
-    orderLoadError
-  );
-}
-
-// Send payment completed email
-if (
-  order &&
-  order.customer_email
-) {
-
-  const { error: paymentEmailError } =
-    await db.functions.invoke(
-      "send-payment-complete-email",
-      {
-        body: {
-          customer_email: order.customer_email,
-          customer_name: order.customer_name,
-          order_number: order.order_number,
-          cod_received: order.cod_received
-        }
-      }
-    );
-
-  if (paymentEmailError) {
-    console.error(
-      "Payment complete email error:",
-      paymentEmailError
-    );
-
-    alert(
-      "COD was marked as received, but the payment email could not be sent."
-    );
-  }
-
-}
-
-    alert(
-      "COD payment received successfully.\n\n" +
-      "Amount received: " + money(amount)
-    );
-
-    await renderSupabaseAdmin();
-
-  } catch (error) {
-
-    console.error("COD error:", error);
-    alert("Could not mark COD as received.");
-
-  }
-
-};
-  window.filterOrders = function(status) {
-
-  const rows =
-    document.querySelectorAll(
-      "#tab-orders .adminTable tr[data-order-status]"
-    );
-
-  rows.forEach(row => {
-
-    const rowStatus =
-      row.getAttribute("data-order-status");
-
-    if (
-      status === "all" ||
-      rowStatus === status
-    ) {
-      row.style.display = "";
-    } else {
-      row.style.display = "none";
-    }
-
-  });
-
-};
-})();
