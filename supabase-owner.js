@@ -716,6 +716,99 @@ window.verifyPayment = async function(id) {
       return;
     }
 
+
+    // Load order details first
+    const { data: order, error: orderError } = await db
+      .from("orders")
+      .select(`
+        order_number,
+        customer_name,
+        customer_email
+      `)
+      .eq("id", id)
+      .single();
+
+    if (orderError) {
+      throw orderError;
+    }
+
+
+    // Reject payment and cancel order
+    const { error: rejectError } = await db
+      .from("orders")
+      .update({
+        payment_status: "rejected",
+        status: "Cancelled"
+      })
+      .eq("id", id);
+
+    if (rejectError) {
+      throw rejectError;
+    }
+
+
+    // Send cancellation email
+    if (order.customer_email) {
+
+      const { error: cancelledEmailError } =
+        await db.functions.invoke(
+          "send-cancelled-email",
+          {
+            body: {
+              customer_email: order.customer_email,
+              customer_name: order.customer_name,
+              order_number: order.order_number
+            }
+          }
+        );
+
+      if (cancelledEmailError) {
+
+        console.error(
+          "Cancelled email error:",
+          cancelledEmailError
+        );
+
+        alert(
+          "Payment rejected and order cancelled, but the cancellation email could not be sent."
+        );
+
+        await renderSupabaseAdmin();
+        return;
+      }
+
+    }
+
+
+    alert(
+      "Payment rejected.\n\n" +
+      "Order cancelled and customer email sent."
+    );
+
+    await renderSupabaseAdmin();
+
+
+  } catch (error) {
+
+    console.error(
+      "Reject payment error:",
+      error
+    );
+
+    alert(
+      "Could not reject payment."
+    );
+
+  }
+
+};
+
+    if (!confirm(
+      "Reject this customer's payment?"
+    )) {
+      return;
+    }
+
     const { error } = await db
       .from("orders")
       .update({
