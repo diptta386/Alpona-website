@@ -803,9 +803,7 @@ window.verifyPayment = async function(id) {
 
 };
 
-    if (!confirm(
-      "Reject this customer's payment?"
-    )) {
+    
       return;
     }
 
