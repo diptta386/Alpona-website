@@ -543,36 +543,227 @@ if (!email) return;
     oldOpenAdmin();
     renderSupabaseAdmin();
   };
-  window.createPathaoDelivery = async function(id) {
+ window.createPathaoDelivery = async function(id) {
 
   try {
 
+    // ==========================================
+    // LOAD THE REAL ALPONA ORDER FIRST
+    // ==========================================
+
+    const {
+      data: order,
+      error: orderError
+    } = await db
+      .from("orders")
+      .select(`
+        id,
+        order_number,
+        customer_name,
+        phone,
+        address,
+        status,
+        payment_status,
+        remaining_cod,
+        total,
+        pathao_consignment_id,
+        order_items (
+          product_name,
+          quantity
+        )
+      `)
+      .eq("id", id)
+      .single();
+
+
+    if (orderError || !order) {
+
+      console.error(
+        "Could not load order:",
+        orderError
+      );
+
+      alert(
+        "Could not load this Alpona order."
+      );
+
+      return;
+    }
+
+
+    // ==========================================
+    // SAFETY CHECKS
+    // ==========================================
+
+    if (
+      order.payment_status !== "verified"
+    ) {
+
+      alert(
+        "Payment must be verified before creating a Pathao delivery."
+      );
+
+      return;
+    }
+
+
+    if (
+      order.status === "Cancelled"
+    ) {
+
+      alert(
+        "A cancelled order cannot be sent to Pathao."
+      );
+
+      return;
+    }
+
+
+    if (
+      order.pathao_consignment_id
+    ) {
+
+      alert(
+        "This order already has a Pathao delivery.\n\n" +
+        "Consignment ID: " +
+        order.pathao_consignment_id
+      );
+
+      return;
+    }
+
+
+    if (
+      !order.customer_name ||
+      !order.phone ||
+      !order.address
+    ) {
+
+      alert(
+        "Customer name, phone and address are required before creating the Pathao delivery."
+      );
+
+      return;
+    }
+
+
+    // ==========================================
+    // ASK FOR PARCEL WEIGHT
+    // ==========================================
+
     const weightInput = prompt(
-      "Enter total parcel weight in KG.\n\nExample: 0.5 for 500g, 1 for 1kg"
+
+      "Enter TOTAL parcel weight in KG.\n\n" +
+
+      "Examples:\n" +
+      "0.5 = 500 grams\n" +
+      "1 = 1 kg\n" +
+      "1.5 = 1.5 kg"
+
     );
+
 
     if (weightInput === null) {
       return;
     }
 
-    const weight = Number(weightInput);
 
-    if (!weight || weight <= 0 || weight > 10) {
-      alert("Please enter a valid parcel weight.");
+    const weight =
+      Number(weightInput);
+
+
+    if (
+      !Number.isFinite(weight) ||
+      weight <= 0 ||
+      weight > 10
+    ) {
+
+      alert(
+        "Please enter a valid parcel weight between 0 and 10 KG."
+      );
+
       return;
     }
 
+
+    // ==========================================
+    // BUILD PRODUCT SUMMARY
+    // ==========================================
+
+    const products =
+      (order.order_items || [])
+        .map(
+          item =>
+            item.product_name +
+            " × " +
+            Number(item.quantity || 0)
+        )
+        .join("\n");
+
+
+    // ==========================================
+    // FINAL LIVE DELIVERY CONFIRMATION
+    // ==========================================
+
     const confirmed = confirm(
-      "Create a REAL Pathao delivery?\n\n" +
-      "Parcel weight: " + weight + " kg\n\n" +
-      "Pathao may schedule this parcel for pickup."
+
+      "CREATE REAL PATHAO DELIVERY?\n\n" +
+
+      "Order: " +
+      order.order_number +
+      "\n\n" +
+
+      "Customer: " +
+      order.customer_name +
+      "\n" +
+
+      "Phone: " +
+      order.phone +
+      "\n\n" +
+
+      "Address:\n" +
+      order.address +
+      "\n\n" +
+
+      "Products:\n" +
+      (products || "Alpona order") +
+      "\n\n" +
+
+      "Parcel Weight: " +
+      weight +
+      " KG\n\n" +
+
+      "Remaining COD: " +
+      money(
+        Number(order.remaining_cod || 0)
+      ) +
+      "\n\n" +
+
+      "Total Order: " +
+      money(
+        Number(order.total || 0)
+      ) +
+      "\n\n" +
+
+      "IMPORTANT:\n" +
+      "Press OK only if this parcel is packed and ready for Pathao pickup."
+
     );
+
 
     if (!confirmed) {
       return;
     }
 
-    const { data, error } =
+
+    // ==========================================
+    // CREATE PATHAO DELIVERY
+    // ==========================================
+
+    const {
+      data,
+      error
+    } =
       await db.functions.invoke(
         "pathao-create-order",
         {
@@ -583,12 +774,14 @@ if (!email) return;
         }
       );
 
+
     if (error) {
 
       console.error(
         "Pathao function error:",
         error
       );
+
 
       alert(
         "Could not create Pathao delivery.\n\n" +
@@ -598,12 +791,17 @@ if (!email) return;
       return;
     }
 
-    if (!data || data.success !== true) {
+
+    if (
+      !data ||
+      data.success !== true
+    ) {
 
       console.error(
         "Pathao response:",
         data
       );
+
 
       alert(
         data?.error ||
@@ -613,17 +811,40 @@ if (!email) return;
       return;
     }
 
+
+    // ==========================================
+    // SUCCESS
+    // ==========================================
+
     alert(
-      "Pathao delivery created successfully!\n\n" +
+
+      "PATHAO DELIVERY CREATED SUCCESSFULLY!\n\n" +
+
+      "Order: " +
+      order.order_number +
+      "\n\n" +
+
       "Consignment ID: " +
       (data.consignment_id || "N/A") +
-      "\nStatus: " +
+      "\n" +
+
+      "Pathao Status: " +
       (data.status || "Pending") +
-      "\nPathao Delivery Fee: ৳" +
-      Number(data.delivery_fee || 0)
+      "\n" +
+
+      "Pathao Delivery Fee: ৳" +
+      Number(
+        data.delivery_fee || 0
+      ) +
+      "\n\n" +
+
+      "The Pathao delivery has now been created."
+
     );
 
+
     await renderSupabaseAdmin();
+
 
   } catch (error) {
 
@@ -632,14 +853,14 @@ if (!email) return;
       error
     );
 
+
     alert(
       "Could not create Pathao delivery."
     );
 
   }
 
-};
-window.verifyPayment = async function(id) {
+};window.verifyPayment = async function(id) {
 
   try {
 
