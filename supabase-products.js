@@ -23,6 +23,7 @@
       price: Number(p.price || 0),
       cost: Number(p.cost || 0),
       stock: Number(p.stock || 0),
+      weight_kg: Number(p.weight_kg || 0.5),
 
       // Your old website expects "image"
       image: p.image_url || "assets/logo.jpeg",
@@ -638,7 +639,13 @@
             Number(
               fd.get("stock")
             ),
-
+weight_kg:
+  Math.max(
+    0.5,
+    Number(
+      fd.get("weight_kg") || 0.5
+    )
+  ),
           image_url:
             imageUrl ||
             "assets/logo.jpeg",
