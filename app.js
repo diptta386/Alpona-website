@@ -154,7 +154,22 @@ function renderAdmin(){
 function updateOrder(id,status){const os=get("alpona_orders",[]);const o=os.find(x=>x.id===id);if(o)o.status=status;set("alpona_orders",os);renderAdmin();toast("Order updated")}
 function openProductForm(id){
  const f=document.getElementById("productForm");f.reset();f.elements.id.value="";
- if(id){const p=products().find(x=>x.id===id);for(const k of ["id","name","category","price","cost","stock","image","description"])f.elements[k].value=p[k];document.getElementById("productFormTitle").textContent="Edit Product"}else document.getElementById("productFormTitle").textContent="Add Product";
+ if(id){const p=products().find(x=>x.id===id);for (const k of [
+  "id",
+  "name",
+  "category",
+  "price",
+  "cost",
+  "stock",
+  "weight_kg",
+  "image",
+  "description"
+]) {
+  if (f.elements[k]) {
+    f.elements[k].value =
+      p[k] ?? (k === "weight_kg" ? 0.5 : "");
+  }
+}document.getElementById("productFormTitle").textContent="Edit Product"}else document.getElementById("productFormTitle").textContent="Add Product";
  document.getElementById("productFormModal").classList.add("show")
 }
 function saveProduct(e){e.preventDefault();const f=e.target,fd=new FormData(f),ps=products(),id=Number(fd.get("id"))||Date.now();const p={id,name:fd.get("name"),category:fd.get("category"),price:Number(fd.get("price")),cost:Number(fd.get("cost")),stock:Number(fd.get("stock")),image:fd.get("image"),description:fd.get("description")};const ix=ps.findIndex(x=>x.id===id);if(ix>=0)ps[ix]=p;else ps.push(p);set("alpona_products",ps);closeModal("productFormModal");renderProducts();renderAdmin();toast("Product saved")}
