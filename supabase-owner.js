@@ -410,6 +410,37 @@ ${(
     Mark COD Received
   </button>
 ` : ""}
+${(
+  o.payment_status === "verified" &&
+  !o.pathao_consignment_id
+) ? `
+  <br><br>
+
+  <button
+    class="primary"
+    onclick="createPathaoDelivery(${o.id})"
+  >
+    Create Pathao Delivery
+  </button>
+` : ""}
+
+${o.pathao_consignment_id ? `
+  <br><br>
+
+  <b>Courier:</b> Pathao
+  <br>
+
+  <b>Consignment:</b>
+  ${o.pathao_consignment_id}
+  <br>
+
+  <b>Pathao Status:</b>
+  ${o.pathao_status || "Pending"}
+  <br>
+
+  <b>Pathao Fee:</b>
+  ৳${Number(o.pathao_delivery_fee || 0)}
+` : ""}
 </td>
 
               <td>
