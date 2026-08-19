@@ -512,6 +512,102 @@ if (!email) return;
     oldOpenAdmin();
     renderSupabaseAdmin();
   };
+  window.createPathaoDelivery = async function(id) {
+
+  try {
+
+    const weightInput = prompt(
+      "Enter total parcel weight in KG.\n\nExample: 0.5 for 500g, 1 for 1kg"
+    );
+
+    if (weightInput === null) {
+      return;
+    }
+
+    const weight = Number(weightInput);
+
+    if (!weight || weight <= 0 || weight > 10) {
+      alert("Please enter a valid parcel weight.");
+      return;
+    }
+
+    const confirmed = confirm(
+      "Create a REAL Pathao delivery?\n\n" +
+      "Parcel weight: " + weight + " kg\n\n" +
+      "Pathao may schedule this parcel for pickup."
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    const { data, error } =
+      await db.functions.invoke(
+        "pathao-create-order",
+        {
+          body: {
+            order_id: id,
+            item_weight: weight
+          }
+        }
+      );
+
+    if (error) {
+
+      console.error(
+        "Pathao function error:",
+        error
+      );
+
+      alert(
+        "Could not create Pathao delivery.\n\n" +
+        (error.message || "Unknown error")
+      );
+
+      return;
+    }
+
+    if (!data || data.success !== true) {
+
+      console.error(
+        "Pathao response:",
+        data
+      );
+
+      alert(
+        data?.error ||
+        "Pathao delivery could not be created."
+      );
+
+      return;
+    }
+
+    alert(
+      "Pathao delivery created successfully!\n\n" +
+      "Consignment ID: " +
+      (data.consignment_id || "N/A") +
+      "\nStatus: " +
+      (data.status || "Pending") +
+      "\nPathao Delivery Fee: ৳" +
+      Number(data.delivery_fee || 0)
+    );
+
+    await renderSupabaseAdmin();
+
+  } catch (error) {
+
+    console.error(
+      "Create Pathao delivery error:",
+      error
+    );
+
+    alert(
+      "Could not create Pathao delivery."
+    );
+
+  }
+
+};
 window.verifyPayment = async function(id) {
 
   try {
