@@ -361,65 +361,697 @@ Transaction ID
   }
 </script>
  <script>
-function updatePaymentAmounts() {
 
-  const area = document.querySelector('[name="area"]');
-  const option = document.querySelector('[name="payment_option"]');
+let currentPathaoDeliveryFee = 0;
+let currentPathaoWeight = 0;
 
-  const totalEl = document.getElementById("paymentTotal");
-  const nowEl = document.getElementById("paymentNow");
-  const codEl = document.getElementById("paymentCod");
 
-  if (!area || !option || !totalEl || !nowEl || !codEl) return;
+// ==========================================
+// CALCULATE TOTAL CART WEIGHT
+// ==========================================
+
+function getCartWeight() {
 
   const ps = products();
 
-  const subtotal = cart.reduce((sum, item) => {
-    const p = ps.find(x => Number(x.id) === Number(item.id));
-    if (!p) return sum;
-    return sum + Number(p.price) * Number(item.qty);
-  }, 0);
+  let totalWeight = 0;
 
-  const deliveryFee =
-    area.value === "Inside Dhaka" ? 80 : 140;
+  cart.forEach(item => {
 
-  const total = subtotal + deliveryFee;
+    const product =
+      ps.find(
+        p =>
+          Number(p.id) ===
+          Number(item.id)
+      );
 
-  let payNow = 0;
-  let remainingCod = 0;
+    if (!product) return;
 
-  if (option.value === "full_payment") {
-    payNow = total;
-    remainingCod = 0;
-  } else if (option.value === "delivery_only") {
-    payNow = deliveryFee;
-    remainingCod = subtotal;
+    const productWeight =
+      Number(
+        product.weight_kg || 0.5
+      );
+
+    const quantity =
+      Number(item.qty || 1);
+
+    totalWeight +=
+      productWeight * quantity;
+
+  });
+
+
+  // Pathao minimum = 0.5 KG
+
+  if (totalWeight < 0.5) {
+    totalWeight = 0.5;
   }
 
-  totalEl.textContent = money(total);
-  nowEl.textContent = money(payNow);
-  codEl.textContent = money(remainingCod);
+
+  currentPathaoWeight =
+    Number(
+      totalWeight.toFixed(2)
+    );
+
+
+  return currentPathaoWeight;
 }
 
-document.addEventListener("change", function(e) {
+
+// ==========================================
+// CALL PATHAO LOCATION / PRICE FUNCTION
+// ==========================================
+
+async function callPathaoLocationPrice(body) {
+
+  const {
+    data,
+    error
+  } =
+    await db.functions.invoke(
+      "pathao-location-price",
+      {
+        body
+      }
+    );
+
+
+  if (error) {
+
+    console.error(
+      "Pathao location/price error:",
+      error
+    );
+
+    throw error;
+
+  }
+
+
   if (
-    e.target.name === "area" ||
-    e.target.name === "payment_option"
+    !data ||
+    data.success !== true
   ) {
+
+    console.error(
+      "Pathao response:",
+      data
+    );
+
+    throw new Error(
+      data?.error ||
+      "Pathao request failed"
+    );
+
+  }
+
+
+  return data;
+}
+
+
+// ==========================================
+// LOAD CITIES
+// ==========================================
+
+async function loadPathaoCities() {
+
+  const citySelect =
+    document.getElementById(
+      "pathaoCity"
+    );
+
+
+  if (!citySelect) return;
+
+
+  citySelect.innerHTML =
+    `<option value="">Loading cities...</option>`;
+
+
+  try {
+
+    const data =
+      await callPathaoLocationPrice({
+        action: "cities"
+      });
+
+
+    const cities =
+      data.cities || [];
+
+
+    citySelect.innerHTML =
+      `<option value="">Select City</option>` +
+      cities.map(city => `
+
+        <option
+          value="${city.city_id}"
+          data-name="${city.city_name}"
+        >
+          ${city.city_name}
+        </option>
+
+      `).join("");
+
+
+  } catch (error) {
+
+    citySelect.innerHTML =
+      `<option value="">Could not load cities</option>`;
+
+  }
+
+}
+
+
+// ==========================================
+// LOAD ZONES
+// ==========================================
+
+async function loadPathaoZones(cityId) {
+
+  const zoneSelect =
+    document.getElementById(
+      "pathaoZone"
+    );
+
+  const areaSelect =
+    document.getElementById(
+      "pathaoArea"
+    );
+
+
+  if (
+    !zoneSelect ||
+    !areaSelect
+  ) return;
+
+
+  zoneSelect.disabled = true;
+
+  areaSelect.disabled = true;
+
+
+  zoneSelect.innerHTML =
+    `<option value="">Loading zones...</option>`;
+
+
+  areaSelect.innerHTML =
+    `<option value="">Select Area</option>`;
+
+
+  currentPathaoDeliveryFee = 0;
+
+  updatePaymentAmounts();
+
+
+  try {
+
+    const data =
+      await callPathaoLocationPrice({
+        action: "zones",
+        city_id: Number(cityId)
+      });
+
+
+    const zones =
+      data.zones || [];
+
+
+    zoneSelect.innerHTML =
+      `<option value="">Select Zone</option>` +
+      zones.map(zone => `
+
+        <option
+          value="${zone.zone_id}"
+          data-name="${zone.zone_name}"
+        >
+          ${zone.zone_name}
+        </option>
+
+      `).join("");
+
+
+    zoneSelect.disabled = false;
+
+
+  } catch (error) {
+
+    zoneSelect.innerHTML =
+      `<option value="">Could not load zones</option>`;
+
+  }
+
+}
+
+
+// ==========================================
+// LOAD AREAS
+// ==========================================
+
+async function loadPathaoAreas(zoneId) {
+
+  const areaSelect =
+    document.getElementById(
+      "pathaoArea"
+    );
+
+
+  if (!areaSelect) return;
+
+
+  areaSelect.disabled = true;
+
+
+  areaSelect.innerHTML =
+    `<option value="">Loading areas...</option>`;
+
+
+  currentPathaoDeliveryFee = 0;
+
+  updatePaymentAmounts();
+
+
+  try {
+
+    const data =
+      await callPathaoLocationPrice({
+        action: "areas",
+        zone_id: Number(zoneId)
+      });
+
+
+    const areas =
+      data.areas || [];
+
+
+    areaSelect.innerHTML =
+      `<option value="">Select Area</option>` +
+      areas.map(area => `
+
+        <option
+          value="${area.area_id}"
+          data-name="${area.area_name}"
+        >
+          ${area.area_name}
+        </option>
+
+      `).join("");
+
+
+    areaSelect.disabled = false;
+
+
+  } catch (error) {
+
+    areaSelect.innerHTML =
+      `<option value="">Could not load areas</option>`;
+
+  }
+
+}
+
+
+// ==========================================
+// CALCULATE PATHAO DELIVERY FEE
+// ==========================================
+
+async function calculatePathaoDeliveryFee() {
+
+  const city =
+    document.getElementById(
+      "pathaoCity"
+    );
+
+  const zone =
+    document.getElementById(
+      "pathaoZone"
+    );
+
+  const area =
+    document.getElementById(
+      "pathaoArea"
+    );
+
+
+  if (
+    !city?.value ||
+    !zone?.value ||
+    !area?.value
+  ) {
+
+    currentPathaoDeliveryFee = 0;
+
     updatePaymentAmounts();
-  }
-});
 
-document.addEventListener("click", function(e) {
+    return;
+
+  }
+
+
+  const weight =
+    getCartWeight();
+
+
+  if (weight > 10) {
+
+    alert(
+      "This order weighs more than 10 KG.\n\nPlease contact Alpona for delivery."
+    );
+
+    currentPathaoDeliveryFee = 0;
+
+    updatePaymentAmounts();
+
+    return;
+
+  }
+
+
+  try {
+
+    const data =
+      await callPathaoLocationPrice({
+
+        action: "price",
+
+        city_id:
+          Number(city.value),
+
+        zone_id:
+          Number(zone.value),
+
+        item_weight:
+          weight
+
+      });
+
+
+    currentPathaoDeliveryFee =
+      Number(
+        data.final_price || 0
+      );
+
+
+    updatePaymentAmounts();
+
+
+  } catch (error) {
+
+    currentPathaoDeliveryFee = 0;
+
+    updatePaymentAmounts();
+
+    alert(
+      "Could not calculate Pathao delivery fee."
+    );
+
+  }
+
+}
+
+
+// ==========================================
+// UPDATE PAYMENT TOTALS
+// ==========================================
+
+function updatePaymentAmounts() {
+
+  const option =
+    document.querySelector(
+      '[name="payment_option"]'
+    );
+
+
+  const totalEl =
+    document.getElementById(
+      "paymentTotal"
+    );
+
+  const nowEl =
+    document.getElementById(
+      "paymentNow"
+    );
+
+  const codEl =
+    document.getElementById(
+      "paymentCod"
+    );
+
+
   if (
-    e.target.closest &&
-    e.target.closest('[onclick*="openCheckout"]')
-  ) {
-    setTimeout(updatePaymentAmounts, 100);
-  }
-});
-</script> 
+    !option ||
+    !totalEl ||
+    !nowEl ||
+    !codEl
+  ) return;
 
+
+  const ps =
+    products();
+
+
+  const subtotal =
+    cart.reduce(
+      (sum, item) => {
+
+        const product =
+          ps.find(
+            p =>
+              Number(p.id) ===
+              Number(item.id)
+          );
+
+
+        if (!product) {
+          return sum;
+        }
+
+
+        return (
+          sum +
+          Number(product.price) *
+          Number(item.qty)
+        );
+
+      },
+      0
+    );
+
+
+  const deliveryFee =
+    Number(
+      currentPathaoDeliveryFee || 0
+    );
+
+
+  const total =
+    subtotal + deliveryFee;
+
+
+  let payNow = 0;
+
+  let remainingCod = 0;
+
+
+  if (
+    option.value ===
+    "full_payment"
+  ) {
+
+    payNow =
+      total;
+
+    remainingCod =
+      0;
+
+  } else if (
+    option.value ===
+    "delivery_only"
+  ) {
+
+    payNow =
+      deliveryFee;
+
+    remainingCod =
+      subtotal;
+
+  }
+
+
+  totalEl.textContent =
+    money(total);
+
+  nowEl.textContent =
+    money(payNow);
+
+  codEl.textContent =
+    money(remainingCod);
+
+}
+
+
+// ==========================================
+// CITY CHANGE
+// ==========================================
+
+document.addEventListener(
+  "change",
+  async function(e) {
+
+    if (
+      e.target.id ===
+      "pathaoCity"
+    ) {
+
+      const selected =
+        e.target.options[
+          e.target.selectedIndex
+        ];
+
+
+      document.getElementById(
+        "pathaoCityName"
+      ).value =
+        selected?.dataset?.name || "";
+
+
+      document.getElementById(
+        "pathaoZoneName"
+      ).value = "";
+
+
+      document.getElementById(
+        "pathaoAreaName"
+      ).value = "";
+
+
+      if (e.target.value) {
+
+        await loadPathaoZones(
+          e.target.value
+        );
+
+      }
+
+    }
+
+
+    // ======================================
+    // ZONE CHANGE
+    // ======================================
+
+    if (
+      e.target.id ===
+      "pathaoZone"
+    ) {
+
+      const selected =
+        e.target.options[
+          e.target.selectedIndex
+        ];
+
+
+      document.getElementById(
+        "pathaoZoneName"
+      ).value =
+        selected?.dataset?.name || "";
+
+
+      document.getElementById(
+        "pathaoAreaName"
+      ).value = "";
+
+
+      if (e.target.value) {
+
+        await loadPathaoAreas(
+          e.target.value
+        );
+
+      }
+
+    }
+
+
+    // ======================================
+    // AREA CHANGE
+    // ======================================
+
+    if (
+      e.target.id ===
+      "pathaoArea"
+    ) {
+
+      const selected =
+        e.target.options[
+          e.target.selectedIndex
+        ];
+
+
+      document.getElementById(
+        "pathaoAreaName"
+      ).value =
+        selected?.dataset?.name || "";
+
+
+      await calculatePathaoDeliveryFee();
+
+    }
+
+
+    // ======================================
+    // PAYMENT OPTION CHANGE
+    // ======================================
+
+    if (
+      e.target.name ===
+      "payment_option"
+    ) {
+
+      updatePaymentAmounts();
+
+    }
+
+  }
+);
+
+
+// ==========================================
+// WHEN CHECKOUT OPENS
+// ==========================================
+
+document.addEventListener(
+  "click",
+  function(e) {
+
+    if (
+      e.target.closest &&
+      e.target.closest(
+        '[onclick*="openCheckout"]'
+      )
+    ) {
+
+      setTimeout(
+        async function() {
+
+          currentPathaoDeliveryFee = 0;
+
+          updatePaymentAmounts();
+
+          await loadPathaoCities();
+
+        },
+        100
+      );
+
+    }
+
+  }
+);
+
+</script>
 
 </body>
 </html>
