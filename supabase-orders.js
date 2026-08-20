@@ -89,14 +89,38 @@ const pathaoZoneId =
 const pathaoAreaId =
   Number(fd.get("pathao_area_id"));
 
+const citySelect =
+  document.getElementById("pathaoCity");
+
+const zoneSelect =
+  document.getElementById("pathaoZone");
+
+const areaSelect =
+  document.getElementById("pathaoArea");
+
+
 const pathaoCityName =
-  fd.get("pathao_city_name");
+  fd.get("pathao_city_name") ||
+  citySelect?.options[
+    citySelect.selectedIndex
+  ]?.text ||
+  "";
+
 
 const pathaoZoneName =
-  fd.get("pathao_zone_name");
+  fd.get("pathao_zone_name") ||
+  zoneSelect?.options[
+    zoneSelect.selectedIndex
+  ]?.text ||
+  "";
+
 
 const pathaoAreaName =
-  fd.get("pathao_area_name");
+  fd.get("pathao_area_name") ||
+  areaSelect?.options[
+    areaSelect.selectedIndex
+  ]?.text ||
+  "";
 
 
 if (
