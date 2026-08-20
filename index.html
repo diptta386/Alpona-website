@@ -90,8 +90,65 @@ Email Address
   placeholder="Enter your email address">
 </label> 
 <label>Delivery Address<textarea name="address" required></textarea></label>
-<label>Delivery Area<select name="area"><option>Inside Dhaka</option><option>Outside Dhaka</option></select></label>
 <label>
+  City
+  <select
+    name="pathao_city_id"
+    id="pathaoCity"
+    required
+  >
+    <option value="">
+      Select City
+    </option>
+  </select>
+</label>
+
+<label>
+  Zone
+  <select
+    name="pathao_zone_id"
+    id="pathaoZone"
+    required
+    disabled
+  >
+    <option value="">
+      Select Zone
+    </option>
+  </select>
+</label>
+
+<label>
+  Area
+  <select
+    name="pathao_area_id"
+    id="pathaoArea"
+    required
+    disabled
+  >
+    <option value="">
+      Select Area
+    </option>
+  </select>
+</label>
+
+<input
+  type="hidden"
+  name="pathao_city_name"
+  id="pathaoCityName"
+>
+
+<input
+  type="hidden"
+  name="pathao_zone_name"
+  id="pathaoZoneName"
+>
+
+<input
+  type="hidden"
+  name="pathao_area_name"
+  id="pathaoAreaName"
+>
+  <label>
 Payment Option
 <select name="payment_option" id="paymentOption" required>
   <option value="">Select payment option</option>
