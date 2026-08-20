@@ -80,12 +80,47 @@ window.placeOrder = async function(event) {
     );
 
 
-    const area = fd.get("area");
+    const pathaoCityId =
+  Number(fd.get("pathao_city_id"));
 
-    const deliveryFee =
-      area === "Inside Dhaka"
-        ? 80
-        : 140;
+const pathaoZoneId =
+  Number(fd.get("pathao_zone_id"));
+
+const pathaoAreaId =
+  Number(fd.get("pathao_area_id"));
+
+const pathaoCityName =
+  fd.get("pathao_city_name");
+
+const pathaoZoneName =
+  fd.get("pathao_zone_name");
+
+const pathaoAreaName =
+  fd.get("pathao_area_name");
+
+
+if (
+  !pathaoCityId ||
+  !pathaoZoneId ||
+  !pathaoAreaId
+) {
+  alert(
+    "Please select your City, Zone and Area."
+  );
+  return;
+}
+
+
+const deliveryFee =
+  Number(currentPathaoDeliveryFee || 0);
+
+
+if (deliveryFee <= 0) {
+  alert(
+    "Delivery fee could not be calculated.\n\nPlease select City, Zone and Area again."
+  );
+  return;
+}
 
 
     const total =
@@ -134,7 +169,25 @@ window.placeOrder = async function(event) {
         fd.get("address"),
 
       area:
-        area,
+  pathaoAreaName,
+
+pathao_city_id:
+  pathaoCityId,
+
+pathao_city_name:
+  pathaoCityName,
+
+pathao_zone_id:
+  pathaoZoneId,
+
+pathao_zone_name:
+  pathaoZoneName,
+
+pathao_area_id:
+  pathaoAreaId,
+
+pathao_area_name:
+  pathaoAreaName,
 
       payment_method:
         advanceMethod,
