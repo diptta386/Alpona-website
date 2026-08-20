@@ -548,7 +548,7 @@ if (!email) return;
   try {
 
     // ==========================================
-    // LOAD THE REAL ALPONA ORDER FIRST
+    // LOAD THE REAL ALPONA ORDER
     // ==========================================
 
     const {
@@ -566,6 +566,9 @@ if (!email) return;
         payment_status,
         remaining_cod,
         total,
+        pathao_city_name,
+        pathao_zone_name,
+        pathao_area_name,
         pathao_consignment_id,
         order_items (
           product_name,
@@ -596,7 +599,8 @@ if (!email) return;
     // ==========================================
 
     if (
-      order.payment_status !== "verified"
+      order.payment_status !== "verified" &&
+      order.payment_status !== "fully_paid"
     ) {
 
       alert(
@@ -607,9 +611,7 @@ if (!email) return;
     }
 
 
-    if (
-      order.status === "Cancelled"
-    ) {
+    if (order.status === "Cancelled") {
 
       alert(
         "A cancelled order cannot be sent to Pathao."
@@ -619,9 +621,7 @@ if (!email) return;
     }
 
 
-    if (
-      order.pathao_consignment_id
-    ) {
+    if (order.pathao_consignment_id) {
 
       alert(
         "This order already has a Pathao delivery.\n\n" +
@@ -640,7 +640,7 @@ if (!email) return;
     ) {
 
       alert(
-        "Customer name, phone and address are required before creating the Pathao delivery."
+        "Customer name, phone and address are required."
       );
 
       return;
@@ -648,49 +648,10 @@ if (!email) return;
 
 
     // ==========================================
-    // ASK FOR PARCEL WEIGHT
+    // PRODUCT SUMMARY
     // ==========================================
 
-    const weightInput = prompt(
-
-      "Enter TOTAL parcel weight in KG.\n\n" +
-
-      "Examples:\n" +
-      "0.5 = 500 grams\n" +
-      "1 = 1 kg\n" +
-      "1.5 = 1.5 kg"
-
-    );
-
-
-    if (weightInput === null) {
-      return;
-    }
-
-
-    const weight =
-      Number(weightInput);
-
-
-    if (
-      !Number.isFinite(weight) ||
-      weight <= 0 ||
-      weight > 10
-    ) {
-
-      alert(
-        "Please enter a valid parcel weight between 0 and 10 KG."
-      );
-
-      return;
-    }
-
-
-    // ==========================================
-    // BUILD PRODUCT SUMMARY
-    // ==========================================
-
-    const products =
+    const productsSummary =
       (order.order_items || [])
         .map(
           item =>
@@ -702,7 +663,7 @@ if (!email) return;
 
 
     // ==========================================
-    // FINAL LIVE DELIVERY CONFIRMATION
+    // FINAL LIVE PATHAO CONFIRMATION
     // ==========================================
 
     const confirmed = confirm(
@@ -725,13 +686,21 @@ if (!email) return;
       order.address +
       "\n\n" +
 
-      "Products:\n" +
-      (products || "Alpona order") +
+      "City: " +
+      (order.pathao_city_name || "N/A") +
+      "\n" +
+
+      "Zone: " +
+      (order.pathao_zone_name || "N/A") +
+      "\n" +
+
+      "Area: " +
+      (order.pathao_area_name || "N/A") +
       "\n\n" +
 
-      "Parcel Weight: " +
-      weight +
-      " KG\n\n" +
+      "Products:\n" +
+      (productsSummary || "Alpona order") +
+      "\n\n" +
 
       "Remaining COD: " +
       money(
@@ -745,6 +714,8 @@ if (!email) return;
       ) +
       "\n\n" +
 
+      "Parcel weight will be calculated automatically from the products.\n\n" +
+
       "IMPORTANT:\n" +
       "Press OK only if this parcel is packed and ready for Pathao pickup."
 
@@ -757,22 +728,20 @@ if (!email) return;
 
 
     // ==========================================
-    // CREATE PATHAO DELIVERY
+    // CREATE REAL PATHAO DELIVERY
     // ==========================================
 
     const {
       data,
       error
-    } =
-      await db.functions.invoke(
-        "pathao-create-order",
-        {
-          body: {
-            order_id: id,
-            item_weight: weight
-          }
+    } = await db.functions.invoke(
+      "pathao-create-order",
+      {
+        body: {
+          order_id: id
         }
-      );
+      }
+    );
 
 
     if (error) {
@@ -781,7 +750,6 @@ if (!email) return;
         "Pathao function error:",
         error
       );
-
 
       alert(
         "Could not create Pathao delivery.\n\n" +
@@ -801,7 +769,6 @@ if (!email) return;
         "Pathao response:",
         data
       );
-
 
       alert(
         data?.error ||
@@ -833,12 +800,15 @@ if (!email) return;
       "\n" +
 
       "Pathao Delivery Fee: ৳" +
-      Number(
-        data.delivery_fee || 0
-      ) +
-      "\n\n" +
+      Number(data.delivery_fee || 0) +
+      "\n" +
 
-      "The Pathao delivery has now been created."
+      "Parcel Weight: " +
+      Number(data.item_weight || 0) +
+      " KG\n\n" +
+
+      "COD to Collect: ৳" +
+      Number(data.amount_to_collect || 0)
 
     );
 
@@ -853,14 +823,13 @@ if (!email) return;
       error
     );
 
-
     alert(
       "Could not create Pathao delivery."
     );
 
   }
 
-};window.verifyPayment = async function(id) {
+};
 
   try {
 
