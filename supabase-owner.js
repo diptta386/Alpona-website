@@ -830,7 +830,8 @@ if (!email) return;
   }
 
 };
-
+  
+window.verifyPayment = async function(id) {
   try {
 
     // 1. Load order + ordered products
