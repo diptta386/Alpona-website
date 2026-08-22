@@ -363,8 +363,8 @@ Transaction ID
  <script>
 
 let currentPathaoDeliveryFee = 0;
+let currentPathaoCodPercentage = 0;
 let currentPathaoWeight = 0;
-
 
 // ==========================================
 // CALCULATE TOTAL CART WEIGHT
@@ -752,7 +752,10 @@ async function calculatePathaoDeliveryFee() {
       Number(
         data.final_price || 0
       );
-
+currentPathaoCodPercentage =
+  Number(
+    data.cod_percentage || 0
+  );
 
     updatePaymentAmounts();
 
@@ -775,14 +778,12 @@ async function calculatePathaoDeliveryFee() {
 // ==========================================
 // UPDATE PAYMENT TOTALS
 // ==========================================
-
 function updatePaymentAmounts() {
 
   const option =
     document.querySelector(
       '[name="payment_option"]'
     );
-
 
   const totalEl =
     document.getElementById(
@@ -823,11 +824,9 @@ function updatePaymentAmounts() {
               Number(item.id)
           );
 
-
         if (!product) {
           return sum;
         }
-
 
         return (
           sum +
@@ -840,42 +839,74 @@ function updatePaymentAmounts() {
     );
 
 
-  const deliveryFee =
+  const baseDeliveryFee =
     Number(
       currentPathaoDeliveryFee || 0
     );
 
 
-  const total =
-    subtotal + deliveryFee;
+  const codPercentage =
+    Number(
+      currentPathaoCodPercentage || 0
+    );
 
+
+  let codFee = 0;
+
+  let deliveryCharge =
+    baseDeliveryFee;
+
+  let total =
+    subtotal + baseDeliveryFee;
 
   let payNow = 0;
 
   let remainingCod = 0;
 
 
+  // Customer pays product price as COD
+  if (
+    option.value ===
+    "delivery_only"
+  ) {
+
+    codFee =
+      subtotal * codPercentage;
+
+    deliveryCharge =
+      baseDeliveryFee + codFee;
+
+    total =
+      subtotal + deliveryCharge;
+
+    payNow =
+      deliveryCharge;
+
+    remainingCod =
+      subtotal;
+
+  }
+
+
+  // Customer pays everything now
   if (
     option.value ===
     "full_payment"
   ) {
+
+    codFee = 0;
+
+    deliveryCharge =
+      baseDeliveryFee;
+
+    total =
+      subtotal + baseDeliveryFee;
 
     payNow =
       total;
 
     remainingCod =
       0;
-
-  } else if (
-    option.value ===
-    "delivery_only"
-  ) {
-
-    payNow =
-      deliveryFee;
-
-    remainingCod =
-      subtotal;
 
   }
 
