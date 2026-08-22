@@ -870,20 +870,22 @@ function updatePaymentAmounts() {
     "delivery_only"
   ) {
 
-    codFee =
-      subtotal * codPercentage;
+  codFee =
+  subtotal * codPercentage;
 
-    deliveryCharge =
-      baseDeliveryFee + codFee;
+deliveryCharge =
+  Math.ceil(
+    baseDeliveryFee + codFee
+  );
 
-    total =
-      subtotal + deliveryCharge;
+total =
+  subtotal + deliveryCharge;
 
-    payNow =
-      deliveryCharge;
+payNow =
+  deliveryCharge;
 
-    remainingCod =
-      subtotal;
+remainingCod =
+  subtotal; 
 
   }
 
