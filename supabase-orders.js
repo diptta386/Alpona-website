@@ -135,20 +135,34 @@ if (
 }
 
 
-const deliveryFee =
+const baseDeliveryFee =
   Number(currentPathaoDeliveryFee || 0);
 
+const codPercentage =
+  Number(currentPathaoCodPercentage || 0);
 
-if (deliveryFee <= 0) {
+if (baseDeliveryFee <= 0) {
   alert(
     "Delivery fee could not be calculated.\n\nPlease select City, Zone and Area again."
   );
   return;
 }
 
+let deliveryFee =
+  baseDeliveryFee;
 
-    const total =
-      subtotal + deliveryFee;
+if (paymentOption === "delivery_only") {
+  const codFee =
+    subtotal * codPercentage;
+
+  deliveryFee =
+    Math.ceil(
+      baseDeliveryFee + codFee
+    );
+}
+
+const total =
+  subtotal + deliveryFee;
 
 
     let advanceAmount = 0;
