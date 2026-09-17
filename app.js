@@ -88,10 +88,6 @@ if (window.posthog) {
   renderCart();
 }
 
-
-  set("alpona_cart", cart);
-
-  renderCart();
 function removeCart(id){
   cart=cart.filter(x=>Number(x.id)!==Number(id));
   set("alpona_cart",cart);
@@ -135,7 +131,6 @@ function placeOrder(e){
  toast("Order "+order.id+" placed"); alert("Thank you! Your order number is "+order.id+".\nTotal: "+money(total)+"\nAlpona will confirm your order.");
 }
 function showAdminLogin(){document.getElementById("loginModal").classList.add("show")}
-function adminLogin(e){e.preventDefault();if(document.getElementById("ownerPassword").value!=="alpona2026")return toast("Incorrect password");sessionStorage.setItem("alpona_admin","yes");closeModal("loginModal");openAdmin()}
 function openAdmin(){document.querySelector("main").style.display="none";document.querySelector("footer").style.display="none";document.querySelector(".topbar").style.display="none";document.getElementById("adminPanel").classList.add("show");renderAdmin()}
 function closeAdmin(){document.getElementById("adminPanel").classList.remove("show");document.querySelector("main").style.display="block";document.querySelector("footer").style.display="grid";document.querySelector(".topbar").style.display="flex";window.scrollTo(0,0)}
 function adminLogout(){sessionStorage.removeItem("alpona_admin");closeAdmin()}
