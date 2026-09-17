@@ -94,8 +94,10 @@
 
                 <b>
                   ${
-                    chat.customer_name ||
-                    "Customer"
+                    escapeHtml(
+                      chat.customer_name ||
+                      "Customer"
+                    )
                   }
                 </b>
 
@@ -103,8 +105,10 @@
 
                 <small>
                   ${
-                    chat.customer_phone ||
-                    "No phone provided"
+                    escapeHtml(
+                      chat.customer_phone ||
+                      "No phone provided"
+                    )
                   }
                 </small>
 
@@ -392,7 +396,7 @@
 
             <br>
 
-            ${msg.message}
+            ${escapeHtml(msg.message)}
 
             <br>
 
