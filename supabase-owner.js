@@ -2,6 +2,21 @@
 
   const OWNER_UID = "5beecdb3-5e80-4a35-9133-5fc01ab7a772";
 
+  // Turns customer-typed text into safe, literal text before it goes
+  // into innerHTML, so a customer can never get their own HTML/JS to
+  // run inside the owner's logged-in dashboard.
+  window.escapeHtml = function (value) {
+    return String(value ?? "").replace(/[&<>"']/g, function (c) {
+      return {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[c];
+    });
+  };
+
   async function ownerSignIn(email, password) {
     const { data, error } = await db.auth.signInWithPassword({
       email,
@@ -345,16 +360,16 @@ if (
               </td>
 
               <td>
-                ${o.customer_name}<br>
-                ${o.phone}<br>
+                ${escapeHtml(o.customer_name)}<br>
+                ${escapeHtml(o.phone)}<br>
                 <span class="muted">
-                  ${o.address}
+                  ${escapeHtml(o.address)}
                 </span>
               </td>
 
               <td>
                 ${(o.order_items || []).map(i =>
-                  `${i.product_name} × ${i.quantity}`
+                  `${escapeHtml(i.product_name)} × ${Number(i.quantity)}`
                 ).join("<br>")}
               </td>
 
