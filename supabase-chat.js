@@ -2,57 +2,145 @@
 
   const OWNER_UID = "5beecdb3-5e80-4a35-9133-5fc01ab7a772";
 
-  let chatSessionId = localStorage.getItem("alpona_chat_session_id") || null;
+  let chatSessionId =
+    localStorage.getItem("alpona_chat_session_id") || null;
+
+
+  function showChatNotice(text, isError) {
+
+    const container =
+      document.getElementById("acMsgs");
+
+    if (!container) {
+      alert(text);
+      return;
+    }
+
+    const div =
+      document.createElement("div");
+
+    div.textContent = text;
+
+    div.style.cssText = `
+      max-width:82%;
+      padding:10px 12px;
+      border-radius:12px;
+      margin:7px 0;
+      line-height:1.45;
+      font-size:13px;
+      background:${isError ? "#fff0ee" : "#fff"};
+      color:${isError ? "#8c2721" : "#2e241e"};
+      border:1px solid ${isError ? "#d9a8a3" : "#eadbc5"};
+    `;
+
+    container.appendChild(div);
+
+    container.scrollTop =
+      container.scrollHeight;
+  }
+
 
   async function ensureAnonymousUser() {
 
-    const { data: sessionData } = await db.auth.getSession();
+    const {
+      data: sessionData,
+      error: sessionError
+    } =
+      await db.auth.getSession();
 
-    if (sessionData.session) {
+    if (sessionError) {
+      console.error(
+        "Could not read Supabase session:",
+        sessionError
+      );
+    }
+
+    if (sessionData?.session?.user) {
       return sessionData.session.user;
     }
 
-    const { data, error } = await db.auth.signInAnonymously();
+    const { data, error } =
+      await db.auth.signInAnonymously();
 
     if (error) {
-      console.error("Anonymous login error:", error);
+
+      console.error(
+        "Anonymous login error:",
+        error
+      );
+
+      showChatNotice(
+        "Live support could not connect. Please try again shortly.",
+        true
+      );
+
       return null;
     }
 
-    return data.user;
+    return data?.user || null;
   }
 
 
   async function ensureChatSession() {
 
-    const user = await ensureAnonymousUser();
+    const user =
+      await ensureAnonymousUser();
 
     if (!user) return null;
 
     if (user.id === OWNER_UID) {
+
+      showChatNotice(
+        "Owner mode is signed in on this browser. Please test customer chat in an Incognito/Private window.",
+        true
+      );
+
       return null;
     }
 
     if (chatSessionId) {
 
-      const { data } = await db
-        .from("chat_sessions")
-        .select("*")
-        .eq("id", chatSessionId)
-        .maybeSingle();
+      const {
+        data,
+        error
+      } =
+        await db
+          .from("chat_sessions")
+          .select("*")
+          .eq("id", chatSessionId)
+          .maybeSingle();
 
-      if (data) return data;
+      if (!error && data) {
+        return data;
+      }
+
+      if (error) {
+        console.warn(
+          "Stored chat session could not be reused:",
+          error
+        );
+      }
+
+      chatSessionId = null;
+
+      localStorage.removeItem(
+        "alpona_chat_session_id"
+      );
     }
 
 
-    const { data, error } = await db
-      .from("chat_sessions")
-      .insert({
-        customer_user_id: user.id,
-        status: "ai"
-      })
-      .select()
-      .single();
+    const {
+      data,
+      error
+    } =
+      await db
+        .from("chat_sessions")
+        .insert({
+          customer_user_id: user.id,
+          status: "ai"
+        })
+        .select()
+        .single();
 
 
     if (error) {
@@ -60,6 +148,11 @@
       console.error(
         "Could not create chat session:",
         error
+      );
+
+      showChatNotice(
+        "Your support chat could not be started. Please try again.",
+        true
       );
 
       return null;
@@ -74,25 +167,30 @@
     );
 
     return data;
-
   }
 
 
-  async function saveChatMessage(sender, message) {
+  async function saveChatMessage(
+    sender,
+    message
+  ) {
 
     const session =
       await ensureChatSession();
 
-    if (!session) return;
+    if (!session) {
+      return false;
+    }
 
 
-    const { error } = await db
-      .from("chat_messages")
-      .insert({
-        session_id: session.id,
-        sender: sender,
-        message: message
-      });
+    const { error } =
+      await db
+        .from("chat_messages")
+        .insert({
+          session_id: session.id,
+          sender,
+          message
+        });
 
 
     if (error) {
@@ -102,8 +200,15 @@
         error
       );
 
+      showChatNotice(
+        "This message was not delivered to Alpona support. Please try again.",
+        true
+      );
+
+      return false;
     }
 
+    return true;
   }
 
 
@@ -112,18 +217,20 @@
     const session =
       await ensureChatSession();
 
-    if (!session) return;
+    if (!session) {
+      return false;
+    }
 
-window.alponaHumanMode = true;
 
-
-    const { error } = await db
-      .from("chat_sessions")
-      .update({
-        status: "waiting_for_agent",
-        updated_at: new Date().toISOString()
-      })
-      .eq("id", session.id);
+    const { error } =
+      await db
+        .from("chat_sessions")
+        .update({
+          status: "waiting_for_agent",
+          updated_at:
+            new Date().toISOString()
+        })
+        .eq("id", session.id);
 
 
     if (error) {
@@ -133,21 +240,34 @@ window.alponaHumanMode = true;
         error
       );
 
-      return;
+      showChatNotice(
+        "Could not notify Alpona support. Please try again.",
+        true
+      );
 
+      return false;
     }
 
 
-    await saveChatMessage(
-      "system",
-      "Customer requested a real agent."
+    const saved =
+      await saveChatMessage(
+        "system",
+        "Customer requested a real agent."
+      );
+
+    if (!saved) {
+      return false;
+    }
+
+
+    window.alponaHumanMode = true;
+
+    showChatNotice(
+      "Alpona support has been notified. Please keep this chat open.",
+      false
     );
 
-
-    alert(
-      "Alpona support has been notified. Please keep this chat open."
-    );
-
+    return true;
   }
 
 
@@ -156,14 +276,15 @@ window.alponaHumanMode = true;
     if (!chatSessionId) return;
 
 
-    const { data, error } = await db
-      .from("chat_messages")
-      .select("*")
-      .eq("session_id", chatSessionId)
-      .eq("sender", "owner")
-      .order("created_at", {
-        ascending: true
-      });
+    const { data, error } =
+      await db
+        .from("chat_messages")
+        .select("*")
+        .eq("session_id", chatSessionId)
+        .eq("sender", "owner")
+        .order("created_at", {
+          ascending: true
+        });
 
 
     if (error) {
@@ -180,7 +301,6 @@ window.alponaHumanMode = true;
     const container =
       document.getElementById("acMsgs");
 
-
     if (!container) return;
 
 
@@ -188,8 +308,7 @@ window.alponaHumanMode = true;
       new Set(
         [...container.querySelectorAll(
           "[data-db-message]"
-        )]
-        .map(
+        )].map(
           el =>
             el.getAttribute(
               "data-db-message"
@@ -199,6 +318,7 @@ window.alponaHumanMode = true;
 
 
     (data || []).forEach(msg => {
+
       window.alponaHumanMode = true;
 
       if (
@@ -239,15 +359,9 @@ window.alponaHumanMode = true;
 
       container.scrollTop =
         container.scrollHeight;
-
     });
-
   }
 
-
-  /*
-    Connect to your existing chat widget
-  */
 
   function connectChatWidget() {
 
@@ -291,7 +405,6 @@ window.alponaHumanMode = true;
 
         if (!message) return;
 
-
         await saveChatMessage(
           "customer",
           message
@@ -304,15 +417,27 @@ window.alponaHumanMode = true;
 
     if (humanButton) {
 
+      /*
+        Remove the old placeholder handler from alpona-chat.js.
+        That handler claimed a human handoff even when nothing
+        was saved to Supabase.
+      */
+      humanButton.onclick = null;
+
       humanButton.addEventListener(
         "click",
         async function () {
 
-          await requestHumanAgent();
+          humanButton.disabled = true;
+
+          try {
+            await requestHumanAgent();
+          } finally {
+            humanButton.disabled = false;
+          }
 
         }
       );
-
     }
 
 
@@ -320,7 +445,6 @@ window.alponaHumanMode = true;
       loadHumanReplies,
       4000
     );
-
   }
 
 
