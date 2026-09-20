@@ -12,17 +12,30 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Alpona — Handmade with Care & Culture</title>
-<link rel="stylesheet" href="styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
+<div class="announcement">
+  <span>Handmade in Bangladesh</span>
+  <span class="announcementDot">◆</span>
+  <span>Delivery Across Bangladesh</span>
+  <span class="announcementDot">◆</span>
+  <span>Made Slowly, Kept Forever</span>
+</div>
+
 <header class="topbar">
-  <a class="logoWrap" href="#home">
+  <a class="logoWrap" href="#home" aria-label="Alpona home">
     <img src="assets/logo.jpeg" alt="Alpona logo">
     <div><strong>ALPONA</strong><span>Handmade with Care & Culture</span></div>
   </a>
   <nav>
-    <a href="#shop">Shop</a><a href="#story">Our Story</a><a href="#contact">Contact</a>
-    <button class="navBtn" onclick="openCart()">Cart <span id="cartCount">0</span></button>
+    <a href="#shop">Shop</a>
+    <a href="#story">Our Story</a>
+    <a href="#promise">Our Craft</a>
+    <button class="navBtn cartNav" onclick="openCart()">Cart <span id="cartCount">0</span></button>
     <button id="ownerBtn" class="navBtn owner" onclick="showAdminLogin()" style="display:none;">Owner</button>
   </nav>
 </header>
@@ -30,38 +43,140 @@
 <main id="home">
 <section class="hero">
   <div class="heroText">
-    <p class="kicker">বাংলাদেশের হাতে তৈরি ঐতিহ্য</p>
-    <h1>Tradition,<br>made by hand.</h1>
-    <p>Unique Bangladeshi handicrafts created with care, culture and artistic detail.</p>
-    <div class="heroActions"><a class="primary" href="#shop">Shop Collection</a><a class="secondary" href="#story">Our Story</a></div>
+    <p class="kicker">বাংলাদেশের হাতে তৈরি ঐতিহ্য · BENGALI CRAFT</p>
+    <h1>Tradition,<br><em>reimagined.</em></h1>
+    <p class="heroLead">Objects with a soul. Hand-painted pieces inspired by Bengali ritual, celebration and the quiet beauty of home.</p>
+    <div class="heroActions">
+      <a class="primary" href="#shop">Explore the Collection</a>
+      <a class="textLink" href="#story">Discover our story <span>→</span></a>
+    </div>
+    <div class="heroMeta">
+      <span><b>01</b> Hand-painted</span>
+      <span><b>02</b> Small-batch</span>
+      <span><b>03</b> Rooted in culture</span>
+    </div>
   </div>
-  <div class="heroVisual"><img src="assets/decor.jpeg" alt="Alpona handicraft"></div>
+  <div class="heroVisual">
+    <div class="heroFrame">
+      <img src="assets/decor.jpeg" alt="Hand-painted Alpona decorative piece">
+    </div>
+    <div class="heroSeal">ALPONA<br><small>HANDMADE</small></div>
+  </div>
 </section>
 
-<section class="trustbar"><span>Handmade in Bangladesh</span><span>Delivery Across Bangladesh</span><span>Secure Order Details</span></section>
+<section class="editorialIntro">
+  <p class="kicker">A MODERN BENGALI ATELIER</p>
+  <h2>Made for celebrations.<br>Designed to live beyond them.</h2>
+  <p>Every Alpona piece carries the warmth of handwork and the visual language of Bengal—translated into objects for today.</p>
+</section>
 
-<section id="shop" class="section">
-  <p class="kicker">OUR COLLECTION</p>
-  <div class="sectionHead"><h2>Made with care. Rooted in culture.</h2><select id="categoryFilter" onchange="renderProducts()"><option value="all">All products</option></select></div>
+<section class="visualEdit" aria-label="Alpona collections">
+  <article class="visualCard visualCardLarge">
+    <img src="assets/decor.jpeg" alt="Alpona home decor collection">
+    <div class="visualOverlay">
+      <span>01 · HOME & RITUAL</span>
+      <h3>Decor that tells a story.</h3>
+      <a href="#shop">View collection →</a>
+    </div>
+  </article>
+  <article class="visualCard">
+    <img src="assets/bag.jpeg" alt="Alpona hand-painted bags">
+    <div class="visualOverlay">
+      <span>02 · WEARABLE ART</span>
+      <h3>Craft, carried.</h3>
+      <a href="#shop">Explore bags →</a>
+    </div>
+  </article>
+  <article class="visualCard">
+    <img src="assets/clothing.jpeg" alt="Alpona hand-painted clothing">
+    <div class="visualOverlay">
+      <span>03 · PAINTED BY HAND</span>
+      <h3>Tradition you can wear.</h3>
+      <a href="#shop">Explore wear →</a>
+    </div>
+  </article>
+</section>
+
+<section id="shop" class="section shopSection">
+  <div class="sectionEyebrow">
+    <p class="kicker">THE ALPONA EDIT</p>
+    <span>Handmade in limited quantities</span>
+  </div>
+  <div class="sectionHead">
+    <h2>Pieces worth keeping.</h2>
+    <select id="categoryFilter" onchange="renderProducts()" aria-label="Filter products"><option value="all">All products</option></select>
+  </div>
   <div id="products" class="productGrid"></div>
 </section>
 
 <section id="story" class="story">
-  <img src="assets/logo.jpeg" alt="Alpona">
-  <div><p class="kicker">আমাদের গল্প · OUR STORY</p><h2>A piece of Bangladesh in every creation.</h2><p>Alpona celebrates traditional Bangladeshi art through handcrafted home décor, bags, clothing and gifts. Our goal is to preserve cultural beauty while creating products people can use, wear and share.</p></div>
+  <div class="storyImageWrap">
+    <img src="assets/logo.jpeg" alt="Alpona">
+    <span class="storyNumber">আ</span>
+  </div>
+  <div class="storyCopy">
+    <p class="kicker">আমাদের গল্প · OUR STORY</p>
+    <h2>A piece of Bangladesh in every creation.</h2>
+    <p class="storyLead">Alpona celebrates traditional Bangladeshi art through handcrafted décor, accessories, clothing and gifts.</p>
+    <p>Our work begins with familiar forms, colors and motifs, then gives them room to feel contemporary. The result is personal, expressive and unmistakably rooted in home.</p>
+    <a class="textLink" href="#shop">Shop the story <span>→</span></a>
+  </div>
 </section>
 
-<section class="section">
-  <p class="kicker">HOW IT WORKS</p>
-  <div class="steps"><div><b>01</b><h3>Choose</h3><p>Browse handmade collections and add your favorites to cart.</p></div><div><b>02</b><h3>Order</h3><p>Enter your Bangladesh delivery information and payment preference.</p></div><div><b>03</b><h3>Delivered</h3><p>Alpona confirms, prepares and dispatches your order.</p></div></div>
+<section id="promise" class="promiseSection">
+  <div class="promiseIntro">
+    <p class="kicker">THE ALPONA PROMISE</p>
+    <h2>Craft with meaning.</h2>
+  </div>
+  <div class="promiseGrid">
+    <article>
+      <span>01</span>
+      <h3>Made by Hand</h3>
+      <p>Small variations are part of the beauty. Each piece carries the mark of the hands that made it.</p>
+    </article>
+    <article>
+      <span>02</span>
+      <h3>Rooted in Bengal</h3>
+      <p>Motifs, colors and forms draw from Bengali celebration, ritual and everyday visual culture.</p>
+    </article>
+    <article>
+      <span>03</span>
+      <h3>Created to Keep</h3>
+      <p>Designed to move beyond a single occasion and become part of your home, wardrobe and memories.</p>
+    </article>
+  </div>
+</section>
+
+<section class="howSection">
+  <div>
+    <p class="kicker">FROM OUR HANDS TO YOURS</p>
+    <h2>A simple journey.</h2>
+  </div>
+  <div class="steps">
+    <div><b>01</b><h3>Choose</h3><p>Discover a piece made with care and add it to your collection.</p></div>
+    <div><b>02</b><h3>Order</h3><p>Enter your delivery details and choose the payment option that suits you.</p></div>
+    <div><b>03</b><h3>Receive</h3><p>We confirm, prepare and dispatch your Alpona piece with care.</p></div>
+  </div>
+</section>
+
+<section class="closingCta">
+  <div>
+    <p class="kicker">HANDMADE WITH CARE & CULTURE</p>
+    <h2>Bring a little Bengal home.</h2>
+  </div>
+  <a class="primary lightButton" href="#shop">Shop Alpona</a>
 </section>
 </main>
 
 <footer id="contact">
-  <div><h3>আলপনা · ALPONA</h3><p>Handmade with Care & Culture</p></div>
-  <div><b>Shop</b><p>Home Décor<br>Bags<br>Clothing<br>Gifts</p></div>
-  <div><b>Customer Care</b><p>Delivery<br>Returns<br>Contact</p></div>
-  <div><b>Bangladesh</b><p>Prices shown in BDT (৳)</p></div>
+  <div class="footerBrand">
+    <div class="footerLogo">আ</div>
+    <h3>ALPONA</h3>
+    <p>Handmade objects rooted in Bengali art, memory and celebration.</p>
+  </div>
+  <div><b>Explore</b><p><a href="#shop">Shop Collection</a><br><a href="#story">Our Story</a><br><a href="#promise">Our Craft</a></p></div>
+  <div><b>Customer Care</b><p>Delivery Across Bangladesh<br>Secure Order Details<br>Customer Support Chat</p></div>
+  <div><b>Bangladesh</b><p>Prices shown in BDT (৳)<br><br>Handmade with care & culture.</p></div>
 </footer>
 
 <!-- Product modal -->
