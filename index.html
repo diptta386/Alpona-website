@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=11">
+<link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body>
 <div class="announcement">
@@ -302,15 +302,21 @@
           <p>Use the guide below, then select your preferred length. No price is shown yet—you can confirm pricing with Alpona later.</p>
         </div>
 
-        <img
-          class="mehendiLengthGuide"
-          src="assets/mehendi-length-guide-reference.webp?v=1"
-          width="700"
-          height="394"
-          loading="lazy"
-          decoding="async"
-          alt="Mehendi length guide showing Palm or Wrist Length, Bangle Length, Elbow Length, and Above Elbow Design"
-        >
+        <picture class="mehendiGuidePicture">
+          <source
+            srcset="assets/mehendi-length-guide-reference.webp?v=2"
+            type="image/webp"
+          >
+          <img
+            class="mehendiLengthGuide"
+            src="assets/mehendi-length-guide-reference.jpg?v=2"
+            width="1199"
+            height="675"
+            loading="eager"
+            decoding="async"
+            alt="Mehendi length guide showing Palm or Wrist Length, Bangle Length, Elbow Length, and Above Elbow Design"
+          >
+        </picture>
 
         <div class="two">
           <label>
