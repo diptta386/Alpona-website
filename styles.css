@@ -605,6 +605,31 @@ textarea{min-height:95px;resize:vertical}
   font-size:12px;
   line-height:1.6;
 }
+.mehendiCoveragePanel{
+  margin:22px 0;
+  padding:20px;
+  border:1px solid var(--line);
+  background:#fff9f1;
+}
+.mehendiGuideHead h4{
+  font:500 28px "Cormorant Garamond",Georgia,serif;
+  margin:6px 0 8px;
+  color:var(--maroon);
+}
+.mehendiGuideHead p:not(.kicker){
+  margin:0 0 16px;
+  font-size:11px;
+  line-height:1.6;
+  color:var(--muted);
+}
+.mehendiLengthGuide{
+  display:block;
+  width:100%;
+  height:auto;
+  margin:0 0 18px;
+  border:1px solid var(--line);
+  background:#fffaf3;
+}
 .bookingSummary{
   display:grid;
   grid-template-columns:repeat(3,1fr);
