@@ -1,3 +1,29 @@
+async function getOrderErrorMessage(error) {
+  if (error?.context) {
+    try {
+      const response = await error.context.json();
+
+      if (response?.error) {
+        return String(response.error);
+      }
+    } catch (contextError) {
+      console.warn("Could not read checkout error response:", contextError);
+    }
+  }
+
+  const message = String(error?.message || "");
+
+  if (
+    !message ||
+    message.includes("Edge Function returned") ||
+    message.includes("FunctionsHttpError")
+  ) {
+    return "Order could not be submitted. Please check the Transaction ID and order information.";
+  }
+
+  return message;
+}
+
 window.placeOrder = async function(event) {
   event.preventDefault();
 
@@ -56,6 +82,13 @@ window.placeOrder = async function(event) {
       return;
     }
 
+    if (!/^[A-Za-z0-9]{6,40}$/.test(payload.advance_transaction_id)) {
+      alert(
+        "Please enter a valid bKash/Nagad Transaction ID (6–40 letters and numbers)."
+      );
+      return;
+    }
+
     if (button) {
       button.disabled = true;
       button.textContent = "Submitting securely…";
@@ -69,8 +102,7 @@ window.placeOrder = async function(event) {
     if (error) {
       throw new Error(
         data?.error ||
-        error.message ||
-        "Order submission failed."
+        await getOrderErrorMessage(error)
       );
     }
 
@@ -155,9 +187,7 @@ window.placeOrder = async function(event) {
   } catch (error) {
     console.error("Checkout error:", error);
 
-    const message =
-      error?.message ||
-      "Order could not be submitted.";
+    const message = await getOrderErrorMessage(error);
 
     alert(
       message +

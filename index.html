@@ -685,6 +685,7 @@ Payment Option
   <option value="delivery_only">Pay delivery fee now + product amount COD</option>
   <option value="full_payment">Pay full amount now</option>
 </select>
+<small id="codChargeNote" class="fieldHelp" hidden></small>
 </label>
 
 <label>
@@ -718,6 +719,11 @@ Transaction ID
   name="advance_transaction_id"
   type="text"
   required
+  minlength="6"
+  maxlength="40"
+  pattern="[A-Za-z0-9]{6,40}"
+  autocomplete="off"
+  title="Enter the 6–40 character Transaction ID from bKash or Nagad."
   placeholder="Enter bKash/Nagad Transaction ID">
 </label>
 <button class="primary full">Place Order</button>
@@ -1051,7 +1057,7 @@ Transaction ID
 <script src="monitoring.js?v=3"></script>
 <script src="analytics.js?v=2"></script>
 <script src="app.js?v=7"></script>
-  <script src="supabase-orders.js?v=4"></script>
+  <script src="supabase-orders.js?v=5"></script>
  <script src="supabase-owner.js?v=41"></script>
 <script src="image-upload-patch.js?v=2"></script>
  <script src="supabase-products.js?v=4"></script>
@@ -1526,6 +1532,11 @@ function updatePaymentAmounts() {
       '[name="delivery_speed"]'
     );
 
+  const codChargeNote =
+    document.getElementById(
+      "codChargeNote"
+    );
+
 
   if (
     !option ||
@@ -1577,6 +1588,23 @@ function updatePaymentAmounts() {
     Number(
       currentPathaoCodPercentage || 0
     );
+
+  if (codChargeNote) {
+    const showCodNote =
+      option.value === "delivery_only";
+
+    codChargeNote.hidden = !showCodNote;
+
+    if (showCodNote) {
+      const percentage =
+        Number((codPercentage * 100).toFixed(2));
+
+      codChargeNote.textContent =
+        percentage > 0
+          ? `Pathao COD collection charge: ${percentage}% of the product amount. This is included in the delivery payment shown below.`
+          : "Pathao's applicable COD collection charge will be calculated automatically and included in the delivery payment.";
+    }
+  }
 
   const expressFee =
     deliverySpeed?.value === "express"
