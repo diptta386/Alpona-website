@@ -36,6 +36,7 @@ window.placeOrder = async function(event) {
       advance_transaction_id: String(
         fd.get("advance_transaction_id") || ""
       ).trim(),
+      honeypot: String(fd.get("website") || ""),
       items
     };
 
