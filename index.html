@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=5">
+<link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
 <div class="announcement">
@@ -72,6 +72,7 @@
   <nav>
     <a href="#shop">Shop</a>
     <a href="#mehendi">Mehendi</a>
+    <a href="#report-issue">Report Issue</a>
     <a href="#story">Our Story</a>
     <a href="#promise">Our Craft</a>
     <button class="navBtn cartNav" onclick="openCart()">Cart <span id="cartCount">0</span></button>
@@ -309,6 +310,115 @@
   </div>
 </section>
 
+<section id="report-issue" class="damageReportSection">
+  <div class="damagePolicy">
+    <p class="kicker">DAMAGED OR BROKEN PRODUCT?</p>
+    <h2>Report a delivery issue.</h2>
+    <p class="damagePolicyLead">If your Alpona product arrives broken or damaged, submit a claim here with valid evidence. You do <strong>not</strong> need to send the broken product back.</p>
+
+    <div class="policyBox">
+      <h3>Damage Claim Policy</h3>
+      <ol>
+        <li><strong>A continuous unboxing video is required.</strong> Start recording before opening the package, then keep recording while you open the box and show the product clearly.</li>
+        <li>The video must show the package before opening, the opening process, and the condition of the product when first revealed.</li>
+        <li>A video recorded only after the product is already opened or broken does not meet the required evidence standard.</li>
+        <li>Photos may be uploaded as additional evidence, but photos alone are not enough for a damage claim.</li>
+        <li>Alpona reviews each claim. If the required evidence is valid and the claim is approved, Alpona will refund the eligible amount.</li>
+        <li><strong>No return shipment is required for an approved damaged-item claim.</strong> Keep the damaged item unless Alpona specifically contacts you with different instructions.</li>
+        <li>Alpona does not offer general change-of-mind returns or exchanges. This form is for genuine damaged/broken product issues.</li>
+      </ol>
+    </div>
+
+    <div class="damageContact">
+      <span>Need help before submitting?</span>
+      <div>
+        <a class="secondary" target="_blank" rel="noopener noreferrer" href="https://www.facebook.com/share/1HgJa8dnXX/?mibextid=wwXIfr">Message on Facebook</a>
+        <a class="secondary" target="_blank" rel="noopener noreferrer" href="https://www.instagram.com/al.po.na?stkn=MXVmemtzY29icDB3aA==">Message on Instagram</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="damageReportCard">
+    <p class="kicker">SUBMIT A DAMAGE REPORT</p>
+    <h3>Send your proof to Alpona.</h3>
+
+    <div id="damageReportSuccess" class="mehendiSuccess" style="display:none;"></div>
+
+    <form id="damageReportForm" onsubmit="submitDamageReport(event)">
+      <div class="two">
+        <label>
+          Order Number
+          <input name="order_number" required maxlength="80" placeholder="Example: ALP-...">
+        </label>
+        <label>
+          Your Name
+          <input name="customer_name" required maxlength="120" autocomplete="name">
+        </label>
+      </div>
+
+      <div class="two">
+        <label>
+          Mobile Number
+          <input name="phone" required maxlength="25" autocomplete="tel">
+        </label>
+        <label>
+          Email <span class="optionalText">(optional)</span>
+          <input name="customer_email" type="email" maxlength="180" autocomplete="email">
+        </label>
+      </div>
+
+      <label>
+        What happened?
+        <select name="issue_type" required>
+          <option value="">Choose issue</option>
+          <option>Product arrived broken</option>
+          <option>Product arrived cracked</option>
+          <option>Product damaged inside package</option>
+          <option>Wrong product received</option>
+          <option>Missing item from order</option>
+          <option>Other delivery/product issue</option>
+        </select>
+      </label>
+
+      <label>
+        Describe the problem
+        <textarea name="description" required minlength="10" maxlength="2000" placeholder="Tell us exactly what you found when you opened the package."></textarea>
+      </label>
+
+      <label class="evidenceUpload requiredEvidence">
+        Full Unboxing Video <strong>Required</strong>
+        <input
+          name="unboxing_video"
+          type="file"
+          accept="video/mp4,video/quicktime,video/webm"
+          required
+        >
+        <small>MP4, MOV or WebM · Maximum 100 MB. The recording must begin before the box is opened and continue through the full unboxing and product reveal.</small>
+      </label>
+
+      <label class="evidenceUpload">
+        Supporting Photos <span class="optionalText">(optional, up to 5)</span>
+        <input
+          name="damage_photos"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+        >
+        <small>JPG, PNG or WebP · Maximum 10 MB per photo. Photos support the claim but do not replace the required unboxing video.</small>
+      </label>
+
+      <label class="policyAccept">
+        <input name="policy_accepted" type="checkbox" required>
+        <span>I have read the Damage Claim Policy. I understand that a continuous unboxing video beginning before the package is opened is required, that submitting a claim does not automatically guarantee a refund, and that approved damaged-item claims do not require me to return the broken product.</span>
+      </label>
+
+      <p class="bookingPrivacy">Your evidence is stored privately for Alpona to review. It is not displayed publicly on the website.</p>
+
+      <button class="primary full" type="submit">Submit Damage Report</button>
+    </form>
+  </div>
+</section>
+
 <section class="closingCta">
   <div>
     <p class="kicker">HANDMADE WITH CARE & CULTURE</p>
@@ -347,7 +457,7 @@
     </div>
   </div>
   <div><b>Explore</b><p><a href="#shop">Shop Collection</a><br><a href="#mehendi">Mehendi Appointments</a><br><a href="#story">Our Story</a><br><a href="#promise">Our Craft</a></p></div>
-  <div><b>Customer Care</b><p>Delivery Across Bangladesh<br>Secure Order Details<br>Customer Support Chat</p></div>
+  <div><b>Customer Care</b><p>Delivery Across Bangladesh<br>Secure Order Details<br>Customer Support Chat<br><a href="#report-issue">Report Damaged Product</a></p></div>
   <div><b>Bangladesh</b><p>Prices shown in BDT (৳)<br><br>Handmade with care & culture.</p></div>
 </footer>
 
@@ -538,6 +648,7 @@ Transaction ID
 <button onclick="setTab('analytics'); loadAnalyticsDashboard()" class="tab">Analytics</button>
 <button onclick="setTab('intelligence'); loadOwnerIntelligence()" class="tab">Intelligence</button>
 <button onclick="setTab('mehendi'); loadMehendiBookings()" class="tab">Mehendi</button>
+<button onclick="setTab('damage'); loadDamageReports()" class="tab">Damage Reports</button>
 <button onclick="setTab('messages')" class="tab">Messages</button>
 </div>
 
@@ -650,6 +761,20 @@ Transaction ID
     </div>
   </div>
 
+  <div id="tab-damage" class="tabBody hidden">
+    <div class="panelHead">
+      <div>
+        <p class="kicker">CUSTOMER CLAIMS</p>
+        <h3>Damage Reports</h3>
+      </div>
+      <button class="secondary" onclick="loadDamageReports()">Refresh</button>
+    </div>
+    <p class="muted">Review the customer's required unboxing video before approving a refund. Approved damaged items do not need to be returned.</p>
+    <div id="damageReportsAdmin">
+      <div class="analyticsEmpty">Open this tab to load customer damage reports.</div>
+    </div>
+  </div>
+
   <div id="tab-messages" class="tabBody hidden">
 
   <div class="panelHead">
@@ -744,6 +869,7 @@ Transaction ID
   <script src="supabase-chat.js?v=2"></script>
   <script src="supabase-owner-chat.js"></script>
   <script src="mehendi.js?v=1"></script>
+  <script src="damage-reports.js?v=1"></script>
   <script src="owner-agent.js?v=1"></script>
   <script>
   const params = new URLSearchParams(window.location.search);
