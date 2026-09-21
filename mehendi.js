@@ -43,7 +43,7 @@
     }
 
     const confirmed = confirm(
-      "Submit this Mehendi appointment request?\n\n" +
+      "Submit this Mehendi / Kolka appointment request?\n\n" +
       "Alpona will contact you to confirm availability and final details."
     );
 
@@ -130,7 +130,7 @@
     if (!container) return;
 
     container.innerHTML =
-      '<div class="analyticsLoading">Loading Mehendi bookings…</div>';
+      '<div class="analyticsLoading">Loading Mehendi & Kolka bookings…</div>';
 
     try {
       const { data: sessionData } =
@@ -157,7 +157,7 @@
 
       if (!rows.length) {
         container.innerHTML =
-          '<div class="analyticsEmpty">No Mehendi booking requests yet.</div>';
+          '<div class="analyticsEmpty">No Mehendi or Kolka booking requests yet.</div>';
         return;
       }
 
