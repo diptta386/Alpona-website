@@ -202,7 +202,7 @@
                   <td>
                     ${escapeHtml(b.service_type)}
                     ${b.mehendi_coverage ? "<br><span class=\"muted\">" + escapeHtml(b.mehendi_coverage) + "</span>" : ""}
-                    ${b.mehendi_hands ? "<br><span class=\"muted\">" + escapeHtml(b.mehendi_hands) + "</span>" : ""}
+                    ${b.mehendi_side ? "<br><span class=\"muted\">" + escapeHtml(b.mehendi_side) + "</span>" : ""}\n                    ${b.mehendi_hands ? "<br><span class=\"muted\">" + escapeHtml(b.mehendi_hands) + "</span>" : ""}
                   </td>
                   <td>
                     ${escapeHtml(b.venue_area)}<br>
