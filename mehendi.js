@@ -1,5 +1,9 @@
 (function () {
   const OWNER_UID = "5beecdb3-5e80-4a35-9133-5fc01ab7a772";
+  const DESIGN_BUCKET = "mehendi-designs";
+  const MAX_DESIGN_FILES = 3;
+  const MAX_DESIGN_FILE_SIZE = 5 * 1024 * 1024;
+  const ALLOWED_DESIGN_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
   function bookingNumber() {
     return (
@@ -28,17 +32,56 @@
     });
   }
 
+  function validateDesignFiles(files) {
+    if (files.length > MAX_DESIGN_FILES) {
+      throw new Error("You can upload up to 3 reference images.");
+    }
+
+    files.forEach(file => {
+      if (!ALLOWED_DESIGN_TYPES.includes(file.type)) {
+        throw new Error("Reference images must be JPG, PNG, or WebP files.");
+      }
+      if (!file.size || file.size > MAX_DESIGN_FILE_SIZE) {
+        throw new Error("Each reference image must be smaller than 5 MB.");
+      }
+    });
+  }
+
+  function renderDesignLinks(paths, signedUrls) {
+    if (!Array.isArray(paths) || !paths.length) {
+      return '<span class="muted">No reference image</span>';
+    }
+
+    const links = paths.map((path, index) => {
+      const url = signedUrls.get(path);
+      if (!url) return "";
+      return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" aria-label="Open reference design ${index + 1}"><img src="${escapeHtml(url)}" alt="Customer reference design ${index + 1}" loading="lazy"></a>`;
+    }).join("");
+
+    return links
+      ? `<div class="bookingDesigns">${links}</div>`
+      : '<span class="muted">Image unavailable</span>';
+  }
+
   window.submitMehendiBooking = async function (event) {
     event.preventDefault();
 
     const form = event.target;
     const button = form.querySelector('button[type="submit"]');
     const fd = new FormData(form);
+    const files = [...(form.elements.design_images?.files || [])];
 
     const date = String(fd.get("event_date") || "");
 
     if (!date) {
       alert("Please choose your event date.");
+      return;
+    }
+
+    try {
+      validateDesignFiles(files);
+    } catch (error) {
+      alert(error.message);
       return;
     }
 
@@ -66,6 +109,13 @@
       mehendi_coverage: String(fd.get("mehendi_coverage") || "").trim(),
       mehendi_side: String(fd.get("mehendi_side") || "").trim(),
       mehendi_hands: String(fd.get("mehendi_hands") || "").trim(),
+      kolka_placement: String(fd.get("kolka_placement") || "").trim(),
+      kolka_side: String(fd.get("kolka_side") || "").trim(),
+      images: files.map(file => ({
+        name: file.name,
+        type: file.type,
+        size: file.size
+      })),
       number_of_people: Number(fd.get("number_of_people") || 1),
       venue_area: String(fd.get("venue_area") || "").trim(),
       address: String(fd.get("address") || "").trim(),
@@ -86,6 +136,34 @@
         );
       }
 
+      let completed = data;
+
+      if (data.upload_required) {
+        for (const upload of data.uploads || []) {
+          const file = files[Number(upload.index)];
+          if (!file) throw new Error("A reference image could not be matched for upload.");
+
+          const { error: uploadError } = await db.storage
+            .from(DESIGN_BUCKET)
+            .uploadToSignedUrl(upload.path, upload.token, file, {
+              contentType: file.type
+            });
+
+          if (uploadError) throw uploadError;
+        }
+
+        const { data: finalData, error: finalError } = await db.functions.invoke(
+          "finalize-mehendi",
+          { body: { session_token: data.session_token } }
+        );
+
+        if (finalError || !finalData?.success) {
+          throw new Error(finalData?.error || finalError?.message || "Could not finish the booking request.");
+        }
+
+        completed = finalData;
+      }
+
       if (window.posthog) {
         window.posthog.capture("mehendi_booking_requested", {
           service_type: payload.service_type,
@@ -94,6 +172,7 @@
       }
 
       form.reset();
+      updateServicePanels();
 
       const success =
         document.getElementById("mehendiSuccess");
@@ -102,7 +181,7 @@
         success.innerHTML =
           "<strong>Request received.</strong><br>" +
           "Your booking reference is <b>" +
-          escapeHtml(data.booking_number) +
+          escapeHtml(completed.booking_number) +
           "</b>. Alpona will contact you to confirm availability.";
         success.style.display = "block";
       }
@@ -164,6 +243,22 @@
         return;
       }
 
+      const designPaths = [...new Set(rows.flatMap(row =>
+        Array.isArray(row.custom_design_paths) ? row.custom_design_paths : []
+      ))];
+      const signedUrls = new Map();
+
+      if (designPaths.length) {
+        const { data: signedData, error: signedError } = await db.storage
+          .from(DESIGN_BUCKET)
+          .createSignedUrls(designPaths, 60 * 60);
+
+        if (signedError) throw signedError;
+        (signedData || []).forEach(item => {
+          if (item.path && item.signedUrl) signedUrls.set(item.path, item.signedUrl);
+        });
+      }
+
       container.innerHTML = `
         <div class="bookingSummary">
           <div><span>Total requests</span><b>${rows.length}</b></div>
@@ -179,6 +274,7 @@
                 <th>Customer</th>
                 <th>Event</th>
                 <th>Service</th>
+                <th>Reference</th>
                 <th>Venue</th>
                 <th>Status</th>
               </tr>
@@ -203,7 +299,10 @@
                     ${escapeHtml(b.service_type)}
                     ${b.mehendi_coverage ? "<br><span class=\"muted\">" + escapeHtml(b.mehendi_coverage) + "</span>" : ""}
                     ${b.mehendi_side ? "<br><span class=\"muted\">" + escapeHtml(b.mehendi_side) + "</span>" : ""}\n                    ${b.mehendi_hands ? "<br><span class=\"muted\">" + escapeHtml(b.mehendi_hands) + "</span>" : ""}
+                    ${b.kolka_placement ? "<br><span class=\"muted\">" + escapeHtml(b.kolka_placement) + "</span>" : ""}
+                    ${b.kolka_side ? "<br><span class=\"muted\">" + escapeHtml(b.kolka_side) + "</span>" : ""}
                   </td>
+                  <td>${renderDesignLinks(b.custom_design_paths, signedUrls)}</td>
                   <td>
                     ${escapeHtml(b.venue_area)}<br>
                     <span class="muted">${escapeHtml(b.address)}</span>
@@ -275,11 +374,25 @@
     document.getElementById("mehendiSide");
   const handsSelect =
     document.getElementById("mehendiHands");
+  const kolkaPanel =
+    document.getElementById("kolkaChoicePanel");
+  const kolkaPlacement =
+    document.getElementById("kolkaPlacement");
+  const kolkaSide =
+    document.getElementById("kolkaSide");
+  const customUpload =
+    document.getElementById("customDesignUpload");
+  const designFiles =
+    document.getElementById("mehendiDesignFiles");
+  const fileSummary =
+    document.getElementById("mehendiFileSummary");
 
-  function updateMehendiCoverageVisibility() {
+  function updateServicePanels() {
     const value = String(serviceSelect?.value || "");
     const needsMehendi =
       value.toLowerCase().includes("mehendi");
+    const needsKolka =
+      value.toLowerCase().includes("kolka");
 
     if (coveragePanel) {
       coveragePanel.style.display = needsMehendi ? "block" : "none";
@@ -289,19 +402,49 @@
     if (sideSelect) sideSelect.required = needsMehendi;
     if (handsSelect) handsSelect.required = needsMehendi;
 
+    if (kolkaPanel) {
+      kolkaPanel.style.display = needsKolka ? "block" : "none";
+    }
+    if (kolkaPlacement) kolkaPlacement.required = needsKolka;
+    if (kolkaSide) kolkaSide.required = needsKolka;
+    if (customUpload) {
+      customUpload.style.display = needsMehendi || needsKolka ? "block" : "none";
+    }
+
     if (!needsMehendi) {
       if (coverageSelect) coverageSelect.value = "";
       if (sideSelect) sideSelect.value = "";
       if (handsSelect) handsSelect.value = "";
     }
+
+    if (!needsKolka) {
+      if (kolkaPlacement) kolkaPlacement.value = "";
+      if (kolkaSide) kolkaSide.value = "";
+    }
   }
 
   serviceSelect?.addEventListener(
     "change",
-    updateMehendiCoverageVisibility
+    updateServicePanels
   );
 
-  updateMehendiCoverageVisibility();
+  designFiles?.addEventListener("change", () => {
+    const files = [...(designFiles.files || [])];
+    try {
+      validateDesignFiles(files);
+      if (fileSummary) {
+        fileSummary.textContent = files.length
+          ? `${files.length}টি রেফারেন্স ছবি নির্বাচিত হয়েছে।`
+          : "";
+      }
+    } catch (error) {
+      designFiles.value = "";
+      if (fileSummary) fileSummary.textContent = "";
+      alert(error.message);
+    }
+  });
+
+  updateServicePanels();
 
   const dateInput =
     document.querySelector(
