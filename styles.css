@@ -1282,6 +1282,17 @@ textarea{min-height:95px;resize:vertical}
   letter-spacing:.04em;
 }
 #mehendiPreferredTime option:disabled{color:#9b5d57}
+.expressOrderBadge{
+  display:inline-block;
+  margin-top:6px;
+  padding:4px 9px;
+  border-radius:999px;
+  background:#8b2018;
+  color:#fff;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
 
 .reveal-ready{
   opacity:0;

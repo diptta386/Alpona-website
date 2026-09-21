@@ -511,7 +511,13 @@ if (
                 ).join("<br>")}
               </td>
 
-              <td>${money(o.total)}</td>
+              <td>
+                ${money(o.total)}
+                ${o.delivery_speed === "express" ? `
+                  <br><span class="expressOrderBadge">EXPRESS</span>
+                  <br><span class="muted">Rush fee: ${money(o.express_fee || 0)} · Dispatch within 1 business day</span>
+                ` : '<br><span class="muted">Standard delivery</span>'}
+              </td>
 
              <td>
 
@@ -763,6 +769,8 @@ if (!email) return;
         payment_status,
         remaining_cod,
         total,
+        delivery_speed,
+        express_fee,
         pathao_city_name,
         pathao_zone_name,
         pathao_area_name,
@@ -911,6 +919,12 @@ if (!email) return;
       ) +
       "\n\n" +
 
+      "Delivery: " +
+      (order.delivery_speed === "express"
+        ? "EXPRESS — dispatch within 1 business day"
+        : "Standard") +
+      "\n\n" +
+
       "Parcel weight will be calculated automatically from the products.\n\n" +
 
       "IMPORTANT:\n" +
@@ -1041,6 +1055,8 @@ window.verifyPayment = async function(id) {
         customer_email,
         total,
         remaining_cod,
+        delivery_speed,
+        express_fee,
         payment_status,
         stock_reduced,
         order_items (
@@ -1167,7 +1183,9 @@ window.verifyPayment = async function(id) {
             customer_name: order.customer_name,
             order_number: order.order_number,
             total: order.total,
-            remaining_cod: order.remaining_cod
+            remaining_cod: order.remaining_cod,
+            delivery_speed: order.delivery_speed,
+            express_fee: order.express_fee
           }
         }
       );

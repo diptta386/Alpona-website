@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=14">
+<link rel="stylesheet" href="styles.css?v=15">
 </head>
 <body>
 <div class="announcement">
@@ -670,6 +670,14 @@ Email Address
   name="pathao_area_name"
   id="pathaoAreaName"
 >
+<label>
+Delivery Speed
+<select name="delivery_speed" id="deliverySpeed" required>
+  <option value="standard">Standard delivery</option>
+  <option value="express">Express processing — dispatch within 1 business day (+৳120)</option>
+</select>
+<small class="fieldHelp">Express orders are prioritized for dispatch within 1 business day. Delivery is usually 1–3 business days after dispatch, but courier or weather delays can occur.</small>
+</label>
   <label>
 Payment Option
 <select name="payment_option" id="paymentOption" required>
@@ -696,6 +704,8 @@ Payment Method
 
   <br>
 <b>Order Total:</b> <span id="paymentTotal">৳0</span><br>
+<b>Delivery Charge:</b> <span id="paymentDelivery">৳0</span><br>
+<b>Express Charge:</b> <span id="paymentExpress">৳0</span><br>
 <b>Pay Now:</b> <span id="paymentNow">৳0</span><br>
 <b>Remaining COD:</b> <span id="paymentCod">৳0</span>
 </div>
@@ -1029,8 +1039,8 @@ Transaction ID
 <script src="monitoring.js?v=2"></script>
 <script src="analytics.js?v=2"></script>
 <script src="app.js?v=7"></script>
-  <script src="supabase-orders.js?v=3"></script>
- <script src="supabase-owner.js?v=40"></script>
+  <script src="supabase-orders.js?v=4"></script>
+ <script src="supabase-owner.js?v=41"></script>
 <script src="image-upload-patch.js?v=2"></script>
  <script src="supabase-products.js?v=4"></script>
   
@@ -1053,6 +1063,7 @@ Transaction ID
 let currentPathaoDeliveryFee = 0;
 let currentPathaoCodPercentage = 0;
 let currentPathaoWeight = 0;
+const EXPRESS_DELIVERY_FEE = 120;
 
 // ==========================================
 // CALCULATE TOTAL CART WEIGHT
@@ -1488,12 +1499,29 @@ function updatePaymentAmounts() {
       "paymentCod"
     );
 
+  const deliveryEl =
+    document.getElementById(
+      "paymentDelivery"
+    );
+
+  const expressEl =
+    document.getElementById(
+      "paymentExpress"
+    );
+
+  const deliverySpeed =
+    document.querySelector(
+      '[name="delivery_speed"]'
+    );
+
 
   if (
     !option ||
     !totalEl ||
     !nowEl ||
-    !codEl
+    !codEl ||
+    !deliveryEl ||
+    !expressEl
   ) return;
 
 
@@ -1538,6 +1566,11 @@ function updatePaymentAmounts() {
       currentPathaoCodPercentage || 0
     );
 
+  const expressFee =
+    deliverySpeed?.value === "express"
+      ? EXPRESS_DELIVERY_FEE
+      : 0;
+
 
   let codFee = 0;
 
@@ -1545,7 +1578,7 @@ function updatePaymentAmounts() {
     baseDeliveryFee;
 
   let total =
-    subtotal + baseDeliveryFee;
+    subtotal + baseDeliveryFee + expressFee;
 
   let payNow = 0;
 
@@ -1567,10 +1600,10 @@ deliveryCharge =
   );
 
 total =
-  subtotal + deliveryCharge;
+  subtotal + deliveryCharge + expressFee;
 
 payNow =
-  deliveryCharge;
+  deliveryCharge + expressFee;
 
 remainingCod =
   subtotal; 
@@ -1590,7 +1623,7 @@ remainingCod =
       baseDeliveryFee;
 
     total =
-      subtotal + baseDeliveryFee;
+      subtotal + baseDeliveryFee + expressFee;
 
     payNow =
       total;
@@ -1603,6 +1636,12 @@ remainingCod =
 
   totalEl.textContent =
     money(total);
+
+  deliveryEl.textContent =
+    money(deliveryCharge);
+
+  expressEl.textContent =
+    money(expressFee);
 
   nowEl.textContent =
     money(payNow);
@@ -1728,7 +1767,9 @@ document.addEventListener(
 
     if (
       e.target.name ===
-      "payment_option"
+      "payment_option" ||
+      e.target.name ===
+      "delivery_speed"
     ) {
 
       updatePaymentAmounts();

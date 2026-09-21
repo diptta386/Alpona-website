@@ -31,6 +31,7 @@ window.placeOrder = async function(event) {
         pathao_area_id: Number(fd.get("pathao_area_id")),
         pathao_area_name: fd.get("pathao_area_name")
       },
+      delivery_speed: fd.get("delivery_speed") || "standard",
       payment_option: fd.get("payment_option"),
       advance_method: fd.get("advance_method"),
       advance_transaction_id: String(
@@ -84,11 +85,14 @@ window.placeOrder = async function(event) {
     const total = Number(data.total || 0);
     const advanceAmount = Number(data.advance_amount || 0);
     const remainingCOD = Number(data.remaining_cod || 0);
+    const expressFee = Number(data.express_fee || 0);
+    const deliverySpeed = data.delivery_speed || "standard";
 
     if (window.posthog) {
       window.posthog.capture("order_placed", {
         order_number: orderNumber,
-        total
+        total,
+        delivery_speed: deliverySpeed
       });
 
       cart.forEach(item => {
@@ -141,6 +145,8 @@ window.placeOrder = async function(event) {
     alert(
       "Order submitted successfully!\n\n" +
       "Order Number: " + orderNumber +
+      "\nDelivery: " + (deliverySpeed === "express" ? "Express processing" : "Standard") +
+      (expressFee ? " (+" + money(expressFee) + ")" : "") +
       "\nAmount Submitted: " + money(advanceAmount) +
       "\nRemaining COD: " + money(remainingCOD) +
       "\n\nPayment is waiting for verification."
