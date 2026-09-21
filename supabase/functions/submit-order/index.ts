@@ -1,4 +1,4 @@
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 
 const ALLOWED_ORIGINS = new Set([
   "https://alponastore.com",
@@ -32,6 +32,48 @@ async function sha256(text: string) {
 
 function cleanText(value: unknown, max: number) {
   return String(value || "").trim().replace(/[<>]/g, "").slice(0, max);
+}
+
+async function sendOrderTelegram(service: any, orderNumber: string, message: string) {
+  const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
+  if (!botToken) return;
+
+  const { data: setting, error: settingError } = await service
+    .from("notification_settings")
+    .select("destination_id")
+    .eq("channel", "telegram")
+    .maybeSingle();
+  if (settingError || !setting) return;
+
+  try {
+    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: setting.destination_id,
+        text: message.slice(0, 3900),
+        reply_markup: {
+          inline_keyboard: [[{
+            text: "Open Owner Dashboard",
+            url: "https://alponastore.com/?owner=1"
+          }]]
+        }
+      })
+    });
+    const result = await response.json();
+    if (!response.ok || !result?.ok) {
+      throw new Error(result?.description || "Telegram send failed");
+    }
+    await service.from("orders").update({
+      telegram_notified_at: new Date().toISOString(),
+      telegram_notification_error: null
+    }).eq("order_number", orderNumber);
+  } catch (error) {
+    console.error("Order Telegram notification failed:", error);
+    await service.from("orders").update({
+      telegram_notification_error: String(error?.message || error).slice(0, 500)
+    }).eq("order_number", orderNumber);
+  }
 }
 
 Deno.serve(async (req) => {
@@ -301,9 +343,31 @@ Deno.serve(async (req) => {
 
     if (createError) throw createError;
 
+    const finalOrderNumber = created?.order_number || orderNumber;
+    const itemLines = items
+      .slice(0, 10)
+      .map((item: any) => `• ${item.product_name} × ${item.quantity}`)
+      .join("\n");
+    await sendOrderTelegram(
+      service,
+      finalOrderNumber,
+      [
+        "🛍️ New Alpona Product Order",
+        "",
+        `Order: ${finalOrderNumber}`,
+        itemLines,
+        "",
+        `Total: ৳${Number(total).toLocaleString("en-US")}`,
+        `Pay now: ৳${Number(securedAdvanceAmount).toLocaleString("en-US")}`,
+        `Remaining COD: ৳${Number(remainingCOD).toLocaleString("en-US")}`,
+        `Delivery: ${deliverySpeed === "express" ? "EXPRESS PROCESSING" : "Standard"}`,
+        "Payment: Waiting for verification"
+      ].join("\n")
+    );
+
     return json(req, {
       success: true,
-      order_number: created?.order_number || orderNumber,
+      order_number: finalOrderNumber,
       total,
       advance_amount: securedAdvanceAmount,
       remaining_cod: remainingCOD,

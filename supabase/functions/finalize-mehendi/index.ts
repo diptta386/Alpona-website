@@ -1,4 +1,4 @@
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 
 const ALLOWED_ORIGINS = new Set([
   "https://alponastore.com",
@@ -23,6 +23,56 @@ async function sha256(text: string) {
   return [...new Uint8Array(hash)].map(x => x.toString(16).padStart(2, "0")).join("");
 }
 
+async function sendMehendiTelegram(service: any, bookingNumber: string, booking: any) {
+  const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
+  if (!botToken) return;
+  const { data: setting, error: settingError } = await service
+    .from("notification_settings")
+    .select("destination_id")
+    .eq("channel", "telegram")
+    .maybeSingle();
+  if (settingError || !setting) return;
+
+  try {
+    const text = [
+      "🌿 New Mehendi / Kolka Request",
+      "",
+      `Booking: ${bookingNumber}`,
+      `Service: ${booking.service_type}`,
+      `Date: ${booking.event_date}`,
+      `Time: ${booking.preferred_time}`,
+      `People: ${booking.number_of_people}`,
+      `Custom designs: ${Array.isArray(booking.custom_design_paths) && booking.custom_design_paths.length ? "Yes" : "No"}`,
+      "Status: Request Received"
+    ].join("\n");
+    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: setting.destination_id,
+        text,
+        reply_markup: {
+          inline_keyboard: [[{
+            text: "Open Owner Dashboard",
+            url: "https://alponastore.com/?owner=1"
+          }]]
+        }
+      })
+    });
+    const result = await response.json();
+    if (!response.ok || !result?.ok) throw new Error(result?.description || "Telegram send failed");
+    await service.from("mehendi_bookings").update({
+      telegram_notified_at: new Date().toISOString(),
+      telegram_notification_error: null
+    }).eq("booking_number", bookingNumber);
+  } catch (error) {
+    console.error("Mehendi Telegram notification failed:", error);
+    await service.from("mehendi_bookings").update({
+      telegram_notification_error: String(error?.message || error).slice(0, 500)
+    }).eq("booking_number", bookingNumber);
+  }
+}
+
 Deno.serve(async request => {
   const origin = request.headers.get("origin") || "";
   if (request.method === "OPTIONS") return new Response("ok", { headers: headers(origin) });
@@ -44,8 +94,11 @@ Deno.serve(async request => {
       return new Response(JSON.stringify({ error: "This booking session expired. Please submit again." }), { status: 400, headers: headers(origin) });
     }
 
-    const { data: existing } = await service.from("mehendi_bookings").select("booking_number").eq("booking_number", session.booking_number).limit(1);
+    const { data: existing } = await service.from("mehendi_bookings").select("booking_number,telegram_notified_at").eq("booking_number", session.booking_number).limit(1);
     if (existing?.length) {
+      if (!existing[0].telegram_notified_at) {
+        await sendMehendiTelegram(service, session.booking_number, session.booking_data);
+      }
       await service.from("mehendi_upload_sessions").delete().eq("token_hash", tokenHash);
       return new Response(JSON.stringify({ success: true, booking_number: session.booking_number }), { status: 200, headers: headers(origin) });
     }
@@ -73,7 +126,10 @@ Deno.serve(async request => {
     }
     await service.from("mehendi_upload_sessions").delete().eq("token_hash", tokenHash);
 
-    return new Response(JSON.stringify({ success: true, booking_number: data?.booking_number || session.booking_number }), { status: 200, headers: headers(origin) });
+    const finalBookingNumber = data?.booking_number || session.booking_number;
+    await sendMehendiTelegram(service, finalBookingNumber, session.booking_data);
+
+    return new Response(JSON.stringify({ success: true, booking_number: finalBookingNumber }), { status: 200, headers: headers(origin) });
   } catch (error) {
     console.error("Finalize Mehendi booking error:", error);
     return new Response(JSON.stringify({ error: "Could not finish the booking request. Please try again." }), { status: 500, headers: headers(origin) });

@@ -1029,6 +1029,42 @@ textarea{min-height:95px;resize:vertical}
   color:var(--muted);
   line-height:1.5;
 }
+.telegramConnectBox{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  margin-top:20px;
+  padding:22px 24px;
+  border:1px solid #c7dfcc;
+  background:#f3faf4;
+}
+.telegramConnectBox>div>span{
+  display:block;
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:1.4px;
+  color:#27723d;
+}
+.telegramConnectBox h4{
+  margin:5px 0;
+  font:500 27px "Cormorant Garamond",Georgia,serif;
+}
+.telegramConnectBox p{
+  margin:0;
+  max-width:720px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.55;
+}
+.telegramConnectBox p b{color:#27723d}
+.telegramConnectActions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.telegramConnectActions button{white-space:nowrap}
 .ownerAgentBox,.scheduledReports{
   margin-top:20px;
   border:1px solid var(--line);
@@ -1248,6 +1284,9 @@ textarea{min-height:95px;resize:vertical}
   .errorRow{align-items:flex-start;flex-direction:column}
   .issueActions{width:100%;justify-content:stretch}
   .issueActions button{width:100%}
+  .telegramConnectBox{align-items:flex-start;flex-direction:column}
+  .telegramConnectActions{width:100%}
+  .telegramConnectActions button{width:100%}
   .adminHeader{align-items:flex-start;flex-direction:column}
   footer{grid-template-columns:1fr}
   .footerBrand{grid-column:auto}

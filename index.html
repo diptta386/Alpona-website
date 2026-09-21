@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=16">
+<link rel="stylesheet" href="styles.css?v=17">
 </head>
 <body>
 <div class="announcement">
@@ -875,6 +875,18 @@ Transaction ID
       <div class="analyticsEmpty">Open this tab to check store health.</div>
     </div>
 
+    <section class="telegramConnectBox">
+      <div>
+        <span>OWNER ALERTS</span>
+        <h4>Telegram Notifications</h4>
+        <p id="telegramConnectionStatus">Checking Telegram connection…</p>
+      </div>
+      <div class="telegramConnectActions">
+        <button class="primary" id="telegramConnectButton" type="button" onclick="connectOwnerTelegram(this)">Connect Telegram</button>
+        <button class="secondary" id="telegramTestButton" type="button" onclick="testOwnerTelegram(this)" disabled>Send Test</button>
+      </div>
+    </section>
+
     <section class="ownerAgentBox">
       <div class="ownerAgentIntro">
         <div>
@@ -1049,7 +1061,7 @@ Transaction ID
   <script src="supabase-owner-chat.js"></script>
   <script src="mehendi.js?v=7"></script>
   <script src="damage-reports.js?v=3"></script>
-  <script src="owner-agent.js?v=2"></script>
+  <script src="owner-agent.js?v=3"></script>
   <script src="site-motion.js?v=1"></script>
   <script>
   const params = new URLSearchParams(window.location.search);

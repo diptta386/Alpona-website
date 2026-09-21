@@ -53,6 +53,7 @@
 
     try {
       await ownerSession();
+      window.loadTelegramStatus?.();
 
       const since24 =
         new Date(Date.now() - 24 * 60 * 60 * 1000)
@@ -250,6 +251,102 @@
 
     toast("Issue marked resolved");
     await window.loadOwnerIntelligence();
+  };
+
+  async function telegramAction(action) {
+    await ownerSession();
+
+    const { data, error } = await db.functions.invoke(
+      "telegram-connect",
+      { body: { action } }
+    );
+
+    if (error) {
+      let message = error.message || "Telegram request failed";
+      try {
+        const payload = await error.context?.json();
+        if (payload?.error) message = payload.error;
+      } catch (_) {}
+      throw new Error(message);
+    }
+
+    if (!data?.success) {
+      throw new Error(data?.error || "Telegram request failed");
+    }
+
+    return data;
+  }
+
+  window.loadTelegramStatus = async function () {
+    const status =
+      document.getElementById("telegramConnectionStatus");
+    const connectButton =
+      document.getElementById("telegramConnectButton");
+    const testButton =
+      document.getElementById("telegramTestButton");
+
+    if (!status || !connectButton || !testButton) return;
+
+    try {
+      const data = await telegramAction("status");
+      if (data.connected) {
+        status.innerHTML =
+          '<b>Connected</b> — new product orders and Mehendi/Kolka bookings will be sent to your private Telegram chat.';
+        connectButton.textContent = "Reconnect";
+        testButton.disabled = false;
+      } else {
+        status.innerHTML =
+          'Not connected. Open your bot, press Start, send <b>connect</b>, then click Connect Telegram.';
+        connectButton.textContent = "Connect Telegram";
+        testButton.disabled = true;
+      }
+    } catch (error) {
+      console.error("Telegram status error:", error);
+      status.textContent = error.message || "Could not check Telegram connection.";
+      testButton.disabled = true;
+    }
+  };
+
+  window.connectOwnerTelegram = async function (button) {
+    const status =
+      document.getElementById("telegramConnectionStatus");
+
+    button.disabled = true;
+    button.textContent = "Connecting…";
+
+    try {
+      await telegramAction("connect");
+      toast("Telegram alerts connected");
+      if (status) {
+        status.innerHTML =
+          '<b>Connected.</b> A confirmation message was sent to your Telegram.';
+      }
+      await window.loadTelegramStatus();
+    } catch (error) {
+      console.error("Telegram connect error:", error);
+      if (status) status.textContent = error.message;
+    } finally {
+      button.disabled = false;
+      if (button.textContent === "Connecting…") {
+        button.textContent = "Connect Telegram";
+      }
+    }
+  };
+
+  window.testOwnerTelegram = async function (button) {
+    button.disabled = true;
+    button.textContent = "Sending…";
+
+    try {
+      await telegramAction("test");
+      toast("Telegram test sent");
+    } catch (error) {
+      console.error("Telegram test error:", error);
+      alert(error.message || "Could not send Telegram test.");
+    } finally {
+      button.disabled = false;
+      button.textContent = "Send Test";
+    }
   };
 
   window.analyzeAndSolveSiteError =
