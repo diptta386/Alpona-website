@@ -51,15 +51,14 @@
 
     if (button) {
       button.disabled = true;
-      button.textContent = "Sending request…";
+      button.textContent = "Sending securely…";
     }
 
-    const record = {
-      booking_number: bookingNumber(),
+    const payload = {
+      website: String(fd.get("website") || ""),
       customer_name: String(fd.get("customer_name") || "").trim(),
       phone: String(fd.get("phone") || "").trim(),
-      customer_email:
-        String(fd.get("customer_email") || "").trim() || null,
+      customer_email: String(fd.get("customer_email") || "").trim(),
       event_date: date,
       preferred_time: String(fd.get("preferred_time") || "").trim(),
       occasion: String(fd.get("occasion") || "").trim(),
@@ -67,21 +66,27 @@
       number_of_people: Number(fd.get("number_of_people") || 1),
       venue_area: String(fd.get("venue_area") || "").trim(),
       address: String(fd.get("address") || "").trim(),
-      notes: String(fd.get("notes") || "").trim() || null,
-      status: "Request Received"
+      notes: String(fd.get("notes") || "").trim()
     };
 
     try {
-      const { error } = await db
-        .from("mehendi_bookings")
-        .insert(record);
+      const { data, error } = await db.functions.invoke(
+        "submit-mehendi",
+        { body: payload }
+      );
 
-      if (error) throw error;
+      if (error || !data?.success) {
+        throw new Error(
+          data?.error ||
+          error?.message ||
+          "Booking request failed."
+        );
+      }
 
       if (window.posthog) {
         window.posthog.capture("mehendi_booking_requested", {
-          service_type: record.service_type,
-          occasion: record.occasion
+          service_type: payload.service_type,
+          occasion: payload.occasion
         });
       }
 
@@ -94,7 +99,7 @@
         success.innerHTML =
           "<strong>Request received.</strong><br>" +
           "Your booking reference is <b>" +
-          escapeHtml(record.booking_number) +
+          escapeHtml(data.booking_number) +
           "</b>. Alpona will contact you to confirm availability.";
         success.style.display = "block";
       }
@@ -107,7 +112,8 @@
     } catch (error) {
       console.error("Mehendi booking error:", error);
       alert(
-        "Your booking request could not be sent. Please try again."
+        (error?.message || "Your booking request could not be sent.") +
+        "\n\nPlease try again or contact Alpona directly."
       );
     } finally {
       if (button) {
