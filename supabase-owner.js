@@ -11,6 +11,41 @@
       .replace(/'/g, "&#039;");
   }
 
+  let pendingMfaFactorId = null;
+
+  function showMfaModal(mode, enrollment) {
+    const modal = document.getElementById("mfaModal");
+    const title = document.getElementById("mfaTitle");
+    const text = document.getElementById("mfaText");
+    const setup = document.getElementById("mfaSetup");
+    const qr = document.getElementById("mfaQr");
+    const secret = document.getElementById("mfaSecret");
+    const input = document.getElementById("mfaCode");
+
+    if (!modal) return;
+
+    input.value = "";
+
+    if (mode === "enroll" && enrollment) {
+      title.textContent = "Secure Owner Account";
+      text.textContent =
+        "Scan this QR code with Google Authenticator, Authy, 1Password, or another authenticator app. Then enter the 6-digit code.";
+      setup.style.display = "block";
+      qr.src = enrollment.totp.qr_code;
+      secret.textContent = enrollment.totp.secret;
+    } else {
+      title.textContent = "Two-Step Verification";
+      text.textContent =
+        "Enter the current 6-digit code from your authenticator app.";
+      setup.style.display = "none";
+      qr.removeAttribute("src");
+      secret.textContent = "";
+    }
+
+    modal.classList.add("show");
+    setTimeout(() => input.focus(), 50);
+  }
+
   async function ownerSignIn(email, password) {
     const { data, error } = await db.auth.signInWithPassword({
       email,
@@ -28,9 +63,111 @@
       return false;
     }
 
-    sessionStorage.setItem("alpona_admin", "yes");
-    return true;
+    const factors = await db.auth.mfa.listFactors();
+
+    if (factors.error) {
+      await db.auth.signOut();
+      alert("Could not check owner two-step verification.");
+      return false;
+    }
+
+    const verifiedTotp =
+      (factors.data?.totp || []).find(
+        factor => factor.status === "verified"
+      );
+
+    if (verifiedTotp) {
+      pendingMfaFactorId = verifiedTotp.id;
+      closeModal("loginModal");
+      showMfaModal("verify");
+      return "mfa_required";
+    }
+
+    const enroll = await db.auth.mfa.enroll({
+      factorType: "totp",
+      friendlyName: "Alpona Owner"
+    });
+
+    if (enroll.error || !enroll.data) {
+      await db.auth.signOut();
+      alert(
+        "Could not start authenticator setup: " +
+        (enroll.error?.message || "Unknown error")
+      );
+      return false;
+    }
+
+    pendingMfaFactorId = enroll.data.id;
+    closeModal("loginModal");
+    showMfaModal("enroll", enroll.data);
+    return "mfa_enroll";
   }
+
+  window.verifyOwnerMfa = async function (event) {
+    event.preventDefault();
+
+    const code =
+      document.getElementById("mfaCode").value.trim();
+
+    if (!/^\\d{6}$/.test(code)) {
+      alert("Enter the 6-digit code from your authenticator app.");
+      return;
+    }
+
+    if (!pendingMfaFactorId) {
+      alert("Please sign in again.");
+      await db.auth.signOut();
+      closeModal("mfaModal");
+      return;
+    }
+
+    const challenge = await db.auth.mfa.challenge({
+      factorId: pendingMfaFactorId
+    });
+
+    if (challenge.error || !challenge.data?.id) {
+      alert(
+        "Could not start two-step verification: " +
+        (challenge.error?.message || "Unknown error")
+      );
+      return;
+    }
+
+    const verify = await db.auth.mfa.verify({
+      factorId: pendingMfaFactorId,
+      challengeId: challenge.data.id,
+      code
+    });
+
+    if (verify.error) {
+      alert("Incorrect authenticator code. Please try again.");
+      return;
+    }
+
+    const aal =
+      await db.auth.mfa.getAuthenticatorAssuranceLevel();
+
+    if (
+      aal.error ||
+      aal.data?.currentLevel !== "aal2"
+    ) {
+      alert("Two-step verification could not be confirmed.");
+      return;
+    }
+
+    sessionStorage.setItem("alpona_admin", "yes");
+    pendingMfaFactorId = null;
+    closeModal("mfaModal");
+    openAdmin();
+    await renderSupabaseAdmin();
+  };
+
+  window.cancelOwnerMfa = async function () {
+    pendingMfaFactorId = null;
+    sessionStorage.removeItem("alpona_admin");
+    await db.auth.signOut();
+    closeModal("mfaModal");
+  };
 
   async function ownerSignOut() {
     await db.auth.signOut();
@@ -519,13 +656,17 @@ if (!email) return;
     const password =
       document.getElementById("ownerPassword").value;
 
-    const ok = await ownerSignIn(email, password);
+    const result = await ownerSignIn(email, password);
 
-    if (!ok) return;
+    if (!result) return;
 
-    closeModal("loginModal");
-    openAdmin();
-    await renderSupabaseAdmin();
+    // MFA flow now opens the dashboard only after AAL2 verification.
+    if (
+      result === "mfa_required" ||
+      result === "mfa_enroll"
+    ) {
+      return;
+    }
   };
 
   window.adminLogout = ownerSignOut;
@@ -548,7 +689,47 @@ if (!email) return;
 
   const oldOpenAdmin = window.openAdmin;
 
-  window.openAdmin = function () {
+  window.openAdmin = async function () {
+    const { data: sessionData } =
+      await db.auth.getSession();
+
+    const user = sessionData?.session?.user;
+
+    if (!user || user.id !== OWNER_UID) {
+      sessionStorage.removeItem("alpona_admin");
+      showAdminLogin();
+      return;
+    }
+
+    const aal =
+      await db.auth.mfa.getAuthenticatorAssuranceLevel();
+
+    if (
+      aal.error ||
+      aal.data?.currentLevel !== "aal2"
+    ) {
+      sessionStorage.removeItem("alpona_admin");
+
+      const factors = await db.auth.mfa.listFactors();
+      const verifiedTotp =
+        (factors.data?.totp || []).find(
+          factor => factor.status === "verified"
+        );
+
+      if (verifiedTotp) {
+        pendingMfaFactorId = verifiedTotp.id;
+        showMfaModal("verify");
+      } else {
+        alert(
+          "Owner two-step verification must be configured before opening the dashboard."
+        );
+        await db.auth.signOut();
+        showAdminLogin();
+      }
+
+      return;
+    }
+
     oldOpenAdmin();
     renderSupabaseAdmin();
   };
