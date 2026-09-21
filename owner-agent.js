@@ -15,6 +15,13 @@
     return "৳" + Number(value || 0).toLocaleString();
   }
 
+  function issueStatusLabel(issue) {
+    if (issue.resolution_status === "recovered") return "Recovered";
+    if (issue.resolution_status === "action_required") return "Code fix required";
+    if (issue.resolved) return "Resolved";
+    return "Open";
+  }
+
   async function ownerSession() {
     const { data, error } = await db.auth.getSession();
 
@@ -164,15 +171,27 @@
             <h4>Recent website issues</h4>
             ${errors.slice(0,8).map(e => `
               <div class="errorRow">
-                <div>
-                  <b>${escapeHtml(e.message)}</b>
+                <div class="errorMain">
+                  <div class="errorTitleLine">
+                    <b>#${e.id} · ${escapeHtml(e.message)}</b>
+                    <span class="issueStatus issueStatus--${escapeHtml(e.resolution_status || (e.resolved ? "resolved" : "open"))}">${issueStatusLabel(e)}</span>
+                  </div>
                   <span>${escapeHtml(e.error_type)} · ${new Date(e.created_at).toLocaleString()}</span>
+                  ${e.diagnosis ? `<p class="savedDiagnosis">${escapeHtml(e.diagnosis)}</p>` : ""}
+                  <div id="issueAnalysis-${e.id}" class="issueAnalysis" aria-live="polite"></div>
                 </div>
-                <button
-                  class="secondary"
-                  onclick="markSiteErrorResolved(${e.id})"
-                  ${e.resolved ? "disabled" : ""}
-                >${e.resolved ? "Resolved" : "Mark resolved"}</button>
+                <div class="issueActions">
+                  <button
+                    class="primary"
+                    onclick="analyzeAndSolveSiteError(${e.id}, this)"
+                    ${e.resolution_status === "analyzing" ? "disabled" : ""}
+                  >Analyze &amp; Solve</button>
+                  <button
+                    class="secondary"
+                    onclick="markSiteErrorResolved(${e.id})"
+                    ${e.resolved ? "disabled" : ""}
+                  >${e.resolved ? "Resolved" : "Mark resolved"}</button>
+                </div>
               </div>
             `).join("")}
           </div>
@@ -211,9 +230,16 @@
   window.markSiteErrorResolved =
     async function (id) {
 
+    await ownerSession();
+
     const { error } = await db
       .from("site_errors")
-      .update({ resolved: true })
+      .update({
+        resolved: true,
+        resolution_status: "resolved",
+        resolved_at: new Date().toISOString(),
+        fix_result: "Manually marked resolved by the owner."
+      })
       .eq("id", id);
 
     if (error) {
@@ -224,6 +250,93 @@
 
     toast("Issue marked resolved");
     await window.loadOwnerIntelligence();
+  };
+
+  window.analyzeAndSolveSiteError =
+    async function (id, button) {
+
+    const output =
+      document.getElementById("issueAnalysis-" + id);
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Checking…";
+    }
+
+    if (output) {
+      output.innerHTML =
+        '<div class="analyticsLoading">Diagnosing this exact issue and checking safe recovery options…</div>';
+    }
+
+    try {
+      await ownerSession();
+
+      const { data, error } =
+        await db.functions.invoke(
+          "owner-intelligence",
+          {
+            body: {
+              action: "analyze_issue",
+              issue_id: Number(id)
+            }
+          }
+        );
+
+      if (error) throw error;
+      if (!data?.success) {
+        throw new Error(data?.error || "No diagnosis returned");
+      }
+
+      const result = data.result || {};
+      const heading = result.auto_recovered
+        ? "Safe recovery verified"
+        : "Diagnosis complete — action required";
+
+      if (output) {
+        output.innerHTML = `
+          <div class="issueResult ${result.auto_recovered ? "issueResult--recovered" : "issueResult--action"}">
+            <b>${heading}</b>
+            <p>${escapeHtml(result.diagnosis || "No diagnosis available.")}</p>
+            <small>${escapeHtml(result.suggested_fix || "Review this issue before marking it resolved.")}</small>
+          </div>
+        `;
+      }
+
+      const assistantOutput =
+        document.getElementById("ownerAgentAnswer");
+
+      if (assistantOutput) {
+        assistantOutput.innerHTML = `
+          <div class="agentAnswer">
+            <div class="agentMode">Issue #${Number(id)} analysis</div>
+            <p><b>${heading}</b><br>${escapeHtml(result.diagnosis || "").replace(/\n/g, "<br>")}<br><br>${escapeHtml(result.suggested_fix || "").replace(/\n/g, "<br>")}</p>
+          </div>
+        `;
+      }
+
+      toast(
+        result.auto_recovered
+          ? "Issue recovery verified"
+          : "Diagnosis saved — code review required"
+      );
+
+      window.setTimeout(
+        () => window.loadOwnerIntelligence(),
+        1800
+      );
+
+    } catch (error) {
+      console.error("Issue diagnosis failed:", error);
+      if (output) {
+        output.innerHTML =
+          '<div class="analyticsEmpty">This issue could not be diagnosed right now. It has not been marked resolved.</div>';
+      }
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = "Analyze & Solve";
+      }
+    }
   };
 
   window.askAlponaOwnerAgent = async function (event) {

@@ -18,7 +18,23 @@
     return String(Math.abs(h));
   }
 
-  async function reportError(type, message, severity) {
+  function describe(value) {
+    if (value instanceof Error) {
+      return [value.name, value.message, value.stack]
+        .filter(Boolean)
+        .join("\n");
+    }
+
+    if (typeof value === "string") return value;
+
+    try {
+      return JSON.stringify(value);
+    } catch (_) {
+      return String(value);
+    }
+  }
+
+  async function reportError(type, message, severity, details) {
     try {
       if (typeof db === "undefined") return;
 
@@ -42,6 +58,7 @@
         .insert({
           error_type: String(type || "javascript").slice(0, 80),
           message: safeMessage,
+          technical_details: scrub(details || "").slice(0, 4000) || null,
           page_url: pageUrl.slice(0, 500),
           fingerprint,
           severity: severity || "error"
@@ -61,7 +78,11 @@
     reportError(
       "javascript",
       event.message || "Unknown JavaScript error",
-      "error"
+      "error",
+      [
+        event.error?.stack,
+        event.filename && `Source: ${event.filename}:${event.lineno || 0}:${event.colno || 0}`
+      ].filter(Boolean).join("\n")
     );
   });
 
@@ -74,7 +95,8 @@
     reportError(
       "promise",
       reason,
-      "error"
+      "error",
+      describe(event.reason)
     );
   });
 
@@ -87,10 +109,17 @@
       typeof first === "string" &&
       !first.startsWith("Monitoring ")
     ) {
+      const details = args
+        .slice(1)
+        .map(describe)
+        .filter(Boolean)
+        .join("\n");
+
       reportError(
         "console",
-        first,
-        "warning"
+        details ? `${first} ${details.split("\n")[0]}` : first,
+        "warning",
+        details
       );
     }
   };
