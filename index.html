@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=6">
+<link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
 <div class="announcement">
@@ -362,8 +362,9 @@
           <input name="phone" required maxlength="25" autocomplete="tel">
         </label>
         <label>
-          Email <span class="optionalText">(optional)</span>
-          <input name="customer_email" type="email" maxlength="180" autocomplete="email">
+          Email
+          <input name="customer_email" type="email" maxlength="180" autocomplete="email" required>
+          <small class="fieldHelp">Required so Alpona can send claim and refund updates.</small>
         </label>
       </div>
 
@@ -869,7 +870,7 @@ Transaction ID
   <script src="supabase-chat.js?v=2"></script>
   <script src="supabase-owner-chat.js"></script>
   <script src="mehendi.js?v=1"></script>
-  <script src="damage-reports.js?v=1"></script>
+  <script src="damage-reports.js?v=2"></script>
   <script src="owner-agent.js?v=1"></script>
   <script>
   const params = new URLSearchParams(window.location.search);
