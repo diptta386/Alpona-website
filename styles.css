@@ -442,6 +442,29 @@ textarea{min-height:95px;resize:vertical}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .muted{font-size:12px;color:#74685f}
 .websiteField{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;pointer-events:none!important}
+.mfaQrWrap{
+  display:grid;
+  place-items:center;
+  margin:18px 0;
+  padding:18px;
+  background:white;
+  border:1px solid var(--line);
+}
+.mfaQrWrap img{
+  width:220px;
+  max-width:100%;
+  height:auto;
+}
+.mfaSecret{
+  padding:12px;
+  margin:8px 0 18px;
+  border:1px solid var(--line);
+  background:#fffaf3;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:11px;
+  word-break:break-all;
+  user-select:all;
+}
 .productModalCard{width:min(920px,96vw)}
 .productDetailGrid{display:grid;grid-template-columns:1fr 1fr;gap:42px;align-items:start}
 .productDetailGrid img{width:100%;height:520px;object-fit:cover}
