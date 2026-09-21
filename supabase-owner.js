@@ -109,7 +109,7 @@
     const code =
       document.getElementById("mfaCode").value.trim();
 
-    if (!/^\\d{6}$/.test(code)) {
+    if (!/^\d{6}$/.test(code)) {
       alert("Enter the 6-digit code from your authenticator app.");
       return;
     }
