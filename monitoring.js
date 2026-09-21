@@ -20,7 +20,7 @@
 
   async function reportError(type, message, severity) {
     try {
-      if (!window.db) return;
+      if (typeof db === "undefined") return;
 
       const safeMessage = scrub(message);
       if (!safeMessage) return;
