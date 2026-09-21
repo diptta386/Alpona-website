@@ -630,11 +630,12 @@ textarea{min-height:95px;resize:vertical}
 .mehendiLengthGuide{
   display:block;
   width:100%;
-  max-width:100%;
+  max-width:360px;
   height:auto;
+  margin:0 auto;
   object-fit:contain;
   border:1px solid var(--line);
-  background:#fffaf3;
+  background:#fff;
 }
 .bookingSummary{
   display:grid;
