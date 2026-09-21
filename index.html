@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=8">
+<link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body>
 <div class="announcement">
@@ -640,6 +640,50 @@ Transaction ID
   </div>
 </div>
 
+<!-- Owner MFA -->
+<div id="mfaModal" class="modal">
+  <div class="modalCard small">
+    <button class="x" onclick="cancelOwnerMfa()">×</button>
+
+    <h2 id="mfaTitle">Two-Step Verification</h2>
+
+    <p id="mfaText" class="muted">
+      Enter the code from your authenticator app.
+    </p>
+
+    <div id="mfaSetup" style="display:none;">
+      <div class="mfaQrWrap">
+        <img id="mfaQr" alt="Authenticator QR code">
+      </div>
+
+      <p class="muted">
+        If you cannot scan the QR code, enter this setup key manually:
+      </p>
+
+      <div id="mfaSecret" class="mfaSecret"></div>
+    </div>
+
+    <form onsubmit="verifyOwnerMfa(event)">
+      <label>
+        6-digit authenticator code
+        <input
+          id="mfaCode"
+          type="text"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          maxlength="6"
+          pattern="[0-9]{6}"
+          required
+        >
+      </label>
+
+      <button class="primary full" type="submit">
+        Verify & Open Dashboard
+      </button>
+    </form>
+  </div>
+</div>
+
 <!-- Admin -->
 <section id="adminPanel" class="adminPanel">
 <header class="adminHeader"><div><span class="kicker">PRIVATE OWNER AREA</span><h2>Alpona Dashboard</h2></div><div><button class="secondary" onclick="closeAdmin()">View Store</button><button class="danger" onclick="adminLogout()">Log out</button></div></header>
@@ -871,7 +915,7 @@ Transaction ID
 <script src="analytics.js?v=2"></script>
 <script src="app.js?v=6"></script>
   <script src="supabase-orders.js?v=3"></script>
- <script src="supabase-owner.js?v=36"></script>
+ <script src="supabase-owner.js?v=37"></script>
 <script src="image-upload-patch.js?v=2"></script>
  <script src="supabase-products.js?v=4"></script>
   
