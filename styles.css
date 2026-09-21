@@ -1174,3 +1174,7 @@ textarea{min-height:95px;resize:vertical}
   .footerBrand{grid-column:auto}
   .modalCard{padding:25px}
 }
+
+.mehendiChoiceNote{padding:14px 16px;border:1px solid var(--line);background:#fffdf9;}
+.mehendiChoiceNote b{display:block;color:var(--maroon);margin-bottom:4px;}
+.mehendiChoiceNote span{display:block;font-size:10px;line-height:1.55;color:var(--muted);}
