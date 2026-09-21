@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=9">
+<link rel="stylesheet" href="styles.css?v=10">
 </head>
 <body>
 <div class="announcement">
@@ -273,7 +273,7 @@
 
         <label>
           What would you like?
-          <select name="service_type" required>
+          <select name="service_type" id="mehendiServiceType" required>
             <option value="">Choose service</option>
             <optgroup label="Mehendi">
               <option>Bridal Mehendi</option>
@@ -293,6 +293,45 @@
           </select>
           <small class="fieldHelp">Kolka means traditional Bengali bridal face decoration, commonly created as decorative white patterns around the forehead, eyes, cheeks or face.</small>
         </label>
+      </div>
+
+      <div id="mehendiCoveragePanel" class="mehendiCoveragePanel" style="display:none;">
+        <div class="mehendiGuideHead">
+          <p class="kicker">MEHENDI COVERAGE</p>
+          <h4>Choose how much of the hand/arm you want designed.</h4>
+          <p>Use the guide below, then select your preferred length. No price is shown yet—you can confirm pricing with Alpona later.</p>
+        </div>
+
+        <img
+          class="mehendiLengthGuide"
+          src="assets/mehendi-length-guide.svg"
+          alt="Mehendi hand and arm length guide showing Palm or Wrist, Bangle, Elbow, and Above Elbow or Full Arm coverage"
+        >
+
+        <div class="two">
+          <label>
+            Mehendi Length
+            <select name="mehendi_coverage" id="mehendiCoverage">
+              <option value="">Choose coverage</option>
+              <option>Palm / Wrist Length</option>
+              <option>Bangle Length</option>
+              <option>Elbow Length</option>
+              <option>Above Elbow / Full Arm</option>
+              <option>Custom Length</option>
+            </select>
+          </label>
+
+          <label>
+            Hands
+            <select name="mehendi_hands" id="mehendiHands">
+              <option value="">Choose one</option>
+              <option>One Hand</option>
+              <option>Both Hands</option>
+            </select>
+          </label>
+        </div>
+
+        <small class="fieldHelp">For a custom or mixed design, choose “Custom Length” and describe exactly what you want in the Notes box.</small>
       </div>
 
       <div class="two">
@@ -933,7 +972,7 @@ Transaction ID
 <script src="alpona-chat.js?v=2"></script>
   <script src="supabase-chat.js?v=2"></script>
   <script src="supabase-owner-chat.js"></script>
-  <script src="mehendi.js?v=3"></script>
+  <script src="mehendi.js?v=4"></script>
   <script src="damage-reports.js?v=3"></script>
   <script src="owner-agent.js?v=1"></script>
   <script>
