@@ -63,6 +63,8 @@
       preferred_time: String(fd.get("preferred_time") || "").trim(),
       occasion: String(fd.get("occasion") || "").trim(),
       service_type: String(fd.get("service_type") || "").trim(),
+      mehendi_coverage: String(fd.get("mehendi_coverage") || "").trim(),
+      mehendi_hands: String(fd.get("mehendi_hands") || "").trim(),
       number_of_people: Number(fd.get("number_of_people") || 1),
       venue_area: String(fd.get("venue_area") || "").trim(),
       address: String(fd.get("address") || "").trim(),
@@ -196,7 +198,11 @@
                     ${escapeHtml(b.occasion)}<br>
                     <span class="muted">${Number(b.number_of_people || 1)} person${Number(b.number_of_people || 1) === 1 ? "" : "s"}</span>
                   </td>
-                  <td>${escapeHtml(b.service_type)}</td>
+                  <td>
+                    ${escapeHtml(b.service_type)}
+                    ${b.mehendi_coverage ? "<br><span class=\"muted\">" + escapeHtml(b.mehendi_coverage) + "</span>" : ""}
+                    ${b.mehendi_hands ? "<br><span class=\"muted\">" + escapeHtml(b.mehendi_hands) + "</span>" : ""}
+                  </td>
                   <td>
                     ${escapeHtml(b.venue_area)}<br>
                     <span class="muted">${escapeHtml(b.address)}</span>
@@ -257,6 +263,40 @@
     toast("Booking updated");
     await window.loadMehendiBookings();
   };
+
+  const serviceSelect =
+    document.getElementById("mehendiServiceType");
+  const coveragePanel =
+    document.getElementById("mehendiCoveragePanel");
+  const coverageSelect =
+    document.getElementById("mehendiCoverage");
+  const handsSelect =
+    document.getElementById("mehendiHands");
+
+  function updateMehendiCoverageVisibility() {
+    const value = String(serviceSelect?.value || "");
+    const needsMehendi =
+      value.toLowerCase().includes("mehendi");
+
+    if (coveragePanel) {
+      coveragePanel.style.display = needsMehendi ? "block" : "none";
+    }
+
+    if (coverageSelect) coverageSelect.required = needsMehendi;
+    if (handsSelect) handsSelect.required = needsMehendi;
+
+    if (!needsMehendi) {
+      if (coverageSelect) coverageSelect.value = "";
+      if (handsSelect) handsSelect.value = "";
+    }
+  }
+
+  serviceSelect?.addEventListener(
+    "change",
+    updateMehendiCoverageVisibility
+  );
+
+  updateMehendiCoverageVisibility();
 
   const dateInput =
     document.querySelector(
