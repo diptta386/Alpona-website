@@ -169,7 +169,22 @@ function showAdminLogin(){document.getElementById("loginModal").classList.add("s
 function openAdmin(){document.querySelector("main").style.display="none";document.querySelector("footer").style.display="none";document.querySelector(".topbar").style.display="none";document.getElementById("adminPanel").classList.add("show");renderAdmin()}
 function closeAdmin(){document.getElementById("adminPanel").classList.remove("show");document.querySelector("main").style.display="block";document.querySelector("footer").style.display="grid";document.querySelector(".topbar").style.display="flex";window.scrollTo(0,0)}
 function adminLogout(){sessionStorage.removeItem("alpona_admin");closeAdmin()}
-function setTab(name){document.querySelectorAll(".tabBody").forEach(x=>x.classList.add("hidden"));document.getElementById("tab-"+name).classList.remove("hidden");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));[...document.querySelectorAll(".tab")].find(x=>x.textContent.toLowerCase()===name).classList.add("active")}
+function setTab(name) {
+  const tabBody = document.getElementById("tab-" + name);
+  const tabButton = [...document.querySelectorAll(".adminTabs .tab")].find(button =>
+    button.getAttribute("onclick")?.includes(`setTab('${name}')`)
+  );
+
+  if (!tabBody || !tabButton) {
+    console.error("Admin tab is missing:", name);
+    return;
+  }
+
+  document.querySelectorAll(".tabBody").forEach(body => body.classList.add("hidden"));
+  document.querySelectorAll(".adminTabs .tab").forEach(button => button.classList.remove("active"));
+  tabBody.classList.remove("hidden");
+  tabButton.classList.add("active");
+}
 function renderAdmin(){
  const os=get("alpona_orders",[]), ex=get("alpona_expenses",[]), ps=products();
  const completed=os.filter(o=>!["Cancelled"].includes(o.status));
