@@ -43,6 +43,14 @@ if (window.posthog) {
     price: Number(p.price)
   });
 }
+if (window.alponaTrack) {
+  window.alponaTrack("product_view", {
+    product_id: p.id,
+    product_name: p.name,
+    quantity: 1,
+    value: Number(p.price || 0)
+  });
+}
  document.getElementById("productDetails").innerHTML=`<div class="productDetailGrid"><img src="${p.image}" alt="${p.name}">
  <div><p class="kicker">${p.category}</p><h2>${p.name}</h2><h3 class="price">${money(p.price)}</h3><p>${p.description}</p><p class="stock">${p.stock} in stock</p>
  <button class="primary full" ${p.stock<1?"disabled":""} onclick="addToCart(${p.id});closeModal('productModal')">Add to cart</button></div></div>`;
@@ -85,6 +93,14 @@ if (window.posthog) {
     quantity: 1
   });
 }
+if (window.alponaTrack) {
+  window.alponaTrack("add_to_cart", {
+    product_id: p.id,
+    product_name: p.name,
+    quantity: 1,
+    value: Number(p.price || 0)
+  });
+}
   renderCart();
 }
 
@@ -111,6 +127,25 @@ function openCheckout() {
   if (window.posthog) {
     window.posthog.capture("checkout_started", {
       cart_items: cart.length
+    });
+  }
+
+  if (window.alponaTrack) {
+    const ps = products();
+    cart.forEach(item => {
+      const p = ps.find(
+        product => Number(product.id) === Number(item.id)
+      );
+      if (!p) return;
+
+      window.alponaTrack("checkout_started", {
+        product_id: p.id,
+        product_name: p.name,
+        quantity: Number(item.qty || 1),
+        value:
+          Number(p.price || 0) *
+          Number(item.qty || 1)
+      });
     });
   }
 
