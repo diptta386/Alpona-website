@@ -474,12 +474,320 @@ textarea{min-height:95px;resize:vertical}
 .analyticsTable td:first-child{white-space:normal;min-width:190px}
 .analyticsNote{font-size:10px;line-height:1.6;color:var(--muted);margin:16px 0 0;padding-left:12px;border-left:2px solid var(--terracotta)}
 
+
+/* Mehendi booking */
+.mehendiSection{
+  display:grid;
+  grid-template-columns:minmax(0,.9fr) minmax(420px,1.1fr);
+  gap:8%;
+  align-items:start;
+  padding:115px 8%;
+  background:
+    linear-gradient(135deg,rgba(111,31,25,.035),transparent 38%),
+    #f8f0e5;
+}
+.mehendiIntro{position:sticky;top:120px}
+.mehendiIntro h2{
+  font:500 clamp(52px,5.3vw,76px)/.98 "Cormorant Garamond",Georgia,serif;
+  color:var(--maroon);
+  margin:18px 0 26px;
+}
+.mehendiIntro>p:not(.kicker){
+  max-width:580px;
+  font-size:14px;
+  line-height:1.9;
+  color:var(--muted);
+}
+.mehendiFacts{
+  margin-top:34px;
+  padding-top:24px;
+  border-top:1px solid rgba(111,31,25,.18);
+  display:grid;
+  gap:15px;
+}
+.mehendiFacts span{
+  font-size:10px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:#64544a;
+}
+.mehendiFacts b{
+  font:500 21px "Cormorant Garamond",Georgia,serif;
+  color:var(--terracotta);
+  margin-right:12px;
+}
+.mehendiBookingCard{
+  background:#fffdf9;
+  border:1px solid var(--line);
+  padding:36px;
+  box-shadow:0 24px 60px rgba(68,38,25,.08);
+}
+.mehendiBookingCard h3{
+  font:500 37px/1 "Cormorant Garamond",Georgia,serif;
+  color:var(--ink);
+  margin:10px 0 24px;
+}
+.optionalText{
+  font-weight:400;
+  color:#9a8d83;
+  font-size:9px;
+  text-transform:none;
+  letter-spacing:0;
+}
+.bookingPrivacy{
+  font-size:10px;
+  line-height:1.6;
+  color:var(--muted);
+  margin:18px 0;
+}
+.mehendiSuccess{
+  padding:15px 16px;
+  margin:0 0 20px;
+  border-left:3px solid var(--maroon);
+  background:#f3eadc;
+  color:#4e3c32;
+  font-size:12px;
+  line-height:1.6;
+}
+.bookingSummary{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin:20px 0;
+}
+.bookingSummary>div{
+  background:#fffaf2;
+  border:1px solid var(--line);
+  padding:18px;
+}
+.bookingSummary span{
+  display:block;
+  font-size:9px;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.bookingSummary b{
+  display:block;
+  font:500 30px "Cormorant Garamond",Georgia,serif;
+  color:var(--maroon);
+  margin-top:5px;
+}
+.bookingTable a{color:var(--maroon)}
+
+/* Owner intelligence */
+.intelligenceHead{margin-bottom:20px}
+.intelligenceHead h3{
+  font:500 34px "Cormorant Garamond",Georgia,serif;
+  color:var(--maroon);
+  margin:6px 0 0;
+}
+.healthHeadline{
+  padding:22px;
+  border:1px solid var(--line);
+  margin-bottom:12px;
+}
+.healthHeadline.healthy{
+  background:#f1f5ed;
+  border-color:#ced8c4;
+}
+.healthHeadline.needsAttention{
+  background:#fff0ed;
+  border-color:#dfb7ad;
+}
+.healthHeadline span{
+  display:block;
+  font-size:9px;
+  letter-spacing:1.4px;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.healthHeadline b{
+  display:block;
+  font:500 31px "Cormorant Garamond",Georgia,serif;
+  color:var(--ink);
+  margin:4px 0;
+}
+.healthHeadline small{font-size:10px;color:var(--muted)}
+.healthGrid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+.healthGrid article{
+  min-height:125px;
+  border:1px solid var(--line);
+  padding:18px;
+  background:#fffdf9;
+}
+.healthGrid span{
+  display:block;
+  font-size:9px;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.healthGrid b{
+  display:block;
+  font:500 29px "Cormorant Garamond",Georgia,serif;
+  color:var(--maroon);
+  margin:8px 0 4px;
+}
+.healthGrid small{
+  font-size:9px;
+  line-height:1.5;
+  color:var(--muted);
+}
+.recentErrors{
+  margin-top:16px;
+  border:1px solid var(--line);
+  background:white;
+}
+.recentErrors h4{
+  font:500 25px "Cormorant Garamond",Georgia,serif;
+  margin:0;
+  padding:18px;
+  border-bottom:1px solid var(--line);
+}
+.errorRow{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:18px;
+  padding:14px 18px;
+  border-bottom:1px solid #eee8df;
+}
+.errorRow:last-child{border-bottom:0}
+.errorRow b{
+  display:block;
+  font-size:11px;
+  line-height:1.45;
+  font-weight:500;
+}
+.errorRow span{
+  display:block;
+  font-size:9px;
+  color:var(--muted);
+  margin-top:4px;
+}
+.errorRow button{white-space:nowrap}
+.ownerAgentBox,.scheduledReports{
+  margin-top:20px;
+  border:1px solid var(--line);
+  background:#fffaf2;
+  padding:24px;
+}
+.ownerAgentIntro{
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  gap:20px;
+}
+.ownerAgentIntro>div>span{
+  display:block;
+  font-size:9px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--terracotta);
+}
+.ownerAgentIntro h4,.scheduledReports h4{
+  font:500 30px "Cormorant Garamond",Georgia,serif;
+  color:var(--ink);
+  margin:5px 0 6px;
+}
+.ownerAgentIntro p{
+  max-width:620px;
+  font-size:11px;
+  color:var(--muted);
+  margin:0;
+}
+.ownerAgentIntro label{
+  width:180px;
+  margin:0;
+}
+.ownerAgentForm{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  margin-top:20px;
+}
+.ownerAgentForm input{margin:0}
+.agentQuickQuestions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:10px 0 16px;
+}
+.agentQuickQuestions button{
+  border:1px solid var(--line);
+  background:white;
+  padding:8px 10px;
+  font-size:9px;
+  color:var(--maroon);
+  cursor:pointer;
+}
+.agentAnswer{
+  border-left:3px solid var(--maroon);
+  background:white;
+  padding:18px;
+}
+.agentMode{
+  font-size:8px;
+  letter-spacing:1.3px;
+  text-transform:uppercase;
+  color:var(--terracotta);
+  margin-bottom:8px;
+}
+.agentAnswer p{
+  margin:0;
+  font-size:12px;
+  line-height:1.7;
+}
+.reportDownloadBtn{margin-top:12px}
+.scheduledReportCard{
+  display:flex;
+  justify-content:space-between;
+  gap:24px;
+  padding:18px 0;
+  border-top:1px solid var(--line);
+}
+.scheduledReportCard>div:first-child{max-width:720px}
+.scheduledReportCard span{
+  font-size:9px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--terracotta);
+}
+.scheduledReportCard h4{
+  font:500 22px "Cormorant Garamond",Georgia,serif;
+  margin:4px 0;
+}
+.scheduledReportCard p{
+  font-size:10px;
+  line-height:1.6;
+  color:var(--muted);
+  margin:0;
+}
+.reportMiniMetrics{
+  min-width:180px;
+  display:grid;
+  gap:6px;
+}
+.reportMiniMetrics span{
+  color:var(--muted);
+  text-transform:none;
+  letter-spacing:0;
+}
+.reportMiniMetrics b{color:var(--ink);font-size:12px}
+
 @media(max-width:980px){
   .hero{grid-template-columns:1fr 1fr;gap:5%;padding-left:5%;padding-right:5%}
   .heroFrame img{height:520px}
   .heroSeal{left:-30px;width:90px;height:90px}
   .productGrid{grid-template-columns:repeat(2,1fr)}
   .analyticsKpis{grid-template-columns:repeat(2,1fr)}
+  .healthGrid{grid-template-columns:repeat(2,1fr)}
+  .mehendiSection{grid-template-columns:1fr 1fr;gap:5%;padding-left:5%;padding-right:5%}
   .card img{height:450px}
   .promiseGrid article{padding-right:24px;margin-right:24px}
   footer{grid-template-columns:1.4fr 1fr 1fr}
@@ -535,6 +843,16 @@ textarea{min-height:95px;resize:vertical}
   .analyticsHighlights{grid-template-columns:1fr}
   .analyticsControls{align-items:flex-start;flex-direction:column}
   .analyticsPeriodLabel{width:100%}
+  .mehendiSection{grid-template-columns:1fr;padding:82px 7%}
+  .mehendiIntro{position:static}
+  .mehendiBookingCard{padding:28px}
+  .healthGrid{grid-template-columns:1fr 1fr}
+  .ownerAgentIntro{align-items:flex-start;flex-direction:column}
+  .ownerAgentIntro label{width:100%}
+  .ownerAgentForm{grid-template-columns:1fr}
+  .scheduledReportCard{flex-direction:column}
+  .reportMiniMetrics{min-width:0}
+  .bookingSummary{grid-template-columns:1fr 1fr 1fr}
   .adminTable{display:block;overflow-x:auto}
   .two{grid-template-columns:1fr}
 }
@@ -554,6 +872,11 @@ textarea{min-height:95px;resize:vertical}
   .stats{grid-template-columns:1fr}
   .analyticsKpis{grid-template-columns:1fr}
   .analyticsPanel{padding:16px}
+  .mehendiBookingCard{padding:22px}
+  .healthGrid{grid-template-columns:1fr}
+  .bookingSummary{grid-template-columns:1fr}
+  .errorRow{align-items:flex-start;flex-direction:column}
+  .errorRow button{width:100%}
   .adminHeader{align-items:flex-start;flex-direction:column}
   footer{grid-template-columns:1fr}
   .footerBrand{grid-column:auto}
