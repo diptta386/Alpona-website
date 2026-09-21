@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=7">
+<link rel="stylesheet" href="styles.css?v=8">
 </head>
 <body>
 <div class="announcement">
@@ -477,8 +477,11 @@
 <div id="checkoutModal" class="modal"><div class="modalCard"><button class="x" onclick="closeModal('checkoutModal')">×</button>
 <h2>Checkout</h2><p class="muted">Enter your delivery and payment details to submit your Alpona order.</p>
 <form id="checkoutForm" onsubmit="placeOrder(event)">
-<label>Name<input name="name" required></label>
-<label>Mobile Number<input name="phone" required></label>
+<div class="websiteField" aria-hidden="true">
+  <label>Website<input name="website" tabindex="-1" autocomplete="off"></label>
+</div>
+<label>Name<input name="name" required maxlength="120" autocomplete="name"></label>
+<label>Mobile Number<input name="phone" required maxlength="25" autocomplete="tel" inputmode="tel"></label>
  <label>
 Email Address
 <input
@@ -487,7 +490,7 @@ Email Address
   required
   placeholder="Enter your email address">
 </label> 
-<label>Delivery Address<textarea name="address" required></textarea></label>
+<label>Delivery Address<textarea name="address" required maxlength="500"></textarea></label>
 <label>
   City
   <select
@@ -861,8 +864,8 @@ Transaction ID
 <script src="monitoring.js?v=2"></script>
 <script src="analytics.js?v=2"></script>
 <script src="app.js?v=6"></script>
-  <script src="supabase-orders.js?v=2"></script>
- <script src="supabase-owner.js?v=35"></script>
+  <script src="supabase-orders.js?v=3"></script>
+ <script src="supabase-owner.js?v=36"></script>
 <script src="image-upload-patch.js?v=2"></script>
  <script src="supabase-products.js?v=4"></script>
   
