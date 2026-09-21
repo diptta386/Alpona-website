@@ -271,6 +271,8 @@
     document.getElementById("mehendiCoveragePanel");
   const coverageSelect =
     document.getElementById("mehendiCoverage");
+  const sideSelect =
+    document.getElementById("mehendiSide");
   const handsSelect =
     document.getElementById("mehendiHands");
 
@@ -284,10 +286,12 @@
     }
 
     if (coverageSelect) coverageSelect.required = needsMehendi;
+    if (sideSelect) sideSelect.required = needsMehendi;
     if (handsSelect) handsSelect.required = needsMehendi;
 
     if (!needsMehendi) {
       if (coverageSelect) coverageSelect.value = "";
+      if (sideSelect) sideSelect.value = "";
       if (handsSelect) handsSelect.value = "";
     }
   }
