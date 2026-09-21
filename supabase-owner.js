@@ -2,6 +2,15 @@
 
   const OWNER_UID = "5beecdb3-5e80-4a35-9133-5fc01ab7a772";
 
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
   async function ownerSignIn(email, password) {
     const { data, error } = await db.auth.signInWithPassword({
       email,
@@ -338,23 +347,23 @@ if (
           ${orders.map(o => `
             <tr data-order-status="${o.status}">
               <td>
-                <b>${o.order_number}</b><br>
+                <b>${escapeHtml(o.order_number)}</b><br>
                 <span class="muted">
                   ${new Date(o.created_at).toLocaleString()}
                 </span>
               </td>
 
               <td>
-                ${o.customer_name}<br>
-                ${o.phone}<br>
+                ${escapeHtml(o.customer_name)}<br>
+                ${escapeHtml(o.phone)}<br>
                 <span class="muted">
-                  ${o.address}
+                  ${escapeHtml(o.address)}
                 </span>
               </td>
 
               <td>
                 ${(o.order_items || []).map(i =>
-                  `${i.product_name} × ${i.quantity}`
+                  `${escapeHtml(i.product_name)} × ${Number(i.quantity || 0)}`
                 ).join("<br>")}
               </td>
 
@@ -362,10 +371,10 @@ if (
 
              <td>
 
-  <b>Method:</b> ${o.advance_method || o.payment_method || ""}
+  <b>Method:</b> ${escapeHtml(o.advance_method || o.payment_method || "")}
   <br>
 
-  <b>Transaction:</b> ${o.advance_transaction_id || "N/A"}
+  <b>Transaction:</b> ${escapeHtml(o.advance_transaction_id || "N/A")}
   <br>
 
   <b>Paid:</b> ${money(o.advance_amount || 0)}
@@ -374,7 +383,7 @@ if (
   <b>Remaining COD:</b> ${money(o.remaining_cod || 0)}
   <br>
 
-  <b>Payment Status:</b> ${o.payment_status || "pending_verification"}
+  <b>Payment Status:</b> ${escapeHtml(o.payment_status || "pending_verification")}
 
   <br><br>
 
@@ -431,11 +440,11 @@ ${o.pathao_consignment_id ? `
   <br>
 
   <b>Consignment:</b>
-  ${o.pathao_consignment_id}
+  ${escapeHtml(o.pathao_consignment_id)}
   <br>
 
   <b>Pathao Status:</b>
-  ${o.pathao_status || "Pending"}
+  ${escapeHtml(o.pathao_status || "Pending")}
   <br>
 
   <b>Pathao Fee:</b>
@@ -480,7 +489,7 @@ ${o.pathao_consignment_id ? `
           ${expenses.map(e => `
             <tr>
               <td>${new Date(e.created_at).toLocaleDateString()}</td>
-              <td>${e.description}</td>
+              <td>${escapeHtml(e.description)}</td>
               <td>${money(e.amount)}</td>
               <td>
                 <button
