@@ -622,11 +622,17 @@ textarea{min-height:95px;resize:vertical}
   line-height:1.6;
   color:var(--muted);
 }
+.mehendiGuidePicture{
+  display:block;
+  width:100%;
+  margin:0 0 18px;
+}
 .mehendiLengthGuide{
   display:block;
   width:100%;
+  max-width:100%;
   height:auto;
-  margin:0 0 18px;
+  object-fit:contain;
   border:1px solid var(--line);
   background:#fffaf3;
 }
@@ -1135,6 +1141,9 @@ textarea{min-height:95px;resize:vertical}
   .damageReportSection{grid-template-columns:1fr;padding:82px 7%}
   .damagePolicy{position:static}
   .mehendiBookingCard{padding:28px}
+  .mehendiCoveragePanel{padding:14px}
+  .mehendiGuidePicture{width:100%;overflow:hidden}
+  .mehendiLengthGuide{width:100%;max-width:100%;height:auto}
   .healthGrid{grid-template-columns:1fr 1fr}
   .ownerAgentIntro{align-items:flex-start;flex-direction:column}
   .ownerAgentIntro label{width:100%}
@@ -1162,6 +1171,9 @@ textarea{min-height:95px;resize:vertical}
   .analyticsKpis{grid-template-columns:1fr}
   .analyticsPanel{padding:16px}
   .mehendiBookingCard{padding:22px}
+  .mehendiCoveragePanel{padding:10px}
+  .mehendiGuideHead h4{font-size:25px}
+  .mehendiLengthGuide{border:0}
   .damageReportCard{padding:22px}
   .damageAdminTop{flex-direction:column}
   .damageAdminGrid{grid-template-columns:1fr}
