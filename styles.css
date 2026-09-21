@@ -436,11 +436,50 @@ textarea{min-height:95px;resize:vertical}
 .toast{position:fixed;left:50%;bottom:25px;transform:translateX(-50%) translateY(100px);background:#2f251f;color:white;padding:12px 18px;z-index:10000;font-size:12px;transition:.25s}
 .toast.show{transform:translateX(-50%) translateY(0)}
 
+/* Owner analytics */
+.analyticsControls{align-items:flex-end;margin-bottom:20px}
+.analyticsControls h3{font:500 34px "Cormorant Garamond",Georgia,serif;color:var(--maroon);margin:6px 0 0}
+.analyticsPeriodLabel{width:190px;margin:0}
+.analyticsPeriodLabel select{margin-top:6px}
+.analyticsLoading,.analyticsEmpty{padding:38px;text-align:center;border:1px dashed var(--line);color:var(--muted);font-size:13px;background:#fffdf9}
+.analyticsReportHeader{display:flex;justify-content:space-between;align-items:center;gap:20px;margin:8px 0 18px}
+.analyticsReportHeader h3{font:500 32px "Cormorant Garamond",Georgia,serif;margin:4px 0 0;color:var(--ink)}
+.analyticsRange{font-size:9px;letter-spacing:1.6px;text-transform:uppercase;color:var(--terracotta);font-weight:600}
+.analyticsKpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}
+.analyticsKpis article{background:#fffaf2;border:1px solid var(--line);padding:20px;min-height:132px}
+.analyticsKpis span,.analyticsHighlights span,.analyticsPanelHead span{display:block;font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+.analyticsKpis b{display:block;font:500 31px "Cormorant Garamond",Georgia,serif;color:var(--maroon);margin:10px 0 4px}
+.analyticsKpis b.analyticsProductKpi{font-size:22px;line-height:1.05}
+.analyticsKpis small,.analyticsHighlights small{font-size:10px;color:var(--muted)}
+.analyticsHighlights{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:18px}
+.analyticsHighlights>div{background:white;padding:18px}
+.analyticsHighlights b{display:block;font:500 21px "Cormorant Garamond",Georgia,serif;margin:7px 0 3px;color:var(--ink)}
+.analyticsPanel{border:1px solid var(--line);background:white;padding:22px;margin:18px 0}
+.analyticsPanelHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.analyticsPanelHead h4{font:500 26px "Cormorant Garamond",Georgia,serif;margin:5px 0 0;color:var(--ink)}
+.analyticsChartLegend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:15px;font-size:10px;color:var(--muted)}
+.analyticsChartLegend span{display:flex;align-items:center;gap:6px}
+.legendDot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.legendDot.views,.bar.views{background:#6f1f19}
+.legendDot.added,.bar.added{background:#b75c24}
+.legendDot.checkout,.bar.checkout{background:#aa9477}
+.analyticsChart{display:flex;align-items:flex-end;gap:6px;height:220px;padding-top:8px;overflow-x:auto;border-bottom:1px solid var(--line)}
+.analyticsDay{flex:1;min-width:28px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.analyticsBars{height:176px;width:100%;display:flex;align-items:flex-end;justify-content:center;gap:2px}
+.analyticsBars .bar{width:5px;min-height:3px;display:block;border-radius:2px 2px 0 0;opacity:.9}
+.analyticsDay small{display:block;font-size:8px;color:var(--muted);white-space:nowrap;margin:7px 0 4px;transform:rotate(-45deg);transform-origin:center}
+.analyticsTableWrap{overflow-x:auto}
+.analyticsTable th{white-space:nowrap}
+.analyticsTable td{white-space:nowrap}
+.analyticsTable td:first-child{white-space:normal;min-width:190px}
+.analyticsNote{font-size:10px;line-height:1.6;color:var(--muted);margin:16px 0 0;padding-left:12px;border-left:2px solid var(--terracotta)}
+
 @media(max-width:980px){
   .hero{grid-template-columns:1fr 1fr;gap:5%;padding-left:5%;padding-right:5%}
   .heroFrame img{height:520px}
   .heroSeal{left:-30px;width:90px;height:90px}
   .productGrid{grid-template-columns:repeat(2,1fr)}
+  .analyticsKpis{grid-template-columns:repeat(2,1fr)}
   .card img{height:450px}
   .promiseGrid article{padding-right:24px;margin-right:24px}
   footer{grid-template-columns:1.4fr 1fr 1fr}
@@ -493,6 +532,9 @@ textarea{min-height:95px;resize:vertical}
   .productDetailGrid{grid-template-columns:1fr}
   .productDetailGrid img{height:auto;aspect-ratio:4/5}
   .stats{grid-template-columns:1fr 1fr}
+  .analyticsHighlights{grid-template-columns:1fr}
+  .analyticsControls{align-items:flex-start;flex-direction:column}
+  .analyticsPeriodLabel{width:100%}
   .adminTable{display:block;overflow-x:auto}
   .two{grid-template-columns:1fr}
 }
@@ -510,6 +552,8 @@ textarea{min-height:95px;resize:vertical}
   .visualOverlay h3,.visualCard:not(.visualCardLarge) .visualOverlay h3{font-size:29px}
   .sectionHead h2,.story h2,.promiseSection h2,.howSection h2,.closingCta h2{font-size:46px}
   .stats{grid-template-columns:1fr}
+  .analyticsKpis{grid-template-columns:1fr}
+  .analyticsPanel{padding:16px}
   .adminHeader{align-items:flex-start;flex-direction:column}
   footer{grid-template-columns:1fr}
   .footerBrand{grid-column:auto}
