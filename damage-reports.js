@@ -54,29 +54,17 @@
     );
 
     if (!video) {
-      alert(
-        "A full unboxing video is required for a damage claim."
-      );
+      alert("A full unboxing video is required for a damage claim.");
       return;
     }
 
-    const allowedVideoTypes = [
-      "video/mp4",
-      "video/quicktime",
-      "video/webm"
-    ];
-
-    if (!allowedVideoTypes.includes(video.type)) {
-      alert(
-        "Please upload the unboxing video as MP4, MOV, or WebM."
-      );
+    if (!["video/mp4","video/quicktime","video/webm"].includes(video.type)) {
+      alert("Please upload the unboxing video as MP4, MOV, or WebM.");
       return;
     }
 
     if (video.size > 100 * 1024 * 1024) {
-      alert(
-        "The video is larger than 100 MB. Please reduce the file size and try again."
-      );
+      alert("The video is larger than 100 MB. Please reduce the file size and try again.");
       return;
     }
 
@@ -90,7 +78,6 @@
         alert("Supporting photos must be JPG, PNG, or WebP.");
         return;
       }
-
       if (photo.size > 10 * 1024 * 1024) {
         alert("Each supporting photo must be 10 MB or smaller.");
         return;
@@ -98,15 +85,13 @@
     }
 
     if (!fd.get("policy_accepted")) {
-      alert(
-        "Please read and accept the Damage Claim Policy before submitting."
-      );
+      alert("Please read and accept the Damage Claim Policy before submitting.");
       return;
     }
 
     const confirmed = confirm(
       "Submit this damage report?\n\n" +
-      "Your full unboxing video will be reviewed by Alpona. " +
+      "Your order details will be verified and your full unboxing video will be reviewed by Alpona. " +
       "Submitting a report does not automatically approve a refund."
     );
 
@@ -114,69 +99,98 @@
 
     if (button) {
       button.disabled = true;
-      button.textContent = "Uploading evidence…";
+      button.textContent = "Verifying claim…";
     }
 
-    const claimNumber = reportNumber();
-    const folder =
-      "claims/" +
-      claimNumber +
-      "-" +
-      crypto.randomUUID();
-
-    const uploadedPaths = [];
-
     try {
-      const videoPath =
-        folder +
-        "/unboxing-" +
-        safeName(video.name);
+      const preparePayload = {
+        website: String(fd.get("website") || ""),
+        order_number: String(fd.get("order_number") || "").trim(),
+        customer_name: String(fd.get("customer_name") || "").trim(),
+        phone: String(fd.get("phone") || "").trim(),
+        customer_email: String(fd.get("customer_email") || "").trim(),
+        issue_type: String(fd.get("issue_type") || "").trim(),
+        description: String(fd.get("description") || "").trim(),
+        video: {
+          name: video.name,
+          type: video.type,
+          size: video.size
+        },
+        photos: photos.map(photo => ({
+          name: photo.name,
+          type: photo.type,
+          size: photo.size
+        }))
+      };
 
-      await uploadEvidence(videoPath, video);
-      uploadedPaths.push(videoPath);
+      const { data: prepared, error: prepareError } =
+        await db.functions.invoke(
+          "prepare-damage-report",
+          { body: preparePayload }
+        );
 
-      const photoPaths = [];
-
-      for (let i = 0; i < photos.length; i++) {
-        const path =
-          folder +
-          "/photo-" +
-          (i + 1) +
-          "-" +
-          safeName(photos[i].name);
-
-        await uploadEvidence(path, photos[i]);
-        uploadedPaths.push(path);
-        photoPaths.push(path);
+      if (prepareError || !prepared?.success) {
+        throw new Error(
+          prepared?.error ||
+          prepareError?.message ||
+          "Could not verify this claim."
+        );
       }
 
-      const { error } = await db
-        .from("damage_reports")
-        .insert({
-          report_number: claimNumber,
-          order_number:
-            String(fd.get("order_number") || "").trim(),
-          customer_name:
-            String(fd.get("customer_name") || "").trim(),
-          phone:
-            String(fd.get("phone") || "").trim(),
-          customer_email:
-            String(fd.get("customer_email") || "").trim(),
-          issue_type:
-            String(fd.get("issue_type") || "").trim(),
-          description:
-            String(fd.get("description") || "").trim(),
-          video_path: videoPath,
-          photo_paths: photoPaths,
-          policy_accepted: true,
-          status: "Submitted"
-        });
+      if (button) {
+        button.textContent = "Uploading evidence…";
+      }
 
-      if (error) throw error;
+      for (const upload of prepared.uploads || []) {
+        const file =
+          upload.kind === "video"
+            ? video
+            : photos[Number(upload.index)];
+
+        if (!file) {
+          throw new Error("Evidence file is missing.");
+        }
+
+        const { error: uploadError } = await db.storage
+          .from(BUCKET)
+          .uploadToSignedUrl(
+            upload.path,
+            upload.token,
+            file,
+            {
+              contentType: file.type,
+              cacheControl: "3600"
+            }
+          );
+
+        if (uploadError) throw uploadError;
+      }
+
+      if (button) {
+        button.textContent = "Finalizing report…";
+      }
+
+      const { data: finalized, error: finalizeError } =
+        await db.functions.invoke(
+          "finalize-damage-report",
+          {
+            body: {
+              session_token: prepared.session_token
+            }
+          }
+        );
+
+      if (finalizeError || !finalized?.success) {
+        throw new Error(
+          finalized?.error ||
+          finalizeError?.message ||
+          "Could not finalize the damage report."
+        );
+      }
 
       if (window.posthog) {
         window.posthog.capture("damage_report_submitted", {
-          issue_type: String(fd.get("issue_type") || ""),
+          issue_type: preparePayload.issue_type,
           has_photos: photos.length > 0
         });
       }
@@ -190,7 +204,7 @@
         success.innerHTML =
           "<strong>Damage report submitted.</strong><br>" +
           "Reference: <b>" +
-          escapeHtml(claimNumber) +
+          escapeHtml(finalized.report_number) +
           "</b><br>" +
           "Alpona will review the unboxing video and contact you. " +
           "Do not send the damaged product back unless Alpona specifically asks you to.";
@@ -204,17 +218,9 @@
 
     } catch (error) {
       console.error("Damage report error:", error);
-
-      for (const path of uploadedPaths) {
-        try {
-          await db.storage
-            .from(BUCKET)
-            .remove([path]);
-        } catch (_) {}
-      }
-
       alert(
-        "Your damage report could not be submitted. Please try again, or contact Alpona through Facebook or Instagram."
+        (error?.message || "Your damage report could not be submitted.") +
+        "\n\nPlease try again, or contact Alpona through Facebook or Instagram."
       );
     } finally {
       if (button) {
