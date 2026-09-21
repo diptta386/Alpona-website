@@ -64,6 +64,7 @@
       occasion: String(fd.get("occasion") || "").trim(),
       service_type: String(fd.get("service_type") || "").trim(),
       mehendi_coverage: String(fd.get("mehendi_coverage") || "").trim(),
+      mehendi_side: String(fd.get("mehendi_side") || "").trim(),
       mehendi_hands: String(fd.get("mehendi_hands") || "").trim(),
       number_of_people: Number(fd.get("number_of_people") || 1),
       venue_area: String(fd.get("venue_area") || "").trim(),
