@@ -219,6 +219,9 @@
     <div id="mehendiSuccess" class="mehendiSuccess" style="display:none;"></div>
 
     <form id="mehendiBookingForm" onsubmit="submitMehendiBooking(event)">
+      <div class="websiteField" aria-hidden="true">
+        <label>Website<input name="website" tabindex="-1" autocomplete="off"></label>
+      </div>
       <div class="two">
         <label>
           Your Name
@@ -345,6 +348,9 @@
     <div id="damageReportSuccess" class="mehendiSuccess" style="display:none;"></div>
 
     <form id="damageReportForm" onsubmit="submitDamageReport(event)">
+      <div class="websiteField" aria-hidden="true">
+        <label>Website<input name="website" tabindex="-1" autocomplete="off"></label>
+      </div>
       <div class="two">
         <label>
           Order Number
@@ -872,8 +878,8 @@ Transaction ID
 <script src="alpona-chat.js?v=2"></script>
   <script src="supabase-chat.js?v=2"></script>
   <script src="supabase-owner-chat.js"></script>
-  <script src="mehendi.js?v=1"></script>
-  <script src="damage-reports.js?v=2"></script>
+  <script src="mehendi.js?v=2"></script>
+  <script src="damage-reports.js?v=3"></script>
   <script src="owner-agent.js?v=1"></script>
   <script>
   const params = new URLSearchParams(window.location.search);
