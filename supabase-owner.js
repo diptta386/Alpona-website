@@ -106,11 +106,18 @@
   window.verifyOwnerMfa = async function (event) {
     event.preventDefault();
 
-    const code =
-      document.getElementById("mfaCode").value.trim();
+    const input =
+      document.getElementById("mfaCode");
 
-    if (!/^\d{6}$/.test(code)) {
-      alert("Enter the 6-digit code from your authenticator app.");
+    const code =
+      String(input.value || "")
+        .replace(/[^0-9]/g, "")
+        .slice(0, 6);
+
+    input.value = code;
+
+    if (code.length !== 6) {
+      alert("Enter all 6 digits from your authenticator app.");
       return;
     }
 
