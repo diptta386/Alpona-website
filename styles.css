@@ -354,6 +354,38 @@ footer b{display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase
 footer p{font-size:12px;line-height:1.9;color:rgba(248,234,223,.7);margin:0}
 footer a{text-decoration:none;color:inherit}
 footer a:hover{color:white}
+.socialLinks{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:20px;
+}
+.socialLink{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  padding:9px 12px;
+  border:1px solid rgba(255,255,255,.18);
+  font-size:9px;
+  letter-spacing:1.1px;
+  text-transform:uppercase;
+  transition:.25s ease;
+}
+.socialLink:hover{
+  border-color:rgba(255,255,255,.45);
+  background:rgba(255,255,255,.06);
+  transform:translateY(-1px);
+}
+.socialIcon{
+  width:22px;
+  height:22px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.24);
+  border-radius:50%;
+  font:600 14px/1 Arial,sans-serif;
+}
+.instagramIcon{font-size:16px;font-weight:400}
 
 /* Cart, checkout and product details */
 .overlay{position:fixed;inset:0;background:rgba(20,12,9,.55);z-index:30;display:none;backdrop-filter:blur(4px)}
