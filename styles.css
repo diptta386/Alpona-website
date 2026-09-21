@@ -607,6 +607,184 @@ textarea{min-height:95px;resize:vertical}
 }
 .bookingTable a{color:var(--maroon)}
 
+
+/* Damage report */
+.damageReportSection{
+  display:grid;
+  grid-template-columns:minmax(0,.95fr) minmax(420px,1.05fr);
+  gap:7%;
+  align-items:start;
+  padding:115px 8%;
+  background:#f3eadf;
+}
+.damagePolicy{position:sticky;top:120px}
+.damagePolicy h2{
+  font:500 clamp(50px,5.1vw,74px)/.98 "Cormorant Garamond",Georgia,serif;
+  color:var(--maroon);
+  margin:18px 0 24px;
+}
+.damagePolicyLead{
+  max-width:590px;
+  font-size:14px;
+  line-height:1.85;
+  color:var(--muted);
+}
+.policyBox{
+  margin-top:28px;
+  padding:24px;
+  background:#fffaf3;
+  border:1px solid var(--line);
+}
+.policyBox h3{
+  font:500 30px "Cormorant Garamond",Georgia,serif;
+  margin:0 0 14px;
+  color:var(--ink);
+}
+.policyBox ol{
+  margin:0;
+  padding-left:21px;
+}
+.policyBox li{
+  padding:7px 0 7px 5px;
+  font-size:11px;
+  line-height:1.65;
+  color:#5f5047;
+}
+.damageContact{
+  margin-top:20px;
+  padding-top:18px;
+  border-top:1px solid rgba(111,31,25,.16);
+}
+.damageContact>span{
+  display:block;
+  margin-bottom:11px;
+  font-size:9px;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.damageContact>div{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.damageReportCard{
+  background:#fffdf9;
+  border:1px solid var(--line);
+  padding:36px;
+  box-shadow:0 24px 60px rgba(68,38,25,.08);
+}
+.damageReportCard h3{
+  font:500 37px/1 "Cormorant Garamond",Georgia,serif;
+  color:var(--ink);
+  margin:10px 0 24px;
+}
+.evidenceUpload{
+  padding:16px;
+  border:1px solid var(--line);
+  background:#fffaf3;
+}
+.evidenceUpload.requiredEvidence{
+  border-color:rgba(111,31,25,.45);
+  background:#fbf0e8;
+}
+.evidenceUpload>strong{
+  display:inline-block;
+  margin-left:5px;
+  color:var(--maroon);
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+.evidenceUpload input{background:white}
+.evidenceUpload small{
+  display:block;
+  margin-top:8px;
+  font-size:9px;
+  line-height:1.55;
+  color:var(--muted);
+}
+.policyAccept{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:14px;
+  border:1px solid var(--line);
+  background:#fff;
+  line-height:1.55;
+}
+.policyAccept input{
+  width:auto;
+  margin:2px 0 0;
+  flex:0 0 auto;
+}
+.policyAccept span{
+  font-size:10px;
+  color:#5e5047;
+}
+.damageAdminList{
+  display:grid;
+  gap:16px;
+  margin-top:18px;
+}
+.damageAdminCard{
+  border:1px solid var(--line);
+  background:#fffdf9;
+  padding:20px;
+}
+.damageAdminTop{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-start;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--line);
+}
+.damageAdminTop h4{
+  font:500 27px "Cormorant Garamond",Georgia,serif;
+  margin:4px 0;
+  color:var(--maroon);
+}
+.damageAdminTop p{
+  margin:0;
+  font-size:10px;
+  color:var(--muted);
+}
+.claimStatus{
+  display:inline-block;
+  font-size:8px;
+  letter-spacing:1.3px;
+  text-transform:uppercase;
+  color:var(--terracotta);
+}
+.damageAdminGrid{
+  display:grid;
+  grid-template-columns:1fr 1.3fr;
+  gap:20px;
+  padding:17px 0;
+}
+.damageAdminGrid b{
+  display:block;
+  font-size:9px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+.damageAdminGrid p{
+  margin:0;
+  font-size:11px;
+  line-height:1.65;
+}
+.damageAdminGrid a{color:var(--maroon)}
+.damageEvidenceLinks{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:14px 0 4px;
+}
+.damageOwnerNote{margin-top:14px}
+
 /* Owner intelligence */
 .intelligenceHead{margin-bottom:20px}
 .intelligenceHead h3{
@@ -820,6 +998,7 @@ textarea{min-height:95px;resize:vertical}
   .analyticsKpis{grid-template-columns:repeat(2,1fr)}
   .healthGrid{grid-template-columns:repeat(2,1fr)}
   .mehendiSection{grid-template-columns:1fr 1fr;gap:5%;padding-left:5%;padding-right:5%}
+  .damageReportSection{grid-template-columns:1fr 1fr;gap:5%;padding-left:5%;padding-right:5%}
   .card img{height:450px}
   .promiseGrid article{padding-right:24px;margin-right:24px}
   footer{grid-template-columns:1.4fr 1fr 1fr}
@@ -877,6 +1056,8 @@ textarea{min-height:95px;resize:vertical}
   .analyticsPeriodLabel{width:100%}
   .mehendiSection{grid-template-columns:1fr;padding:82px 7%}
   .mehendiIntro{position:static}
+  .damageReportSection{grid-template-columns:1fr;padding:82px 7%}
+  .damagePolicy{position:static}
   .mehendiBookingCard{padding:28px}
   .healthGrid{grid-template-columns:1fr 1fr}
   .ownerAgentIntro{align-items:flex-start;flex-direction:column}
@@ -905,6 +1086,9 @@ textarea{min-height:95px;resize:vertical}
   .analyticsKpis{grid-template-columns:1fr}
   .analyticsPanel{padding:16px}
   .mehendiBookingCard{padding:22px}
+  .damageReportCard{padding:22px}
+  .damageAdminTop{flex-direction:column}
+  .damageAdminGrid{grid-template-columns:1fr}
   .healthGrid{grid-template-columns:1fr}
   .bookingSummary{grid-template-columns:1fr}
   .errorRow{align-items:flex-start;flex-direction:column}
