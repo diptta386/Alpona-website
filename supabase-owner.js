@@ -85,7 +85,7 @@
 
     const enroll = await db.auth.mfa.enroll({
       factorType: "totp",
-      friendlyName: "Alpona Owner"
+      friendlyName: "Alpona Owner " + Date.now()
     });
 
     if (enroll.error || !enroll.data) {
