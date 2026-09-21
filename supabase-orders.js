@@ -349,6 +349,35 @@ if (window.posthog) {
   });
 
 }
+
+// First-party Alpona analytics
+if (window.alponaTrack) {
+
+  window.alponaTrack(
+    "order_placed",
+    {
+      quantity: 1,
+      value: Number(total || 0)
+    }
+  );
+
+  items.forEach(item => {
+
+    window.alponaTrack(
+      "product_purchased",
+      {
+        product_id: item.product_id,
+        product_name: item.product_name,
+        quantity: Number(item.quantity || 1),
+        value:
+          Number(item.price || 0) *
+          Number(item.quantity || 1)
+      }
+    );
+
+  });
+
+}
     cart = [];
 
     set("alpona_cart", cart);
