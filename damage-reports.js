@@ -161,7 +161,7 @@
           phone:
             String(fd.get("phone") || "").trim(),
           customer_email:
-            String(fd.get("customer_email") || "").trim() || null,
+            String(fd.get("customer_email") || "").trim(),
           issue_type:
             String(fd.get("issue_type") || "").trim(),
           description:
@@ -349,6 +349,15 @@
                 </div>
               </div>
 
+              <div class="damageRefundInfo">
+                <b>Refund</b>
+                <p>
+                  Amount: ${r.refund_amount ? "৳" + Number(r.refund_amount).toLocaleString() : "Not entered"}<br>
+                  ${r.refunded_at ? "Sent: " + new Date(r.refunded_at).toLocaleString() + "<br>" : ""}
+                  ${r.refund_email_sent_at ? "Customer email sent" : (r.status === "Refund Sent" ? "Refund email not yet sent" : "")}
+                </p>
+              </div>
+
               <div class="damageEvidenceLinks">
                 ${r.videoUrl
                   ? '<a class="primary" target="_blank" rel="noopener noreferrer" href="' + r.videoUrl + '">Watch Unboxing Video</a>'
@@ -391,22 +400,128 @@
   window.updateDamageReportStatus =
     async function (id, status) {
 
-    const { error } = await db
-      .from("damage_reports")
-      .update({
+    try {
+      const { data: report, error: loadError } = await db
+        .from("damage_reports")
+        .select("id,report_number,order_number,customer_name,customer_email,refund_amount,refund_email_sent_at,status")
+        .eq("id", id)
+        .single();
+
+      if (loadError || !report) {
+        throw loadError || new Error("Report not found");
+      }
+
+      let refundAmount =
+        Number(report.refund_amount || 0);
+
+      if (status === "Refund Sent") {
+        if (!refundAmount) {
+          const entered = prompt(
+            "Enter the refund amount in BDT (৳):"
+          );
+
+          if (entered === null) {
+            await window.loadDamageReports();
+            return;
+          }
+
+          refundAmount = Number(entered);
+
+          if (!Number.isFinite(refundAmount) || refundAmount <= 0) {
+            alert("Please enter a valid refund amount greater than 0.");
+            await window.loadDamageReports();
+            return;
+          }
+        }
+
+        const confirmed = confirm(
+          "Confirm refund sent?\n\n" +
+          "Amount: ৳" + refundAmount.toLocaleString() + "\n" +
+          "Customer: " + report.customer_name + "\n\n" +
+          "After confirmation, Alpona will record the refund and send the customer a refund email through Resend."
+        );
+
+        if (!confirmed) {
+          await window.loadDamageReports();
+          return;
+        }
+      }
+
+      const updateData = {
         status,
         updated_at: new Date().toISOString()
-      })
-      .eq("id", id);
+      };
 
-    if (error) {
+      if (status === "Refund Sent") {
+        updateData.refund_amount = refundAmount;
+        updateData.refunded_at = new Date().toISOString();
+      }
+
+      const { error } = await db
+        .from("damage_reports")
+        .update(updateData)
+        .eq("id", id);
+
+      if (error) throw error;
+
+      if (
+        status === "Refund Sent" &&
+        !report.refund_email_sent_at
+      ) {
+        const { error: emailError } =
+          await db.functions.invoke(
+            "send-refund-email",
+            {
+              body: {
+                customer_email: report.customer_email,
+                customer_name: report.customer_name,
+                order_number: report.order_number,
+                report_number: report.report_number,
+                refund_amount: refundAmount
+              }
+            }
+          );
+
+        if (emailError) {
+          console.error("Refund email error:", emailError);
+
+          alert(
+            "Refund was recorded as sent, but the customer email could not be sent. Please try again from this report."
+          );
+
+          await window.loadDamageReports();
+          return;
+        }
+
+        const { error: stampError } = await db
+          .from("damage_reports")
+          .update({
+            refund_email_sent_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", id);
+
+        if (stampError) {
+          console.error("Refund email timestamp error:", stampError);
+        }
+
+        alert(
+          "Refund recorded successfully.\n\n" +
+          "Amount: ৳" + refundAmount.toLocaleString() + "\n" +
+          "Refund confirmation email sent to:\n" +
+          report.customer_email
+        );
+      } else {
+        toast("Damage report updated");
+      }
+
+      await window.loadDamageReports();
+
+    } catch (error) {
       console.error("Damage report status error:", error);
       alert("Could not update the report.");
-      return;
+      await window.loadDamageReports();
     }
-
-    toast("Damage report updated");
-    await window.loadDamageReports();
   };
 
   window.saveDamageOwnerNote =
