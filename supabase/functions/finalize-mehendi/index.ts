@@ -61,7 +61,16 @@ Deno.serve(async request => {
     }
 
     const { data, error } = await service.rpc("create_secure_mehendi_booking", { p_booking: session.booking_data });
-    if (error) throw error;
+    if (error) {
+      if (String(error.message || "").includes("SLOT_ALREADY_BOOKED")) {
+        await service.storage.from(BUCKET).remove(imagePaths);
+        await service.from("mehendi_upload_sessions").delete().eq("token_hash", tokenHash);
+        return new Response(JSON.stringify({
+          error: "That date and time is already booked. Please choose another time."
+        }), { status: 409, headers: headers(origin) });
+      }
+      throw error;
+    }
     await service.from("mehendi_upload_sessions").delete().eq("token_hash", tokenHash);
 
     return new Response(JSON.stringify({ success: true, booking_number: data?.booking_number || session.booking_number }), { status: 200, headers: headers(origin) });

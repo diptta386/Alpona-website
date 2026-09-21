@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=13">
+<link rel="stylesheet" href="styles.css?v=14">
 </head>
 <body>
 <div class="announcement">
@@ -235,24 +235,26 @@
       </div>
 
       <label>
-        Email <span class="optionalText">(optional)</span>
-        <input name="customer_email" type="email" maxlength="180" autocomplete="email">
+        Email
+        <input name="customer_email" type="email" maxlength="180" autocomplete="email" required placeholder="Confirmation email will be sent here">
       </label>
 
       <div class="two">
         <label>
           Event Date
-          <input name="event_date" type="date" required>
+          <input id="mehendiEventDate" name="event_date" type="date" required>
         </label>
 
         <label>
           Preferred Time
-          <select name="preferred_time" required>
-            <option value="">Choose time</option>
-            <option>Morning</option>
-            <option>Afternoon</option>
-            <option>Evening</option>
+          <select id="mehendiPreferredTime" name="preferred_time" required>
+            <option value="">সময় বেছে নিন</option>
+            <option value="Morning">সকাল</option>
+            <option value="Afternoon">দুপুর</option>
+            <option value="Evening">বিকাল</option>
+            <option value="Night">রাত</option>
           </select>
+          <small id="mehendiAvailabilityHelp" class="fieldHelp" aria-live="polite">তারিখ বেছে নিলে খালি সময়গুলো দেখা যাবে।</small>
         </label>
       </div>
 
@@ -1035,7 +1037,7 @@ Transaction ID
 <script src="alpona-chat.js?v=2"></script>
   <script src="supabase-chat.js?v=2"></script>
   <script src="supabase-owner-chat.js"></script>
-  <script src="mehendi.js?v=6"></script>
+  <script src="mehendi.js?v=7"></script>
   <script src="damage-reports.js?v=3"></script>
   <script src="owner-agent.js?v=1"></script>
   <script src="site-motion.js?v=1"></script>

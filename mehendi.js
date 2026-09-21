@@ -4,6 +4,12 @@
   const MAX_DESIGN_FILES = 3;
   const MAX_DESIGN_FILE_SIZE = 5 * 1024 * 1024;
   const ALLOWED_DESIGN_TYPES = ["image/jpeg", "image/png", "image/webp"];
+  const TIME_LABELS = {
+    Morning: "সকাল",
+    Afternoon: "দুপুর",
+    Evening: "বিকাল",
+    Night: "রাত"
+  };
 
   function bookingNumber() {
     return (
@@ -63,6 +69,52 @@
       : '<span class="muted">Image unavailable</span>';
   }
 
+  async function refreshMehendiAvailability(eventDate) {
+    const select = document.getElementById("mehendiPreferredTime");
+    const help = document.getElementById("mehendiAvailabilityHelp");
+    if (!select) return [];
+
+    [...select.options].forEach(option => {
+      if (!option.value) return;
+      option.disabled = false;
+      option.textContent = TIME_LABELS[option.value] || option.value;
+    });
+
+    if (!eventDate) {
+      if (help) help.textContent = "তারিখ বেছে নিলে খালি সময়গুলো দেখা যাবে।";
+      return [];
+    }
+
+    if (help) help.textContent = "খালি সময় যাচাই করা হচ্ছে…";
+    const { data, error } = await db.functions.invoke(
+      "mehendi-availability",
+      { body: { event_date: eventDate } }
+    );
+
+    if (error || !data?.success) {
+      if (help) help.textContent = "সময় যাচাই করা যায়নি। জমা দেওয়ার সময় আবার পরীক্ষা করা হবে।";
+      return [];
+    }
+
+    const unavailable = Array.isArray(data.unavailable_times)
+      ? data.unavailable_times
+      : [];
+
+    [...select.options].forEach(option => {
+      if (!option.value || !unavailable.includes(option.value)) return;
+      option.disabled = true;
+      option.textContent = `${TIME_LABELS[option.value] || option.value} — বুকড`;
+    });
+
+    if (select.selectedOptions[0]?.disabled) select.value = "";
+    if (help) {
+      help.textContent = unavailable.length
+        ? "“বুকড” সময়টি অন্য গ্রাহকের জন্য নিশ্চিত করা হয়েছে। অন্য সময় বেছে নিন।"
+        : "এই তারিখে সকাল, দুপুর, বিকাল ও রাত—সব সময় খালি আছে।";
+    }
+    return unavailable;
+  }
+
   window.submitMehendiBooking = async function (event) {
     event.preventDefault();
 
@@ -75,6 +127,13 @@
 
     if (!date) {
       alert("Please choose your event date.");
+      return;
+    }
+
+    const selectedTime = String(fd.get("preferred_time") || "");
+    const unavailable = await refreshMehendiAvailability(date);
+    if (unavailable.includes(selectedTime)) {
+      alert("এই তারিখ ও সময়টি ইতিমধ্যে বুকড। অন্য সময় বেছে নিন।");
       return;
     }
 
@@ -98,6 +157,7 @@
     }
 
     const payload = {
+      booking_form_version: 2,
       website: String(fd.get("website") || ""),
       customer_name: String(fd.get("customer_name") || "").trim(),
       phone: String(fd.get("phone") || "").trim(),
@@ -231,7 +291,7 @@
         .from("mehendi_bookings")
         .select("*")
         .order("event_date", { ascending: true })
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true });
 
       if (error) throw error;
 
@@ -242,6 +302,16 @@
           '<div class="analyticsEmpty">No Mehendi or Kolka booking requests yet.</div>';
         return;
       }
+
+      const priorityById = new Map();
+      const slotCounts = new Map();
+      rows.forEach(row => {
+        if (["Cancelled", "Completed"].includes(row.status)) return;
+        const key = `${row.event_date}|${row.preferred_time}`;
+        const priority = (slotCounts.get(key) || 0) + 1;
+        slotCounts.set(key, priority);
+        priorityById.set(row.id, priority);
+      });
 
       const designPaths = [...new Set(rows.flatMap(row =>
         Array.isArray(row.custom_design_paths) ? row.custom_design_paths : []
@@ -284,7 +354,8 @@
                 <tr>
                   <td>
                     <b>${escapeHtml(b.booking_number)}</b><br>
-                    <span class="muted">${formatDate(b.event_date)} · ${escapeHtml(b.preferred_time)}</span>
+                    <span class="muted">${formatDate(b.event_date)} · ${escapeHtml(TIME_LABELS[b.preferred_time] || b.preferred_time)}</span>
+                    ${priorityById.has(b.id) ? '<br><span class="bookingPriority">Priority #' + priorityById.get(b.id) + '</span>' : ''}
                   </td>
                   <td>
                     ${escapeHtml(b.customer_name)}<br>
@@ -318,7 +389,8 @@
                         "Contacted",
                         "Confirmed",
                         "Completed",
-                        "Cancelled"
+                        "Cancelled",
+                        "Slot Unavailable"
                       ].map(status =>
                         '<option ' +
                         (b.status === status ? "selected" : "") +
@@ -343,24 +415,33 @@
   window.updateMehendiBookingStatus =
     async function (id, status) {
 
-    const { error } = await db
-      .from("mehendi_bookings")
-      .update({
-        status,
-        updated_at: new Date().toISOString()
-      })
-      .eq("id", id);
+    const { data, error } = await db.functions.invoke(
+      "update-mehendi-booking",
+      { body: { booking_id: id, status } }
+    );
 
-    if (error) {
+    if (error || !data?.success) {
       console.error(
         "Mehendi status update error:",
-        error
+        error || data
       );
-      alert("Could not update booking status.");
+      alert(
+        data?.error ||
+        (status === "Confirmed"
+          ? "এই সময়টি অন্য একটি booking-এর জন্য ইতিমধ্যে confirmed।"
+          : "Could not update booking status.")
+      );
+      await window.loadMehendiBookings();
       return;
     }
 
-    toast("Booking updated");
+    if (data.email_error) {
+      alert(data.email_error);
+    } else if (status === "Confirmed" && data.email_sent) {
+      toast("Booking confirmed and email sent");
+    } else {
+      toast("Booking updated");
+    }
     await window.loadMehendiBookings();
   };
 
@@ -455,5 +536,8 @@
     const d = new Date();
     d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
     dateInput.min = d.toISOString().slice(0, 10);
+    dateInput.addEventListener("change", () => {
+      refreshMehendiAvailability(dateInput.value);
+    });
   }
 })();

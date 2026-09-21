@@ -1270,6 +1270,18 @@ textarea{min-height:95px;resize:vertical}
 .bookingDesigns a{display:block;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
 .bookingDesigns img{width:76px;height:76px;object-fit:cover;transition:transform .3s ease}
 .bookingDesigns a:hover img{transform:scale(1.06)}
+.bookingPriority{
+  display:inline-block;
+  margin-top:6px;
+  padding:3px 8px;
+  border-radius:999px;
+  background:#f4e4d4;
+  color:var(--maroon);
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.04em;
+}
+#mehendiPreferredTime option:disabled{color:#9b5d57}
 
 .reveal-ready{
   opacity:0;

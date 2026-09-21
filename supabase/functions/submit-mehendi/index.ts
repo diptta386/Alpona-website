@@ -65,6 +65,7 @@ Deno.serve(async request => {
       address: clean(body.address, 500),
       notes: clean(body.notes, 1000)
     };
+    const bookingFormVersion = Number(body.booking_form_version || 1);
     const images = Array.isArray(body.images) ? body.images : [];
 
     if (booking.customer_name.length < 2 || !/^(?:\+?8801|01)\d{9}$/.test(booking.phone.replace(/[\s-]/g, "")) || booking.address.length < 3) {
@@ -73,11 +74,17 @@ Deno.serve(async request => {
     if (booking.customer_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(booking.customer_email)) {
       return new Response(JSON.stringify({ error: "Please enter a valid email address." }), { status: 400, headers: headers(origin) });
     }
+    if (bookingFormVersion >= 2 && !booking.customer_email) {
+      return new Response(JSON.stringify({ error: "Email is required for appointment confirmation." }), { status: 400, headers: headers(origin) });
+    }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(booking.event_date) || !booking.preferred_time || !booking.occasion || !booking.service_type || !booking.venue_area) {
       return new Response(JSON.stringify({ error: "Please complete all required booking fields." }), { status: 400, headers: headers(origin) });
     }
     if (!Number.isInteger(booking.number_of_people) || booking.number_of_people < 1 || booking.number_of_people > 100) {
       return new Response(JSON.stringify({ error: "Invalid number of people." }), { status: 400, headers: headers(origin) });
+    }
+    if (!["Morning", "Afternoon", "Evening", "Night"].includes(booking.preferred_time)) {
+      return new Response(JSON.stringify({ error: "Please choose an available appointment time." }), { status: 400, headers: headers(origin) });
     }
 
     const needsMehendi = booking.service_type.toLowerCase().includes("mehendi");
@@ -110,6 +117,18 @@ Deno.serve(async request => {
     }
 
     const service = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const { data: blockedSlot, error: blockedError } = await service
+      .from("mehendi_bookings")
+      .select("id")
+      .eq("event_date", booking.event_date)
+      .eq("preferred_time", booking.preferred_time)
+      .in("status", ["Confirmed", "Completed"])
+      .limit(1);
+    if (blockedError) throw blockedError;
+    if (blockedSlot?.length) {
+      return new Response(JSON.stringify({ error: "That date and time is already booked. Please choose another time." }), { status: 409, headers: headers(origin) });
+    }
+
     const ip = (request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for") || "unknown").split(",")[0].trim();
     const keyHash = await sha256(ip + "|mehendi");
     const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
@@ -159,6 +178,9 @@ Deno.serve(async request => {
     }), { status: 200, headers: headers(origin) });
   } catch (error) {
     console.error("Secure Mehendi booking error:", error);
+    if (String(error?.message || "").includes("SLOT_ALREADY_BOOKED")) {
+      return new Response(JSON.stringify({ error: "That date and time is already booked. Please choose another time." }), { status: 409, headers: headers(origin) });
+    }
     return new Response(JSON.stringify({ error: "Could not submit booking request. Please try again." }), { status: 500, headers: headers(origin) });
   }
 });
