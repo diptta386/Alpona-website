@@ -1,5 +1,75 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 394" role="img" aria-labelledby="title desc">
-  <title id="title">Alpona Mehendi Length Guide</title>
-  <desc id="desc">Palm or Wrist, Bangle, Elbow, and Above Elbow Mehendi coverage guide.</desc>
-  <image href="mehendi-length-guide-reference.webp" x="0" y="0" width="700" height="394" preserveAspectRatio="xMidYMid meet"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">Alpona Mehendi Length Guide</title>
+<desc id="desc">A hand and arm diagram showing Palm or Wrist, Bangle, Elbow, and Above Elbow or Full Arm mehendi coverage.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fffaf0"/>
+    <stop offset="1" stop-color="#f3e6d3"/>
+  </linearGradient>
+  <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+    <circle cx="2" cy="2" r="1.1" fill="#b48a64" opacity=".15"/>
+  </pattern>
+</defs>
+<rect width="1200" height="760" rx="28" fill="url(#bg)"/>
+<rect x="14" y="14" width="1172" height="732" rx="22" fill="url(#dots)" stroke="#b08b62" stroke-width="2"/>
+<g fill="#6f1f19">
+  <text x="70" y="92" font-family="Georgia,serif" font-size="54" font-weight="600">Mehendi Length Guide</text>
+  <text x="73" y="132" font-family="Arial,sans-serif" font-size="18" letter-spacing="4">CHOOSE YOUR PREFERRED COVERAGE</text>
+</g>
+<g font-family="Georgia,serif" fill="#2f271f">
+  <text x="76" y="230" font-size="30" font-weight="600">Palm / Wrist Length</text>
+  <text x="76" y="270" font-size="20">Design on the palm and up to the wrist.</text>
+  <line x1="76" y1="298" x2="510" y2="298" stroke="#c1a17e"/>
+  <text x="76" y="370" font-size="30" font-weight="600">Bangle Length</text>
+  <text x="76" y="410" font-size="20">Extends above the wrist to the bangle area.</text>
+  <line x1="76" y1="438" x2="510" y2="438" stroke="#c1a17e"/>
+  <text x="76" y="510" font-size="30" font-weight="600">Elbow Length</text>
+  <text x="76" y="550" font-size="20">Mehendi design continues up to the elbow.</text>
+  <line x1="76" y1="578" x2="510" y2="578" stroke="#c1a17e"/>
+  <text x="76" y="650" font-size="30" font-weight="600">Above Elbow / Full Arm</text>
+  <text x="76" y="690" font-size="20">Long bridal coverage extending above the elbow.</text>
+</g>
+<g transform="translate(610,105)" stroke="#4a281d" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M233 555 C228 513 224 471 227 432 L231 361 C232 329 229 291 221 252
+           C218 236 207 219 195 206 L169 179 C160 169 163 153 176 149
+           C187 146 198 151 207 162 L230 187 L229 83 C229 68 238 56 252 56
+           C266 56 274 68 274 83 L274 176 L281 46 C282 31 291 20 305 20
+           C319 20 327 31 326 46 L319 174 L332 56 C334 42 343 33 356 34
+           C369 35 376 46 374 61 L360 184 L376 92 C378 78 387 69 400 71
+           C413 73 419 85 417 99 L397 221
+           C394 239 393 260 395 279 L405 357 C409 393 409 430 405 466
+           L397 555"/>
+  <path d="M233 555 C220 597 205 635 187 674"/>
+  <path d="M397 555 C408 600 419 637 435 674"/>
+  <path d="M247 218 C285 240 339 244 390 220"/>
+  <path d="M236 319 C281 337 344 339 399 319"/>
+  <path d="M230 432 C282 450 349 451 406 431"/>
+  <path d="M219 555 C284 575 353 575 410 554"/>
+  <g stroke-width="3">
+    <circle cx="307" cy="250" r="26"/>
+    <path d="M307 224 l10 20 22 6-18 14 2 23-16-13-18 13 3-23-19-14 23-6z"/>
+    <path d="M272 287 q35 35 70 0"/>
+    <path d="M257 365 q52 34 103 0"/>
+    <path d="M255 470 q55 38 112 0"/>
+    <path d="M254 590 q58 38 118 0"/>
+  </g>
+</g>
+<g font-family="Arial,sans-serif" font-size="22" font-weight="600" fill="#3a2b22" stroke="#3a2b22" stroke-width="2">
+  <line x1="1000" y1="325" x2="1100" y2="325"/>
+  <circle cx="1000" cy="325" r="5" fill="#6f1f19"/>
+  <text x="1110" y="332" stroke="none">Palm / Wrist</text>
+
+  <line x1="1008" y1="425" x2="1100" y2="425"/>
+  <circle cx="1008" cy="425" r="5" fill="#6f1f19"/>
+  <text x="1110" y="432" stroke="none">Bangle</text>
+
+  <line x1="1014" y1="540" x2="1100" y2="540"/>
+  <circle cx="1014" cy="540" r="5" fill="#6f1f19"/>
+  <text x="1110" y="547" stroke="none">Elbow</text>
+
+  <line x1="1010" y1="660" x2="1100" y2="660"/>
+  <circle cx="1010" cy="660" r="5" fill="#6f1f19"/>
+  <text x="1110" y="647" stroke="none">Above Elbow</text>
+  <text x="1110" y="675" stroke="none">/ Full Arm</text>
+</g>
 </svg>
