@@ -3,14 +3,14 @@
   const SESSION_KEY = "alpona_analytics_session";
 
   function getAnalyticsSessionId() {
-    let id = localStorage.getItem(SESSION_KEY);
+    let id = sessionStorage.getItem(SESSION_KEY);
     if (!id) {
       id =
         "alp_" +
         Date.now().toString(36) +
         "_" +
         Math.random().toString(36).slice(2, 10);
-      localStorage.setItem(SESSION_KEY, id);
+      sessionStorage.setItem(SESSION_KEY, id);
     }
     return id;
   }
@@ -280,7 +280,7 @@
       const [eventsResult, ordersResult] = await Promise.all([
         db
           .from("analytics_events")
-          .select("event_type,product_id,product_name,quantity,value,created_at")
+          .select("event_type,product_id,product_name,quantity,value,session_id,created_at")
           .gte("created_at", startIso)
           .order("created_at", { ascending: true }),
         db
