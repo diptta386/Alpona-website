@@ -49,7 +49,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=3">
+<link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
 <div class="announcement">
@@ -67,6 +67,7 @@
   </a>
   <nav>
     <a href="#shop">Shop</a>
+    <a href="#mehendi">Mehendi</a>
     <a href="#story">Our Story</a>
     <a href="#promise">Our Craft</a>
     <button class="navBtn cartNav" onclick="openCart()">Cart <span id="cartCount">0</span></button>
@@ -190,6 +191,116 @@
     <div><b>01</b><h3>Choose</h3><p>Discover a piece made with care and add it to your collection.</p></div>
     <div><b>02</b><h3>Order</h3><p>Enter your delivery details and choose the payment option that suits you.</p></div>
     <div><b>03</b><h3>Receive</h3><p>We confirm, prepare and dispatch your Alpona piece with care.</p></div>
+  </div>
+</section>
+
+<section id="mehendi" class="mehendiSection">
+  <div class="mehendiIntro">
+    <p class="kicker">MEHENDI APPOINTMENTS · CHITTAGONG</p>
+    <h2>Mehendi for the moments you remember.</h2>
+    <p>Request an Alpona Mehendi appointment for weddings, engagements, celebrations, festivals and special occasions in Chittagong (Chattogram). Send your event details below and Alpona will contact you to confirm availability, timing and final arrangements.</p>
+    <div class="mehendiFacts">
+      <span><b>01</b> Chittagong appointments</span>
+      <span><b>02</b> Bridal & guest services</span>
+      <span><b>03</b> Confirmation before booking</span>
+    </div>
+  </div>
+
+  <div class="mehendiBookingCard">
+    <p class="kicker">REQUEST AN APPOINTMENT</p>
+    <h3>Tell us about your event.</h3>
+
+    <div id="mehendiSuccess" class="mehendiSuccess" style="display:none;"></div>
+
+    <form id="mehendiBookingForm" onsubmit="submitMehendiBooking(event)">
+      <div class="two">
+        <label>
+          Your Name
+          <input name="customer_name" required maxlength="120" autocomplete="name">
+        </label>
+
+        <label>
+          Mobile Number
+          <input name="phone" required maxlength="25" autocomplete="tel" placeholder="+880...">
+        </label>
+      </div>
+
+      <label>
+        Email <span class="optionalText">(optional)</span>
+        <input name="customer_email" type="email" maxlength="180" autocomplete="email">
+      </label>
+
+      <div class="two">
+        <label>
+          Event Date
+          <input name="event_date" type="date" required>
+        </label>
+
+        <label>
+          Preferred Time
+          <select name="preferred_time" required>
+            <option value="">Choose time</option>
+            <option>Morning</option>
+            <option>Afternoon</option>
+            <option>Evening</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="two">
+        <label>
+          Occasion
+          <select name="occasion" required>
+            <option value="">Choose occasion</option>
+            <option>Wedding</option>
+            <option>Mehendi / Holud Night</option>
+            <option>Engagement</option>
+            <option>Festival / Religious Occasion</option>
+            <option>Birthday / Party</option>
+            <option>Photoshoot</option>
+            <option>Other Special Occasion</option>
+          </select>
+        </label>
+
+        <label>
+          Service
+          <select name="service_type" required>
+            <option value="">Choose service</option>
+            <option>Bridal Mehendi</option>
+            <option>Guest Mehendi</option>
+            <option>Bridal + Guests</option>
+            <option>Group / Event Mehendi</option>
+            <option>Simple / Occasion Mehendi</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="two">
+        <label>
+          Number of People
+          <input name="number_of_people" type="number" min="1" max="100" value="1" required>
+        </label>
+
+        <label>
+          Area in Chittagong
+          <input name="venue_area" required maxlength="120" placeholder="e.g. GEC, Agrabad, Halishahar">
+        </label>
+      </div>
+
+      <label>
+        Event / Venue Address
+        <textarea name="address" required maxlength="500" placeholder="Full appointment address"></textarea>
+      </label>
+
+      <label>
+        Notes <span class="optionalText">(optional)</span>
+        <textarea name="notes" maxlength="1000" placeholder="Design preference, event details, special request..."></textarea>
+      </label>
+
+      <p class="bookingPrivacy">Submitting this form sends your details privately to Alpona so we can contact you about this appointment request. Your appointment is not confirmed until Alpona contacts you.</p>
+
+      <button class="primary full" type="submit">Request Appointment</button>
+    </form>
   </div>
 </section>
 
@@ -398,6 +509,8 @@ Transaction ID
 <button onclick="setTab('products')" class="tab">Products</button>
 <button onclick="setTab('expenses')" class="tab">Expenses</button>
 <button onclick="setTab('analytics'); loadAnalyticsDashboard()" class="tab">Analytics</button>
+<button onclick="setTab('intelligence'); loadOwnerIntelligence()" class="tab">Intelligence</button>
+<button onclick="setTab('mehendi'); loadMehendiBookings()" class="tab">Mehendi</button>
 <button onclick="setTab('messages')" class="tab">Messages</button>
 </div>
 
@@ -429,6 +542,84 @@ Transaction ID
     </div>
     <div id="analyticsDashboard">
       <div class="analyticsEmpty">Open this tab to load your report.</div>
+    </div>
+  </div>
+
+  <div id="tab-intelligence" class="tabBody hidden">
+    <div class="panelHead intelligenceHead">
+      <div>
+        <p class="kicker">ALPONA OWNER INTELLIGENCE</p>
+        <h3>Reports & Website Health</h3>
+      </div>
+      <button class="secondary" onclick="loadOwnerIntelligence()">Refresh Health</button>
+    </div>
+
+    <div id="ownerHealthPanel">
+      <div class="analyticsEmpty">Open this tab to check store health.</div>
+    </div>
+
+    <section class="ownerAgentBox">
+      <div class="ownerAgentIntro">
+        <div>
+          <span>ASK YOUR STORE</span>
+          <h4>Alpona Owner Assistant</h4>
+          <p>Ask about sales, popular products, bookings, low stock, checkout activity or website problems.</p>
+        </div>
+        <label>
+          Analysis period
+          <select id="ownerAgentPeriod">
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+        </label>
+      </div>
+
+      <form class="ownerAgentForm" onsubmit="askAlponaOwnerAgent(event)">
+        <input
+          name="question"
+          required
+          placeholder="Example: What is selling most and is anything wrong with the website?"
+        >
+        <button class="primary" type="submit">Ask Alpona</button>
+      </form>
+
+      <div class="agentQuickQuestions">
+        <button type="button" onclick="document.querySelector('#tab-intelligence [name=question]').value='What is selling most this week and what should I watch?';">Top products</button>
+        <button type="button" onclick="document.querySelector('#tab-intelligence [name=question]').value='Is anything wrong with my website today?';">Website problems</button>
+        <button type="button" onclick="document.querySelector('#tab-intelligence [name=question]').value='Give me a summary of Mehendi bookings and upcoming requests.';">Mehendi bookings</button>
+      </div>
+
+      <div id="ownerAgentAnswer">
+        <div class="analyticsEmpty">Ask a question to analyze your store.</div>
+      </div>
+
+      <button class="secondary reportDownloadBtn" type="button" onclick="exportOwnerReportCsv()">Download CSV Report</button>
+    </section>
+
+    <section class="scheduledReports">
+      <div class="analyticsPanelHead">
+        <div>
+          <span>AUTOMATIC REPORTS</span>
+          <h4>Weekly & Monthly Reports</h4>
+        </div>
+      </div>
+      <div id="scheduledReportList">
+        <div class="analyticsEmpty">Loading reports…</div>
+      </div>
+    </section>
+  </div>
+
+  <div id="tab-mehendi" class="tabBody hidden">
+    <div class="panelHead">
+      <div>
+        <p class="kicker">CHITTAGONG APPOINTMENTS</p>
+        <h3>Mehendi Bookings</h3>
+      </div>
+      <button class="secondary" onclick="loadMehendiBookings()">Refresh</button>
+    </div>
+    <div id="mehendiBookingAdmin">
+      <div class="analyticsEmpty">Open this tab to load booking requests.</div>
     </div>
   </div>
 
@@ -514,6 +705,7 @@ Transaction ID
 <div id="toast" class="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
+<script src="monitoring.js?v=1"></script>
 <script src="analytics.js?v=2"></script>
 <script src="app.js?v=6"></script>
   <script src="supabase-orders.js?v=2"></script>
@@ -524,6 +716,8 @@ Transaction ID
 <script src="alpona-chat.js?v=2"></script>
   <script src="supabase-chat.js?v=2"></script>
   <script src="supabase-owner-chat.js"></script>
+  <script src="mehendi.js?v=1"></script>
+  <script src="owner-agent.js?v=1"></script>
   <script>
   const params = new URLSearchParams(window.location.search);
 
