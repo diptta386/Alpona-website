@@ -11,7 +11,41 @@
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Alpona — Handmade with Care & Culture</title>
+<title>Alpona | Handmade Bangladeshi Handicrafts, Décor & Gifts</title>
+<meta name="description" content="Shop Alpona for handmade Bangladeshi handicrafts, hand-painted décor, gifts, bags and clothing inspired by Bengali art and culture.">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="https://alponastore.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Alpona">
+<meta property="og:title" content="Alpona | Handmade Bangladeshi Handicrafts, Décor & Gifts">
+<meta property="og:description" content="Handmade Bangladeshi décor, gifts, bags and clothing inspired by Bengali art and culture.">
+<meta property="og:url" content="https://alponastore.com/">
+<meta property="og:image" content="https://alponastore.com/assets/decor.jpeg">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"Organization",
+      "@id":"https://alponastore.com/#organization",
+      "name":"Alpona",
+      "url":"https://alponastore.com/",
+      "logo":"https://alponastore.com/assets/logo.jpeg",
+      "description":"Handmade Bangladeshi handicrafts, décor, gifts, bags and clothing inspired by Bengali art and culture."
+    },
+    {
+      "@type":"WebSite",
+      "@id":"https://alponastore.com/#website",
+      "url":"https://alponastore.com/",
+      "name":"Alpona",
+      "alternateName":"Alpona Store",
+      "publisher":{"@id":"https://alponastore.com/#organization"},
+      "inLanguage":"en"
+    }
+  ]
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -363,7 +397,8 @@ Transaction ID
 <button onclick="setTab('orders')" class="tab active">Orders</button>
 <button onclick="setTab('products')" class="tab">Products</button>
 <button onclick="setTab('expenses')" class="tab">Expenses</button>
-  <button onclick="setTab('messages')" class="tab">Messages</button>
+<button onclick="setTab('analytics'); loadAnalyticsDashboard()" class="tab">Analytics</button>
+<button onclick="setTab('messages')" class="tab">Messages</button>
 </div>
 
 <div id="tab-orders" class="tabBody"></div>
@@ -377,6 +412,26 @@ Transaction ID
   <div class="panelHead"><h3>Expenses</h3><button class="primary" onclick="openExpenseForm()">+ Add Expense</button></div>
   <div id="expenseList"></div>
 </div>
+  <div id="tab-analytics" class="tabBody hidden">
+    <div class="panelHead analyticsControls">
+      <div>
+        <p class="kicker">OWNER REPORTS</p>
+        <h3>Store Analytics</h3>
+      </div>
+      <label class="analyticsPeriodLabel">
+        Report period
+        <select id="analyticsPeriod" onchange="loadAnalyticsDashboard(this.value)">
+          <option value="7">Last 7 days</option>
+          <option value="30">Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+      </label>
+    </div>
+    <div id="analyticsDashboard">
+      <div class="analyticsEmpty">Open this tab to load your report.</div>
+    </div>
+  </div>
+
   <div id="tab-messages" class="tabBody hidden">
 
   <div class="panelHead">
@@ -459,8 +514,9 @@ Transaction ID
 <div id="toast" class="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
-<script src="app.js?v=5"></script>
-  <script src="supabase-orders.js"></script>
+<script src="analytics.js?v=1"></script>
+<script src="app.js?v=6"></script>
+  <script src="supabase-orders.js?v=2"></script>
  <script src="supabase-owner.js?v=35"></script>
 <script src="image-upload-patch.js?v=2"></script>
  <script src="supabase-products.js?v=4"></script>
