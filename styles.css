@@ -1477,6 +1477,25 @@ textarea{min-height:95px;resize:vertical}
 .agentTaskActions button{width:auto}
 .agentPendingConnection{padding:9px 12px;border:1px dashed var(--line);color:var(--muted);font-size:10px;line-height:1.4}
 
+.mehendiCatalogCta{display:inline-block;margin-top:22px;text-decoration:none}
+.catalogBookingSelection{margin:0 0 20px;padding:18px;border:1px solid var(--line);border-left:4px solid var(--maroon);background:#fff9f1}
+.catalogBookingSummaryGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:10px 0 16px}
+.catalogBookingSummaryGrid>div{padding:12px;border:1px solid var(--line);background:#fff}
+.catalogBookingSummaryGrid span,.catalogBookingSummaryGrid small{display:block;color:var(--muted);font-size:9px}.catalogBookingSummaryGrid b{display:block;margin:5px 0}
+.catalogBookingTotal{background:#f6e8da!important}.catalogPolicyCheck{display:flex!important;gap:10px;align-items:flex-start}.catalogPolicyCheck input{width:auto;margin-top:3px}.catalogPolicyCheck span{font-size:10px;line-height:1.55}
+
+.catalogPage{background:#faf6ef}.catalogTopbar{position:sticky;z-index:20;top:0;display:flex;justify-content:space-between;align-items:center;padding:12px 5vw;border-bottom:1px solid var(--line);background:rgba(255,251,245,.95);backdrop-filter:blur(12px)}
+.catalogTopbar .logoWrap{display:flex;gap:10px;align-items:center;color:var(--ink);text-decoration:none;font-family:"Cormorant Garamond",serif;font-size:24px}.catalogTopbar .logoWrap img{width:48px;height:48px;border-radius:50%;object-fit:cover}
+.catalogHero{padding:90px 7vw 65px;background:linear-gradient(135deg,#f7e8d7,#fffaf4)}.catalogHero h1{max-width:850px;margin:8px 0;font-size:clamp(46px,7vw,88px);line-height:.95}.catalogHero>p:not(.kicker){max-width:760px;color:var(--muted);line-height:1.7}
+.catalogPolicyStrip{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.catalogPolicyStrip span{padding:8px 11px;border:1px solid rgba(111,31,25,.22);border-radius:999px;background:#fff;color:var(--maroon);font-size:9px;font-weight:700}
+.catalogWorkspace{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:28px;padding:55px 5vw}.catalogSectionHead h2,.catalogBuilder h2{margin-top:4px}.artistCatalogGrid{display:grid;gap:22px}
+.artistCatalogCard{display:grid;grid-template-columns:210px minmax(180px,.65fr) 1.6fr;gap:22px;padding:18px;border:1px solid var(--line);background:#fff}.artistPortrait{width:100%;height:250px;object-fit:cover;background:#efe2d5}.artistPortrait--empty{display:grid;place-items:center;color:var(--muted)}.artistInfo h3{margin:5px 0 8px;font-size:28px}.artistInfo p{font-size:10px;line-height:1.55}.artistBio{color:var(--muted)}
+.artistDesignGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.artistDesignCard{display:grid;grid-template-columns:80px 1fr;gap:10px;align-items:center;padding:8px;border:1px solid var(--line);background:#fff;text-align:left;cursor:pointer}.artistDesignCard:hover{border-color:var(--maroon)}.artistDesignCard img,.designImageEmpty{width:80px;height:92px;object-fit:cover;background:#f1e7dc}.designImageEmpty{display:grid;place-items:center;font-size:8px;color:var(--muted)}.artistDesignCard span b,.artistDesignCard span small{display:block}.artistDesignCard span small{margin-top:6px;color:var(--muted);font-size:8px;line-height:1.4}
+.catalogBuilder{position:sticky;top:92px;height:max-content;padding:22px;border:1px solid var(--line);background:#fff}.catalogBuilder label{display:block;margin-top:13px}.catalogBuilder label small{display:block;margin-top:5px;color:var(--muted);font-size:8px;line-height:1.4}.catalogPriceBreakdown{margin:18px 0;border-top:1px solid var(--line)}.catalogPriceBreakdown>div{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:10px}.catalogTotal{font-size:13px!important;color:var(--maroon)}.catalogFinePrint{color:var(--muted);font-size:8px;line-height:1.55}
+
+.catalogAdminGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:28px}.catalogAdminForm{padding:20px;border:1px solid var(--line);background:#fffaf3}.catalogAdminForm h4{margin-top:0;font-size:23px}.catalogAdminForm label{display:block;margin-bottom:11px}.catalogAdminForm button{width:auto;margin-right:7px}.inlineCheck{display:flex!important;gap:8px;align-items:center}.inlineCheck input{width:auto}
+.catalogAdminListSection{margin-bottom:20px;border:1px solid var(--line);background:#fff}.catalogAdminListSection>h4{margin:0;padding:15px 18px;border-bottom:1px solid var(--line)}.catalogAdminRow{display:flex;justify-content:space-between;gap:18px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}.catalogAdminRow:last-child{border-bottom:0}.catalogAdminRow>div{display:flex;gap:10px;align-items:center}.catalogAdminRow img{width:54px;height:54px;object-fit:cover}.catalogAdminRow span b,.catalogAdminRow span small{display:block}.catalogAdminRow span small{margin-top:4px;color:var(--muted)}.catalogAdminRow button{width:auto}.catalogLive,.catalogHidden{padding:4px 7px;border-radius:999px;font-size:8px;font-weight:800;text-transform:uppercase}.catalogLive{background:#dfeee3;color:#265f38}.catalogHidden{background:#eee;color:#666}
+
 .reveal-ready{
   opacity:0;
   transform:translateY(26px);
@@ -1506,6 +1525,8 @@ textarea{min-height:95px;resize:vertical}
   .agentTaskForm{grid-template-columns:1fr;padding:16px}
   .agentTaskForm>*{grid-column:1!important}
   .agentTaskActions button{width:100%}
+  .catalogBookingSummaryGrid{grid-template-columns:1fr 1fr}
+  .catalogWorkspace{grid-template-columns:1fr;padding:35px 14px}.catalogBuilder{position:static}.artistCatalogCard{grid-template-columns:1fr}.artistPortrait{height:300px}.artistDesignGrid{grid-template-columns:1fr}.catalogAdminGrid{grid-template-columns:1fr}.catalogAdminRow{align-items:flex-start;flex-direction:column}.catalogAdminRow>div:last-child{width:100%;justify-content:space-between}
 }
 
 @media(prefers-reduced-motion:reduce){

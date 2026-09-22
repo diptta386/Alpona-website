@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mehendi Artist Catalog | Alpona</title>
+  <meta name="description" content="Browse Alpona Mehendi and Kolka artists, designs and estimated appointment prices in Chittagong.">
+  <link rel="stylesheet" href="styles.css?v=21">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="catalogPage">
+  <header class="catalogTopbar">
+    <a href="index.html" class="logoWrap"><img src="assets/logo.jpeg" alt="Alpona"><span>Alpona</span></a>
+    <a class="secondary" href="index.html#mehendi">Appointment Form</a>
+  </header>
+
+  <main>
+    <section class="catalogHero">
+      <p class="kicker">MEHENDI &amp; KOLKA ARTIST CATALOG</p>
+      <h1>Choose your artist and design.</h1>
+      <p>Browse artist portfolios, compare design prices, add organic Mehendi and estimate travel charges. Alpona verifies the artist, location and time before requesting full payment.</p>
+      <div class="catalogPolicyStrip">
+        <span>Artist location-based travel zones</span>
+        <span>Maximum service radius: 15 km</span>
+        <span>Full payment only after approval</span>
+      </div>
+    </section>
+
+    <section class="catalogWorkspace">
+      <div class="catalogResults">
+        <div class="catalogSectionHead"><div><p class="kicker">AVAILABLE ARTISTS</p><h2>Artist portfolios</h2></div></div>
+        <div id="catalogStatus" class="analyticsLoading">Loading artist catalog…</div>
+        <div id="artistCatalog" class="artistCatalogGrid"></div>
+      </div>
+
+      <aside class="catalogBuilder">
+        <p class="kicker">BUILD YOUR APPOINTMENT</p>
+        <h2>Price estimate</h2>
+        <label>Artist<select id="catalogArtistSelect"><option value="">Choose artist</option></select></label>
+        <label>Design<select id="catalogDesignSelect" disabled><option value="">Choose design</option></select></label>
+        <label>People<input id="catalogPeople" type="number" min="1" max="100" value="1"></label>
+        <label>Travel distance from artist
+          <select id="catalogZoneSelect"><option value="">Choose distance zone</option></select>
+          <small>Alpona will verify the address before approving payment.</small>
+        </label>
+        <label>Organic Mehendi / Add-on
+          <select id="catalogAddonSelect"><option value="">No add-on</option></select>
+        </label>
+        <label id="catalogAddonQuantityWrap" style="display:none;">Add-on quantity<input id="catalogAddonQuantity" type="number" min="1" max="100" value="1"></label>
+
+        <div class="catalogPriceBreakdown">
+          <div><span>Design</span><b id="catalogDesignPrice">৳0</b></div>
+          <div><span>Travel</span><b id="catalogTravelPrice">৳0</b></div>
+          <div><span>Add-on</span><b id="catalogAddonPrice">৳0</b></div>
+          <div class="catalogTotal"><span>Estimated total</span><b id="catalogTotal">৳0</b></div>
+        </div>
+
+        <button id="catalogContinue" class="primary full" type="button" disabled>Continue to Appointment</button>
+        <p class="catalogFinePrint">This is an estimate, not a confirmed booking. The appointment remains unconfirmed until Alpona approves the artist and time. Full payment is requested after approval. Paid bookings are non-cancellable, subject to the policy shown before submission.</p>
+      </aside>
+    </section>
+  </main>
+
+  <script src="supabase-config.js"></script>
+  <script src="mehendi-catalog.js?v=1"></script>
+</body>
+</html>

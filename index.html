@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20">
+<link rel="stylesheet" href="styles.css?v=21">
 </head>
 <body>
 <div class="announcement">
@@ -72,6 +72,7 @@
   <nav>
     <a href="#shop">Shop</a>
     <a href="#mehendi">Mehendi & Kolka</a>
+    <a href="mehendi-catalog.html">Artists</a>
     <a href="#report-issue">Report Issue</a>
     <a href="#story">Our Story</a>
     <a href="#promise">Our Craft</a>
@@ -210,6 +211,7 @@
       <span><b>02</b> Mehendi, Kolka & bridal services</span>
       <span><b>03</b> Confirmation before booking</span>
     </div>
+    <a class="primary mehendiCatalogCta" href="mehendi-catalog.html">Browse Artists, Designs &amp; Prices</a>
   </div>
 
   <div class="mehendiBookingCard">
@@ -217,6 +219,15 @@
     <h3>Tell us what you would like.</h3>
 
     <div id="mehendiSuccess" class="mehendiSuccess" style="display:none;"></div>
+
+    <div id="catalogBookingSelection" class="catalogBookingSelection" style="display:none;">
+      <p class="kicker">YOUR CATALOG SELECTION</p>
+      <div id="catalogBookingSummary"></div>
+      <label class="catalogPolicyCheck">
+        <input id="catalogCancellationAck" name="cancellation_acknowledged" type="checkbox">
+        <span>I understand that Alpona will verify the artist, distance and appointment time first. Full payment will be requested only after approval, and a paid booking cannot be cancelled.</span>
+      </label>
+    </div>
 
     <form id="mehendiBookingForm" onsubmit="submitMehendiBooking(event)">
       <div class="websiteField" aria-hidden="true">
@@ -835,6 +846,7 @@ Transaction ID
 <button onclick="setTab('intelligence'); loadOwnerIntelligence()" class="tab">Intelligence</button>
 <button onclick="setTab('agents'); loadAgentControlCenter()" class="tab">Agents</button>
 <button onclick="setTab('mehendi'); loadMehendiBookings()" class="tab">Mehendi</button>
+<button onclick="setTab('mehendi-catalog-admin'); loadMehendiCatalogAdmin()" class="tab">Artist Catalog</button>
 <button onclick="setTab('damage'); loadDamageReports()" class="tab">Damage Reports</button>
 <button onclick="setTab('messages')" class="tab">Messages</button>
 </div>
@@ -1075,6 +1087,58 @@ Transaction ID
     </div>
   </div>
 
+  <div id="tab-mehendi-catalog-admin" class="tabBody hidden">
+    <div class="panelHead"><div><p class="kicker">OWNER CATALOG MANAGER</p><h3>Mehendi Artists &amp; Pricing</h3><p class="muted">Add artists, portfolio designs, organic Mehendi and distance-zone prices. Keep an item inactive until it is ready for customers.</p></div><button class="secondary" type="button" onclick="loadMehendiCatalogAdmin()">Refresh</button></div>
+    <div class="catalogAdminGrid">
+      <form id="artistAdminForm" class="catalogAdminForm" onsubmit="saveMehendiArtist(event)">
+        <input name="id" type="hidden"><input name="photo_path" type="hidden"><input name="photo_url" type="hidden">
+        <h4>Artist</h4>
+        <label>Name<input name="name" required maxlength="120"></label>
+        <label>Public address<input name="public_address" required maxlength="240"></label>
+        <label>Base area<input name="base_area" required maxlength="120" placeholder="Distance starts here"></label>
+        <label>About<textarea name="bio" maxlength="1200"></textarea></label>
+        <label>Profile photo<input name="photo" type="file" accept="image/jpeg,image/png,image/webp"></label>
+        <label class="inlineCheck"><input name="active" type="checkbox"> Show on website</label>
+        <button class="primary" type="submit">Save Artist</button><button class="secondary" type="button" onclick="resetCatalogAdminForm('artistAdminForm')">Clear</button>
+      </form>
+
+      <form id="designAdminForm" class="catalogAdminForm" onsubmit="saveMehendiDesign(event)">
+        <input name="id" type="hidden"><input name="image_path" type="hidden"><input name="image_url" type="hidden">
+        <h4>Design / Service</h4>
+        <label>Artist<select name="artist_id" required></select></label>
+        <label>Title<input name="title" required maxlength="160"></label>
+        <label>Type<select name="service_type" required><option>Mehendi</option><option>Kolka</option><option>Mehendi + Kolka</option></select></label>
+        <div class="two"><label>Price (৳)<input name="price" type="number" min="0" step="1" required></label><label>Pricing unit<select name="pricing_unit"><option value="per_booking">Per booking</option><option value="per_person">Per person</option></select></label></div>
+        <label>Estimated minutes<input name="duration_minutes" type="number" min="15" max="1440"></label>
+        <label>Description<textarea name="description" maxlength="1600"></textarea></label>
+        <label>Design photo<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label>
+        <label class="inlineCheck"><input name="active" type="checkbox"> Show on website</label>
+        <button class="primary" type="submit">Save Design</button><button class="secondary" type="button" onclick="resetCatalogAdminForm('designAdminForm')">Clear</button>
+      </form>
+
+      <form id="addonAdminForm" class="catalogAdminForm" onsubmit="saveMehendiAddon(event)">
+        <input name="id" type="hidden"><input name="image_path" type="hidden"><input name="image_url" type="hidden">
+        <h4>Organic Mehendi / Add-on</h4>
+        <label>Name<input name="name" required maxlength="120"></label>
+        <div class="two"><label>Price (৳)<input name="price" type="number" min="0" step="1" required></label><label>Unit<input name="unit_label" required maxlength="40" placeholder="cone / pack"></label></div>
+        <label>Description<textarea name="description" maxlength="1200"></textarea></label>
+        <label>Photo<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label>
+        <label class="inlineCheck"><input name="active" type="checkbox"> Show on website</label>
+        <button class="primary" type="submit">Save Add-on</button><button class="secondary" type="button" onclick="resetCatalogAdminForm('addonAdminForm')">Clear</button>
+      </form>
+
+      <form id="zoneAdminForm" class="catalogAdminForm" onsubmit="saveMehendiTravelZone(event)">
+        <input name="id" type="hidden"><h4>Travel Zone</h4>
+        <label>Label<input name="label" required maxlength="80"></label>
+        <div class="two"><label>From km<input name="min_km" type="number" min="0" max="15" step="0.1" required></label><label>To km<input name="max_km" type="number" min="0.1" max="15" step="0.1" required></label></div>
+        <label>Travel fee (৳)<input name="fee" type="number" min="0" step="1" required></label>
+        <label class="inlineCheck"><input name="active" type="checkbox"> Available to customers</label>
+        <button class="primary" type="submit">Save Zone</button><button class="secondary" type="button" onclick="resetCatalogAdminForm('zoneAdminForm')">Clear</button>
+      </form>
+    </div>
+    <div id="mehendiCatalogAdminList"><div class="analyticsEmpty">Open this tab to load catalog settings.</div></div>
+  </div>
+
   <div id="tab-damage" class="tabBody hidden">
     <div class="panelHead">
       <div>
@@ -1183,7 +1247,8 @@ Transaction ID
 <script src="alpona-chat.js?v=2"></script>
   <script src="supabase-chat.js?v=2"></script>
   <script src="supabase-owner-chat.js"></script>
-  <script src="mehendi.js?v=8"></script>
+  <script src="mehendi.js?v=9"></script>
+  <script src="mehendi-catalog-admin.js?v=1"></script>
   <script src="damage-reports.js?v=3"></script>
   <script src="owner-agent.js?v=3"></script>
   <script src="agent-control.js?v=3"></script>

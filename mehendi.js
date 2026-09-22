@@ -157,6 +157,12 @@
     const button = form.querySelector('button[type="submit"]');
     const fd = new FormData(form);
     const files = [...(form.elements.design_images?.files || [])];
+    const cancellationAck = document.getElementById("catalogCancellationAck");
+
+    if (form.dataset.catalogItemId && !cancellationAck?.checked) {
+      alert("Please accept the approval, payment and cancellation policy before sending this catalog appointment request.");
+      return;
+    }
 
     const date = String(fd.get("event_date") || "");
 
@@ -219,6 +225,17 @@
       address: String(fd.get("address") || "").trim(),
       notes: String(fd.get("notes") || "").trim()
     };
+
+    if (form.dataset.catalogItemId) {
+      Object.assign(payload, {
+        artist_id: form.dataset.artistId,
+        catalog_item_id: form.dataset.catalogItemId,
+        travel_zone_id: form.dataset.travelZoneId,
+        addon_id: form.dataset.addonId || "",
+        addon_quantity: Number(form.dataset.addonQuantity || 0),
+        cancellation_acknowledged: true
+      });
+    }
 
     form.dataset.clientRequestId = payload.client_request_id;
 
@@ -411,6 +428,11 @@
                   </td>
                   <td>
                     ${escapeHtml(b.service_type)}
+                    ${b.artist_name_snapshot ? "<br><b>Artist: " + escapeHtml(b.artist_name_snapshot) + "</b>" : ""}
+                    ${b.catalog_item_snapshot ? "<br><span class=\"muted\">Design: " + escapeHtml(b.catalog_item_snapshot) + "</span>" : ""}
+                    ${b.catalog_total != null ? "<br><span class=\"bookingPriority\">Estimate ৳" + Number(b.catalog_total).toLocaleString() + "</span>" : ""}
+                    ${b.travel_zone_snapshot ? "<br><span class=\"muted\">Travel: " + escapeHtml(b.travel_zone_snapshot) + " · ৳" + Number(b.catalog_travel_fee || 0).toLocaleString() + "</span>" : ""}
+                    ${b.addon_snapshot ? "<br><span class=\"muted\">Add-on: " + escapeHtml(b.addon_snapshot) + " × " + Number(b.addon_quantity || 0) + "</span>" : ""}
                     ${b.mehendi_coverage ? "<br><span class=\"muted\">" + escapeHtml(b.mehendi_coverage) + "</span>" : ""}
                     ${b.mehendi_side ? "<br><span class=\"muted\">" + escapeHtml(b.mehendi_side) + "</span>" : ""}\n                    ${b.mehendi_hands ? "<br><span class=\"muted\">" + escapeHtml(b.mehendi_hands) + "</span>" : ""}
                     ${b.kolka_placement ? "<br><span class=\"muted\">" + escapeHtml(b.kolka_placement) + "</span>" : ""}
@@ -440,6 +462,11 @@
                         '>' + status + '</option>'
                       ).join("")}
                     </select>
+                    ${b.catalog_item_id ? `<br><label class="muted">Payment
+                      <select class="statusSelect" onchange="updateMehendiPaymentStatus(${b.id}, this.value)">
+                        ${["not_requested","payment_requested","paid","refunded"].map(paymentStatus => `<option value="${paymentStatus}" ${b.payment_status === paymentStatus ? "selected" : ""}>${paymentStatus.replaceAll("_"," ")}</option>`).join("")}
+                      </select>
+                    </label>` : ""}
                   </td>
                 </tr>
               `).join("")}
@@ -486,6 +513,18 @@
       toast("Booking updated");
     }
     await window.loadMehendiBookings();
+  };
+
+  window.updateMehendiPaymentStatus = async function (id, paymentStatus) {
+    if (!["not_requested","payment_requested","paid","refunded"].includes(paymentStatus)) return;
+    const { error } = await db.from("mehendi_bookings").update({ payment_status: paymentStatus }).eq("id", id);
+    if (error) {
+      console.error("Mehendi payment status error:", error);
+      alert("Could not update the payment status.");
+      await window.loadMehendiBookings();
+      return;
+    }
+    toast("Payment status updated");
   };
 
   const serviceSelect =
@@ -552,6 +591,57 @@
     updateServicePanels
   );
 
+  async function loadCatalogSelectionFromUrl() {
+    const params = new URLSearchParams(location.search);
+    if (params.get("catalog") !== "1") return;
+    const artistId = params.get("artist");
+    const itemId = params.get("design");
+    const zoneId = params.get("zone");
+    const addonId = params.get("addon");
+    if (!artistId || !itemId || !zoneId) return;
+
+    const panel = document.getElementById("catalogBookingSelection");
+    const summary = document.getElementById("catalogBookingSummary");
+    const form = document.getElementById("mehendiBookingForm");
+    if (!panel || !summary || !form) return;
+
+    panel.style.display = "block";
+    summary.innerHTML = '<div class="analyticsLoading">Checking your catalog selection…</div>';
+    try {
+      const [artistRes,itemRes,zoneRes,addonRes] = await Promise.all([
+        db.from("mehendi_artists").select("id,name,base_area,active").eq("id",artistId).eq("active",true).maybeSingle(),
+        db.from("mehendi_catalog_items").select("id,artist_id,title,service_type,price,pricing_unit,active").eq("id",itemId).eq("active",true).maybeSingle(),
+        db.from("mehendi_travel_zones").select("id,label,fee,active").eq("id",zoneId).eq("active",true).maybeSingle(),
+        addonId ? db.from("mehendi_addons").select("id,name,price,unit_label,active").eq("id",addonId).eq("active",true).maybeSingle() : Promise.resolve({data:null,error:null})
+      ]);
+      const lookupError=[artistRes,itemRes,zoneRes,addonRes].find(x=>x.error)?.error;
+      if(lookupError)throw lookupError;
+      const artist=artistRes.data,item=itemRes.data,zone=zoneRes.data,addon=addonRes.data;
+      if(!artist||!item||!zone||item.artist_id!==artist.id)throw new Error("This catalog selection is no longer available.");
+      const people=Math.max(1,Math.min(100,Number(params.get("people")||1)));
+      const addonQty=addon?Math.max(1,Math.min(100,Number(params.get("addon_qty")||1))):0;
+      const designTotal=Number(item.price)*(item.pricing_unit==="per_person"?people:1);
+      const addonTotal=addon?Number(addon.price)*addonQty:0;
+      const total=designTotal+Number(zone.fee)+addonTotal;
+
+      form.dataset.artistId=artist.id; form.dataset.catalogItemId=item.id; form.dataset.travelZoneId=zone.id;
+      form.dataset.addonId=addon?.id||""; form.dataset.addonQuantity=String(addonQty);
+      form.elements.number_of_people.value=String(people);
+      serviceSelect.value=item.service_type; updateServicePanels();
+      summary.innerHTML=`<div class="catalogBookingSummaryGrid">
+        <div><span>Artist</span><b>${escapeHtml(artist.name)}</b><small>${escapeHtml(artist.base_area)}</small></div>
+        <div><span>Design</span><b>${escapeHtml(item.title)}</b><small>৳${designTotal.toLocaleString()}</small></div>
+        <div><span>Travel</span><b>${escapeHtml(zone.label)}</b><small>৳${Number(zone.fee).toLocaleString()}</small></div>
+        ${addon?`<div><span>Add-on</span><b>${escapeHtml(addon.name)} × ${addonQty}</b><small>৳${addonTotal.toLocaleString()}</small></div>`:""}
+        <div class="catalogBookingTotal"><span>Estimated total</span><b>৳${total.toLocaleString()}</b><small>Verified before payment</small></div>
+      </div>`;
+    } catch(error) {
+      console.error("Catalog selection error:",error);
+      summary.innerHTML='<div class="analyticsEmpty">This selection is unavailable. Please return to the artist catalog and choose again.</div>';
+      form.dataset.catalogItemId="";
+    }
+  }
+
   designFiles?.addEventListener("change", () => {
     const files = [...(designFiles.files || [])];
     try {
@@ -569,6 +659,7 @@
   });
 
   updateServicePanels();
+  loadCatalogSelectionFromUrl();
 
   const dateInput =
     document.querySelector(

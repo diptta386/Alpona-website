@@ -56,6 +56,7 @@ async function sendMehendiTelegram(service: any, bookingNumber: string, booking:
       `Date: ${booking.event_date}`,
       `Time: ${booking.preferred_time}`,
       `People: ${booking.number_of_people}`,
+      ...(booking.artist_name_snapshot ? [`Artist: ${booking.artist_name_snapshot}`, `Catalog design: ${booking.catalog_item_snapshot}`, `Estimated total: BDT ${booking.catalog_total}`, `Travel zone: ${booking.travel_zone_snapshot}`] : []),
       `Custom designs: ${Array.isArray(booking.custom_design_paths) && booking.custom_design_paths.length ? "Yes" : "No"}`,
       "Status: Request Received"
     ].join("\n");
@@ -124,6 +125,14 @@ Deno.serve(async request => {
     };
     const bookingFormVersion = Number(body.booking_form_version || 1);
     const images = Array.isArray(body.images) ? body.images : [];
+    const catalogSelection = {
+      artist_id: clean(body.artist_id, 36),
+      catalog_item_id: clean(body.catalog_item_id, 36),
+      travel_zone_id: clean(body.travel_zone_id, 20),
+      addon_id: clean(body.addon_id, 36),
+      addon_quantity: Number(body.addon_quantity || 0),
+      cancellation_acknowledged: body.cancellation_acknowledged === true
+    };
 
     if (booking.customer_name.length < 2 || !/^(?:\+?8801|01)\d{9}$/.test(booking.phone.replace(/[\s-]/g, "")) || booking.address.length < 3) {
       return new Response(JSON.stringify({ error: "Please enter valid booking details." }), { status: 400, headers: headers(origin) });
@@ -174,6 +183,65 @@ Deno.serve(async request => {
     }
 
     const service = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    let verifiedCatalog: Record<string, unknown> = {};
+
+    if (catalogSelection.catalog_item_id) {
+      if (!catalogSelection.artist_id || !catalogSelection.travel_zone_id || !catalogSelection.cancellation_acknowledged) {
+        return new Response(JSON.stringify({ error: "Choose an artist, design and travel zone, then accept the payment and cancellation policy." }), { status: 400, headers: headers(origin) });
+      }
+      if (!Number.isInteger(catalogSelection.addon_quantity) || catalogSelection.addon_quantity < 0 || catalogSelection.addon_quantity > 100) {
+        return new Response(JSON.stringify({ error: "Invalid organic Mehendi quantity." }), { status: 400, headers: headers(origin) });
+      }
+
+      const [artistRes, itemRes, zoneRes, addonRes] = await Promise.all([
+        service.from("mehendi_artists").select("id,name,active").eq("id", catalogSelection.artist_id).maybeSingle(),
+        service.from("mehendi_catalog_items").select("id,artist_id,title,service_type,price,pricing_unit,active").eq("id", catalogSelection.catalog_item_id).maybeSingle(),
+        service.from("mehendi_travel_zones").select("id,label,fee,active").eq("id", catalogSelection.travel_zone_id).maybeSingle(),
+        catalogSelection.addon_id
+          ? service.from("mehendi_addons").select("id,name,price,active").eq("id", catalogSelection.addon_id).maybeSingle()
+          : Promise.resolve({ data: null, error: null })
+      ]);
+      const lookupError = [artistRes, itemRes, zoneRes, addonRes].find((result: any) => result.error)?.error;
+      if (lookupError) throw lookupError;
+
+      const artist: any = artistRes.data;
+      const item: any = itemRes.data;
+      const zone: any = zoneRes.data;
+      const addon: any = addonRes.data;
+      if (!artist?.active || !item?.active || !zone?.active || item.artist_id !== artist.id || (catalogSelection.addon_id && !addon?.active)) {
+        return new Response(JSON.stringify({ error: "This artist, design or travel option is no longer available. Please reopen the catalog." }), { status: 409, headers: headers(origin) });
+      }
+
+      const designTotal = Number(item.price) * (item.pricing_unit === "per_person" ? booking.number_of_people : 1);
+      const addonTotal = addon ? Number(addon.price) * catalogSelection.addon_quantity : 0;
+      const total = designTotal + Number(zone.fee) + addonTotal;
+      booking.service_type = item.service_type;
+      const verifiedNeedsMehendi = item.service_type.toLowerCase().includes("mehendi");
+      const verifiedNeedsKolka = item.service_type.toLowerCase().includes("kolka");
+      if (verifiedNeedsMehendi && (!allowedCoverage.includes(booking.mehendi_coverage) || !allowedMehendiSides.includes(booking.mehendi_side) || !allowedHands.includes(booking.mehendi_hands))) {
+        return new Response(JSON.stringify({ error: "Please choose the Mehendi length, design side, and hands." }), { status: 400, headers: headers(origin) });
+      }
+      if (verifiedNeedsKolka && (!allowedKolkaPlacements.includes(booking.kolka_placement) || !allowedKolkaSides.includes(booking.kolka_side))) {
+        return new Response(JSON.stringify({ error: "Please choose the Kolka placement and side." }), { status: 400, headers: headers(origin) });
+      }
+      verifiedCatalog = {
+        artist_id: artist.id,
+        catalog_item_id: item.id,
+        travel_zone_id: zone.id,
+        addon_id: addon?.id || null,
+        addon_quantity: addon ? catalogSelection.addon_quantity : 0,
+        artist_name_snapshot: artist.name,
+        catalog_item_snapshot: item.title,
+        travel_zone_snapshot: zone.label,
+        addon_snapshot: addon?.name || null,
+        catalog_base_price: designTotal,
+        catalog_travel_fee: Number(zone.fee),
+        catalog_addon_price: addonTotal,
+        catalog_total: total,
+        catalog_pricing_unit: item.pricing_unit,
+        cancellation_acknowledged: true
+      };
+    }
     const { data: existingRequest, error: existingError } = await service
       .from("mehendi_bookings")
       .select("booking_number,telegram_notified_at")
@@ -215,6 +283,7 @@ Deno.serve(async request => {
     const bookingNumber = "MEH-" + Date.now().toString().slice(-8) + "-" + Math.random().toString(36).slice(2, 5).toUpperCase();
     const bookingData = {
       ...booking,
+      ...verifiedCatalog,
       client_request_id: clientRequestId,
       booking_number: bookingNumber,
       custom_design_paths: [] as string[]

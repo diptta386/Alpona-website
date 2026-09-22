@@ -62,11 +62,14 @@ Deno.serve(async request => {
 
     if (updateError) {
       const isConflict = String(updateError.message || "").includes("SLOT_ALREADY_BOOKED");
+      const isPaidCancellation = String(updateError.message || "").includes("PAID_BOOKING_NON_CANCELLABLE");
       return new Response(JSON.stringify({
-        error: isConflict
+        error: isPaidCancellation
+          ? "A paid booking cannot be cancelled under the accepted booking policy."
+          : isConflict
           ? "That date and time has already been confirmed for another customer."
           : "Could not update the booking."
-      }), { status: isConflict ? 409 : 400, headers: headers(origin) });
+      }), { status: isConflict || isPaidCancellation ? 409 : 400, headers: headers(origin) });
     }
 
     let emailSent = false;
@@ -99,6 +102,7 @@ Deno.serve(async request => {
                 <p><strong>Date:</strong> ${escapeHtml(booking.event_date)}</p>
                 <p><strong>Time:</strong> ${escapeHtml(booking.preferred_time)}</p>
                 <p><strong>Venue:</strong> ${escapeHtml(booking.venue_area)}, ${escapeHtml(booking.address)}</p>
+                ${booking.catalog_total != null ? `<p><strong>Approved estimated total:</strong> BDT ${escapeHtml(booking.catalog_total)}</p><p>Alpona will send your full-payment instructions separately. Your appointment is secured after payment. Once paid, the booking is non-cancellable under the policy accepted with your request.</p>` : ""}
                 <p>We will contact you if any final details are needed.</p>
               </div>
             `
