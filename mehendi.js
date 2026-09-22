@@ -520,7 +520,16 @@
     const { error } = await db.from("mehendi_bookings").update({ payment_status: paymentStatus }).eq("id", id);
     if (error) {
       console.error("Mehendi payment status error:", error);
-      alert("Could not update the payment status.");
+      const message = String(error.message || "");
+      if (message.includes("PAYMENT_BEFORE_APPROVAL")) {
+        alert("Confirm the artist and appointment first. Payment can only be requested after approval.");
+      } else if (message.includes("PAYMENT_POLICY_NOT_ACCEPTED")) {
+        alert("The customer must accept the paid-booking cancellation policy first.");
+      } else if (message.includes("PAID_PAYMENT_STATUS_CANNOT_BE_RESET")) {
+        alert("A paid booking cannot be reset to Not requested. Use Refunded when appropriate.");
+      } else {
+        alert("Could not update the payment status. Please try again.");
+      }
       await window.loadMehendiBookings();
       return;
     }
