@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=17">
+<link rel="stylesheet" href="styles.css?v=18">
 </head>
 <body>
 <div class="announcement">
@@ -66,7 +66,7 @@
 
 <header class="topbar">
   <a class="logoWrap" href="#home" aria-label="Alpona home">
-    <img src="assets/logo.jpeg" alt="Alpona logo">
+    <img id="siteLogoHeader" src="assets/logo.jpeg" alt="Alpona logo">
     <div><strong>ALPONA</strong><span>Handmade with Care & Culture</span></div>
   </a>
   <nav>
@@ -99,7 +99,7 @@
   </div>
   <div class="heroVisual">
     <div class="heroFrame">
-      <img src="assets/decor.jpeg" alt="Hand-painted Alpona decorative piece">
+      <img id="siteHeroImage" src="assets/decor.jpeg" alt="Hand-painted Alpona decorative piece">
     </div>
     <div class="heroSeal">ALPONA<br><small>HANDMADE</small></div>
   </div>
@@ -113,7 +113,7 @@
 
 <section class="visualEdit" aria-label="Alpona collections">
   <article class="visualCard visualCardLarge">
-    <img src="assets/decor.jpeg" alt="Alpona home decor collection">
+    <img id="siteCollectionImage1" src="assets/decor.jpeg" alt="Alpona home decor collection">
     <div class="visualOverlay">
       <span>01 · HOME & RITUAL</span>
       <h3>Decor that tells a story.</h3>
@@ -121,7 +121,7 @@
     </div>
   </article>
   <article class="visualCard">
-    <img src="assets/bag.jpeg" alt="Alpona hand-painted bags">
+    <img id="siteCollectionImage2" src="assets/bag.jpeg" alt="Alpona hand-painted bags">
     <div class="visualOverlay">
       <span>02 · WEARABLE ART</span>
       <h3>Craft, carried.</h3>
@@ -129,7 +129,7 @@
     </div>
   </article>
   <article class="visualCard">
-    <img src="assets/clothing.jpeg" alt="Alpona hand-painted clothing">
+    <img id="siteCollectionImage3" src="assets/clothing.jpeg" alt="Alpona hand-painted clothing">
     <div class="visualOverlay">
       <span>03 · PAINTED BY HAND</span>
       <h3>Tradition you can wear.</h3>
@@ -152,7 +152,7 @@
 
 <section id="story" class="story">
   <div class="storyImageWrap">
-    <img src="assets/logo.jpeg" alt="Alpona">
+    <img id="siteStoryImage" src="assets/logo.jpeg" alt="Alpona">
     <span class="storyNumber">আ</span>
   </div>
   <div class="storyCopy">
@@ -829,6 +829,7 @@ Transaction ID
 <div class="adminTabs">
 <button onclick="setTab('orders')" class="tab active">Orders</button>
 <button onclick="setTab('products')" class="tab">Products</button>
+<button onclick="setTab('website'); loadWebsiteEditor()" class="tab">Website</button>
 <button onclick="setTab('expenses')" class="tab">Expenses</button>
 <button onclick="setTab('analytics'); loadAnalyticsDashboard()" class="tab">Analytics</button>
 <button onclick="setTab('intelligence'); loadOwnerIntelligence()" class="tab">Intelligence</button>
@@ -842,6 +843,60 @@ Transaction ID
 <div id="tab-products" class="tabBody hidden">
   <div class="panelHead"><h3>Products</h3><button class="primary" onclick="openProductForm()">+ Add Product</button></div>
   <div id="adminProducts"></div>
+</div>
+
+<div id="tab-website" class="tabBody hidden">
+  <div class="panelHead websiteEditorHead">
+    <div>
+      <p class="kicker">HOMEPAGE EDITOR</p>
+      <h3>Website Images</h3>
+      <p id="websiteEditorStatus" class="muted">Open this tab to load the current images.</p>
+    </div>
+    <button class="secondary" type="button" onclick="resetWebsiteSettings()">Restore Originals</button>
+  </div>
+
+  <form class="websiteEditorForm" onsubmit="saveWebsiteSettings(event)">
+    <p class="websiteEditorNote">Change one image or several images together. JPG, PNG or WebP only; maximum 5 MB per image. Product changes do not remove the website style or animations.</p>
+
+    <div class="websiteEditorGrid">
+      <label class="websiteAssetCard">
+        <span>Logo</span>
+        <img id="siteLogoPreview" src="assets/logo.jpeg" alt="Current website logo preview">
+        <small>Used in the header and Our Story section.</small>
+        <input id="siteLogoFile" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewWebsiteAsset(this,'siteLogoPreview')">
+      </label>
+
+      <label class="websiteAssetCard">
+        <span>Top Hero Image</span>
+        <img id="siteHeroPreview" src="assets/decor.jpeg" alt="Current hero image preview">
+        <small>The large image at the top of the homepage.</small>
+        <input id="siteHeroFile" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewWebsiteAsset(this,'siteHeroPreview')">
+      </label>
+
+      <label class="websiteAssetCard">
+        <span>Collection Image 1</span>
+        <img id="siteCollection1Preview" src="assets/decor.jpeg" alt="Current first collection image preview">
+        <small>Home &amp; Ritual</small>
+        <input id="siteCollection1File" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewWebsiteAsset(this,'siteCollection1Preview')">
+      </label>
+
+      <label class="websiteAssetCard">
+        <span>Collection Image 2</span>
+        <img id="siteCollection2Preview" src="assets/bag.jpeg" alt="Current second collection image preview">
+        <small>Wearable Art</small>
+        <input id="siteCollection2File" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewWebsiteAsset(this,'siteCollection2Preview')">
+      </label>
+
+      <label class="websiteAssetCard">
+        <span>Collection Image 3</span>
+        <img id="siteCollection3Preview" src="assets/clothing.jpeg" alt="Current third collection image preview">
+        <small>Painted by Hand</small>
+        <input id="siteCollection3File" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewWebsiteAsset(this,'siteCollection3Preview')">
+      </label>
+    </div>
+
+    <button class="primary" type="submit">Save Website Images</button>
+  </form>
 </div>
 
 <div id="tab-expenses" class="tabBody hidden">
@@ -1054,6 +1109,7 @@ Transaction ID
 <div id="toast" class="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
+<script src="site-settings.js?v=1"></script>
 <script src="monitoring.js?v=3"></script>
 <script src="analytics.js?v=2"></script>
 <script src="app.js?v=7"></script>
