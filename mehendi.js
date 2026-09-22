@@ -38,6 +38,41 @@
     });
   }
 
+  function isFunctionTransportError(error) {
+    const message = String(error?.message || "");
+    return (
+      message.includes("Failed to send a request to the Edge Function") ||
+      message.includes("FunctionsFetchError") ||
+      message.includes("NetworkError")
+    );
+  }
+
+  async function functionErrorMessage(error, fallback) {
+    if (error?.context) {
+      try {
+        const response = await error.context.json();
+        if (response?.error) return String(response.error);
+      } catch (_) {}
+    }
+
+    if (isFunctionTransportError(error)) {
+      return "We could not confirm the booking response. Please check your connection and try once more; the same request will not create a duplicate booking.";
+    }
+
+    return String(error?.message || fallback);
+  }
+
+  async function invokeBookingFunction(name, body) {
+    let result = await db.functions.invoke(name, { body });
+
+    if (isFunctionTransportError(result.error)) {
+      await new Promise(resolve => setTimeout(resolve, 700));
+      result = await db.functions.invoke(name, { body });
+    }
+
+    return result;
+  }
+
   function validateDesignFiles(files) {
     if (files.length > MAX_DESIGN_FILES) {
       throw new Error("You can upload up to 3 reference images.");
@@ -157,6 +192,9 @@
     }
 
     const payload = {
+      client_request_id:
+        form.dataset.clientRequestId ||
+        crypto.randomUUID(),
       booking_form_version: 2,
       website: String(fd.get("website") || ""),
       customer_name: String(fd.get("customer_name") || "").trim(),
@@ -182,17 +220,18 @@
       notes: String(fd.get("notes") || "").trim()
     };
 
+    form.dataset.clientRequestId = payload.client_request_id;
+
     try {
-      const { data, error } = await db.functions.invoke(
+      const { data, error } = await invokeBookingFunction(
         "submit-mehendi",
-        { body: payload }
+        payload
       );
 
       if (error || !data?.success) {
         throw new Error(
           data?.error ||
-          error?.message ||
-          "Booking request failed."
+          await functionErrorMessage(error, "Booking request failed.")
         );
       }
 
@@ -212,13 +251,16 @@
           if (uploadError) throw uploadError;
         }
 
-        const { data: finalData, error: finalError } = await db.functions.invoke(
+        const { data: finalData, error: finalError } = await invokeBookingFunction(
           "finalize-mehendi",
-          { body: { session_token: data.session_token } }
+          { session_token: data.session_token }
         );
 
         if (finalError || !finalData?.success) {
-          throw new Error(finalData?.error || finalError?.message || "Could not finish the booking request.");
+          throw new Error(
+            finalData?.error ||
+            await functionErrorMessage(finalError, "Could not finish the booking request.")
+          );
         }
 
         completed = finalData;
@@ -232,6 +274,7 @@
       }
 
       form.reset();
+      delete form.dataset.clientRequestId;
       updateServicePanels();
 
       const success =

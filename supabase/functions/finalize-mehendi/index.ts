@@ -94,16 +94,34 @@ Deno.serve(async request => {
       return new Response(JSON.stringify({ error: "This booking session expired. Please submit again." }), { status: 400, headers: headers(origin) });
     }
 
-    const { data: existing } = await service.from("mehendi_bookings").select("booking_number,telegram_notified_at").eq("booking_number", session.booking_number).limit(1);
+    const imagePaths = Array.isArray(session.image_paths) ? session.image_paths : [];
+    const clientRequestId = String(session.booking_data?.client_request_id || "");
+    const existingQuery = service
+      .from("mehendi_bookings")
+      .select("booking_number,telegram_notified_at")
+      .limit(1);
+    const { data: existing, error: existingError } = clientRequestId
+      ? await existingQuery.eq("client_request_id", clientRequestId)
+      : await existingQuery.eq("booking_number", session.booking_number);
+    if (existingError) throw existingError;
+
     if (existing?.length) {
       if (!existing[0].telegram_notified_at) {
-        await sendMehendiTelegram(service, session.booking_number, session.booking_data);
+        EdgeRuntime.waitUntil(
+          sendMehendiTelegram(service, existing[0].booking_number, session.booking_data)
+        );
+      }
+      if (existing[0].booking_number !== session.booking_number && imagePaths.length) {
+        await service.storage.from(BUCKET).remove(imagePaths);
       }
       await service.from("mehendi_upload_sessions").delete().eq("token_hash", tokenHash);
-      return new Response(JSON.stringify({ success: true, booking_number: session.booking_number }), { status: 200, headers: headers(origin) });
+      return new Response(JSON.stringify({
+        success: true,
+        booking_number: existing[0].booking_number,
+        reused: true
+      }), { status: 200, headers: headers(origin) });
     }
 
-    const imagePaths = Array.isArray(session.image_paths) ? session.image_paths : [];
     const folder = String(imagePaths[0] || "").split("/").slice(0, -1).join("/");
     const { data: files, error: listError } = await service.storage.from(BUCKET).list(folder, { limit: 10 });
     if (listError) throw listError;
@@ -127,9 +145,20 @@ Deno.serve(async request => {
     await service.from("mehendi_upload_sessions").delete().eq("token_hash", tokenHash);
 
     const finalBookingNumber = data?.booking_number || session.booking_number;
-    await sendMehendiTelegram(service, finalBookingNumber, session.booking_data);
+    if (data?.reused && finalBookingNumber !== session.booking_number && imagePaths.length) {
+      await service.storage.from(BUCKET).remove(imagePaths);
+    }
+    if (!data?.reused) {
+      EdgeRuntime.waitUntil(
+        sendMehendiTelegram(service, finalBookingNumber, session.booking_data)
+      );
+    }
 
-    return new Response(JSON.stringify({ success: true, booking_number: finalBookingNumber }), { status: 200, headers: headers(origin) });
+    return new Response(JSON.stringify({
+      success: true,
+      booking_number: finalBookingNumber,
+      reused: Boolean(data?.reused)
+    }), { status: 200, headers: headers(origin) });
   } catch (error) {
     console.error("Finalize Mehendi booking error:", error);
     return new Response(JSON.stringify({ error: "Could not finish the booking request. Please try again." }), { status: 500, headers: headers(origin) });

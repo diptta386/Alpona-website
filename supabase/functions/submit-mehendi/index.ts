@@ -96,6 +96,13 @@ Deno.serve(async request => {
   try {
     const body = await request.json();
     if (String(body.website || "").trim()) return new Response(JSON.stringify({ error: "Invalid submission" }), { status: 400, headers: headers(origin) });
+    const clientRequestId =
+      clean(body.client_request_id, 36) ||
+      crypto.randomUUID();
+
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(clientRequestId)) {
+      return new Response(JSON.stringify({ error: "Invalid booking request. Please refresh and try again." }), { status: 400, headers: headers(origin) });
+    }
 
     const booking = {
       customer_name: clean(body.customer_name, 120),
@@ -167,6 +174,25 @@ Deno.serve(async request => {
     }
 
     const service = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const { data: existingRequest, error: existingError } = await service
+      .from("mehendi_bookings")
+      .select("booking_number,telegram_notified_at")
+      .eq("client_request_id", clientRequestId)
+      .maybeSingle();
+    if (existingError) throw existingError;
+    if (existingRequest) {
+      if (!existingRequest.telegram_notified_at) {
+        EdgeRuntime.waitUntil(
+          sendMehendiTelegram(service, existingRequest.booking_number, booking)
+        );
+      }
+      return new Response(JSON.stringify({
+        success: true,
+        booking_number: existingRequest.booking_number,
+        reused: true
+      }), { status: 200, headers: headers(origin) });
+    }
+
     const { data: blockedSlot, error: blockedError } = await service
       .from("mehendi_bookings")
       .select("id")
@@ -187,14 +213,27 @@ Deno.serve(async request => {
     await service.from("submission_rate_limits").insert({ kind: "mehendi", key_hash: keyHash });
 
     const bookingNumber = "MEH-" + Date.now().toString().slice(-8) + "-" + Math.random().toString(36).slice(2, 5).toUpperCase();
-    const bookingData = { ...booking, booking_number: bookingNumber, custom_design_paths: [] as string[] };
+    const bookingData = {
+      ...booking,
+      client_request_id: clientRequestId,
+      booking_number: bookingNumber,
+      custom_design_paths: [] as string[]
+    };
 
     if (!images.length) {
       const { data, error } = await service.rpc("create_secure_mehendi_booking", { p_booking: bookingData });
       if (error) throw error;
       const finalBookingNumber = data?.booking_number || bookingNumber;
-      await sendMehendiTelegram(service, finalBookingNumber, bookingData);
-      return new Response(JSON.stringify({ success: true, booking_number: finalBookingNumber }), { status: 200, headers: headers(origin) });
+      if (!data?.reused) {
+        EdgeRuntime.waitUntil(
+          sendMehendiTelegram(service, finalBookingNumber, bookingData)
+        );
+      }
+      return new Response(JSON.stringify({
+        success: true,
+        booking_number: finalBookingNumber,
+        reused: Boolean(data?.reused)
+      }), { status: 200, headers: headers(origin) });
     }
 
     const sessionToken = crypto.randomUUID() + crypto.randomUUID();
