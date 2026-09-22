@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=19">
+<link rel="stylesheet" href="styles.css?v=20">
 </head>
 <body>
 <div class="announcement">
@@ -1023,6 +1023,17 @@ Transaction ID
         <p class="kicker">NEW DIRECTION</p>
         <h4>Send a task for approval</h4>
       </div>
+      <div class="agentPromptTemplates">
+        <span>Quick directions</span>
+        <div>
+          <button type="button" onclick="useAgentDirection('health')">Full Store Health</button>
+          <button type="button" onclick="useAgentDirection('sales')">Sales &amp; Stock</button>
+          <button type="button" onclick="useAgentDirection('mehendi')">Mehendi Bookings</button>
+          <button type="button" onclick="useAgentDirection('errors')">Website Problems</button>
+          <button type="button" onclick="useAgentDirection('priorities')">Today's Priorities</button>
+        </div>
+        <small>Choose one to fill the direction box, then edit it if needed—or write your own direction below.</small>
+      </div>
       <label>Agent
         <select name="agent_role" required>
           <option value="operations">Operations Manager</option>
@@ -1175,7 +1186,7 @@ Transaction ID
   <script src="mehendi.js?v=8"></script>
   <script src="damage-reports.js?v=3"></script>
   <script src="owner-agent.js?v=3"></script>
-  <script src="agent-control.js?v=2"></script>
+  <script src="agent-control.js?v=3"></script>
   <script src="site-motion.js?v=1"></script>
   <script>
   const params = new URLSearchParams(window.location.search);

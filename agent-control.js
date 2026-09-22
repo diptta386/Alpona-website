@@ -15,6 +15,13 @@
     completed: "Completed",
     rejected: "Rejected"
   };
+  const PRESET_DIRECTIONS = {
+    health: "Analyze Alpona Store's orders, revenue, top products, low stock, Mehendi bookings, damage reports and website errors. List the five most urgent issues in priority order. Support every recommendation with available numbers, do not guess missing information and do not change any store data.",
+    sales: "Analyze sales, revenue, units sold, top-selling products and low-stock products. Tell me which products should be restocked first and explain the recommendation using available numbers. Do not change any product or stock data.",
+    mehendi: "Summarize Mehendi booking requests, upcoming appointments and requests still needing attention. Identify anything urgent from the available data. Do not confirm, cancel or change any booking.",
+    errors: "Review recent website errors. Prioritize unresolved problems that may affect checkout, orders or Mehendi bookings. Explain what needs attention, but do not change code, data or mark any issue resolved.",
+    priorities: "Review current orders, sales, low stock, Mehendi bookings, damage reports and website errors. Give me a numbered list of the five tasks I should handle first today, with the available evidence for each. Do not make any changes."
+  };
 
   function escapeHtml(value) {
     return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;")
@@ -116,6 +123,17 @@
     } finally {
       button.disabled = false; button.textContent = "Create Approval Request";
     }
+  };
+
+  window.useAgentDirection = function (key) {
+    const form = document.getElementById("agentTaskForm");
+    const direction = PRESET_DIRECTIONS[key];
+    if (!form || !direction) return;
+    form.elements.agent_role.value = "analyst";
+    form.elements.risk_level.value = "low";
+    form.elements.direction.value = direction;
+    form.elements.direction.focus();
+    form.elements.direction.setSelectionRange(direction.length, direction.length);
   };
 
   async function transition(id, status, extra, message) {
