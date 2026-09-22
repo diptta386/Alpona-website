@@ -1469,6 +1469,7 @@ textarea{min-height:95px;resize:vertical}
 .agentResult{padding:12px 14px;background:#f8f3ec;color:#46362e;font-size:11px;line-height:1.6}
 .agentTaskActions{margin-top:16px}
 .agentTaskActions button{width:auto}
+.agentPendingConnection{padding:9px 12px;border:1px dashed var(--line);color:var(--muted);font-size:10px;line-height:1.4}
 
 .reveal-ready{
   opacity:0;

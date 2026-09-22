@@ -46,7 +46,8 @@
     if (task.status === "awaiting_start_approval") return `
       <button class="primary" type="button" onclick="approveAgentTaskStart(${task.id})">Approve Start</button>
       <button class="danger" type="button" onclick="rejectAgentTask(${task.id})">Reject</button>`;
-    if (task.status === "approved_to_start") return `<button class="primary" type="button" onclick="startApprovedAgentTask(${task.id})">Start Approved Work</button>`;
+    if (task.status === "approved_to_start" && task.agent_role === "analyst") return `<button class="primary" type="button" onclick="startApprovedAgentTask(${task.id})">Run Read-only Analysis</button>`;
+    if (task.status === "approved_to_start") return `<span class="agentPendingConnection">Approved — this agent's automation is not connected yet.</span>`;
     if (task.status === "in_progress") return `<button class="secondary" type="button" onclick="requestAgentTaskCompletion(${task.id})">Submit for Finish Approval</button>`;
     if (task.status === "awaiting_completion_approval") return `
       <button class="primary" type="button" onclick="approveAgentTaskCompletion(${task.id})">Approve Finish</button>
@@ -133,7 +134,53 @@
     if (!confirm("Approve this task to start? This does not approve completion.")) return;
     return runTransition(id, "approved_to_start", { start_approved_by: OWNER_UID, start_approved_at: new Date().toISOString() }, "Task approved to start");
   };
-  window.startApprovedAgentTask = id => runTransition(id, "in_progress", { started_at: new Date().toISOString() }, "Approved task started");
+  window.startApprovedAgentTask = async function (id) {
+    try {
+      await requireOwnerMfa();
+      const { data: task, error: taskError } = await db.from("agent_tasks")
+        .select("id,agent_role,direction,status")
+        .eq("id", id).single();
+      if (taskError) throw taskError;
+      if (task.agent_role !== "analyst") throw new Error("Only the read-only Store Analyst is connected right now.");
+      if (task.status !== "approved_to_start") throw new Error("This task is not approved to start.");
+
+      const { error: startError } = await db.from("agent_tasks").update({
+        status: "in_progress",
+        started_at: new Date().toISOString()
+      }).eq("id", id);
+      if (startError) throw startError;
+
+      toast("Store Analyst is reviewing the last 30 days…");
+      await window.loadAgentControlCenter();
+
+      const { data, error } = await db.functions.invoke("owner-intelligence", {
+        body: { question: task.direction, days: 30 }
+      });
+      if (error) throw error;
+      if (!data?.success || !String(data.answer || "").trim()) {
+        throw new Error(data?.error || "The analyst returned no report.");
+      }
+
+      const { error: reviewError } = await db.from("agent_tasks").update({
+        status: "awaiting_completion_approval",
+        result_summary: String(data.answer).trim().slice(0, 4000),
+        completion_requested_at: new Date().toISOString()
+      }).eq("id", id);
+      if (reviewError) throw reviewError;
+
+      toast("Analysis is ready for your finish approval");
+      await window.loadAgentControlCenter();
+    } catch (error) {
+      console.error("Store Analyst task failed:", error);
+      try {
+        await db.from("agent_tasks").update({
+          result_summary: "Analysis failed: " + String(error.message || "Unknown error").slice(0, 500)
+        }).eq("id", id).eq("status", "in_progress");
+      } catch (_) {}
+      alert(error.message || "The Store Analyst could not complete the analysis.");
+      await window.loadAgentControlCenter();
+    }
+  };
   window.requestAgentTaskCompletion = function (id) {
     const result = prompt("Summarize the work that is ready for your review:");
     if (!result?.trim()) return;
