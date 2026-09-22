@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=18">
+<link rel="stylesheet" href="styles.css?v=19">
 </head>
 <body>
 <div class="announcement">
@@ -833,6 +833,7 @@ Transaction ID
 <button onclick="setTab('expenses')" class="tab">Expenses</button>
 <button onclick="setTab('analytics'); loadAnalyticsDashboard()" class="tab">Analytics</button>
 <button onclick="setTab('intelligence'); loadOwnerIntelligence()" class="tab">Intelligence</button>
+<button onclick="setTab('agents'); loadAgentControlCenter()" class="tab">Agents</button>
 <button onclick="setTab('mehendi'); loadMehendiBookings()" class="tab">Mehendi</button>
 <button onclick="setTab('damage'); loadDamageReports()" class="tab">Damage Reports</button>
 <button onclick="setTab('messages')" class="tab">Messages</button>
@@ -1000,6 +1001,56 @@ Transaction ID
     </section>
   </div>
 
+  <div id="tab-agents" class="tabBody hidden">
+    <div class="panelHead agentControlHead">
+      <div>
+        <p class="kicker">OWNER APPROVAL REQUIRED</p>
+        <h3>Agent Control Center</h3>
+        <p class="muted">Agents may prepare work, but no task can start or finish until you approve it.</p>
+      </div>
+      <button class="secondary" type="button" onclick="loadAgentControlCenter()">Refresh</button>
+    </div>
+
+    <div class="agentGuardrail">
+      <b>Approval lock is on</b>
+      <span>Start approval and completion approval are separate. Completing one does not grant the other.</span>
+    </div>
+
+    <div id="agentRoleGrid" class="agentRoleGrid"></div>
+
+    <form id="agentTaskForm" class="agentTaskForm" onsubmit="createAgentTask(event)">
+      <div>
+        <p class="kicker">NEW DIRECTION</p>
+        <h4>Send a task for approval</h4>
+      </div>
+      <label>Agent
+        <select name="agent_role" required>
+          <option value="operations">Operations Manager</option>
+          <option value="content">Content &amp; SEO</option>
+          <option value="design">Design Assistant</option>
+          <option value="support">Customer Support</option>
+          <option value="analyst">Store Analyst</option>
+        </select>
+      </label>
+      <label>Risk level
+        <select name="risk_level" required>
+          <option value="low">Low — read or draft only</option>
+          <option value="medium">Medium — content or customer communication</option>
+          <option value="high">High — order, booking, courier or payment</option>
+        </select>
+      </label>
+      <label class="agentDirectionField">Your direction
+        <textarea name="direction" maxlength="2000" required placeholder="Example: Draft Bengali descriptions for the five newest products. Do not publish them."></textarea>
+      </label>
+      <button class="primary" type="submit">Create Approval Request</button>
+    </form>
+
+    <section class="agentTaskSection">
+      <div class="analyticsPanelHead"><div><span>CONTROLLED WORKFLOW</span><h4>Agent Tasks</h4></div></div>
+      <div id="agentTaskList"><div class="analyticsEmpty">Open this tab to load agent tasks.</div></div>
+    </section>
+  </div>
+
   <div id="tab-mehendi" class="tabBody hidden">
     <div class="panelHead">
       <div>
@@ -1124,6 +1175,7 @@ Transaction ID
   <script src="mehendi.js?v=8"></script>
   <script src="damage-reports.js?v=3"></script>
   <script src="owner-agent.js?v=3"></script>
+  <script src="agent-control.js?v=1"></script>
   <script src="site-motion.js?v=1"></script>
   <script>
   const params = new URLSearchParams(window.location.search);

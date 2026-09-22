@@ -1441,6 +1441,35 @@ textarea{min-height:95px;resize:vertical}
   letter-spacing:.08em;
 }
 
+.agentControlHead{align-items:flex-start}
+.agentGuardrail{display:flex;gap:12px;align-items:center;margin:0 0 22px;padding:15px 18px;border:1px solid rgba(111,31,25,.25);border-left:4px solid var(--maroon);background:#fff9f1}
+.agentGuardrail b{color:var(--maroon);white-space:nowrap}
+.agentGuardrail span{color:var(--muted);font-size:11px;line-height:1.5}
+.agentRoleGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:24px}
+.agentRoleCard{position:relative;min-height:190px;padding:18px;border:1px solid var(--line);background:#fff}
+.agentRoleCard h4{margin:34px 0 9px;font-size:17px}
+.agentRoleCard p{margin:0 0 14px;color:var(--muted);font-size:10px;line-height:1.6}
+.agentRoleCard small{position:absolute;bottom:16px;left:18px;color:var(--maroon);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.agentRoleState{position:absolute;top:14px;right:14px;padding:4px 7px;border-radius:999px;background:#f6e9dc;color:var(--maroon);font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.agentTaskForm{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;padding:22px;border:1px solid var(--line);background:#fffaf2}
+.agentTaskForm>div,.agentDirectionField,.agentTaskForm>button{grid-column:1/-1}
+.agentTaskForm h4{margin:2px 0 0;font-size:23px}
+.agentTaskForm textarea{min-height:110px;resize:vertical}
+.agentTaskSection{border:1px solid var(--line);background:#fff}
+.agentTaskSection .analyticsPanelHead{padding:18px 20px;border-bottom:1px solid var(--line)}
+.agentTaskCard{padding:20px;border-bottom:1px solid var(--line)}
+.agentTaskCard:last-child{border-bottom:0}
+.agentTaskCard h4{margin:13px 0 8px;font-size:17px;line-height:1.45}
+.agentTaskCard>small{color:var(--muted)}
+.agentTaskMeta,.agentTaskActions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.agentTaskMeta>span{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.agentRisk,.agentStatus{padding:5px 8px;border-radius:999px;background:#f1ede7}
+.agentRisk--high{background:#f8d8d3;color:#79160f}.agentRisk--medium{background:#f7e8c4;color:#77510c}.agentRisk--low{background:#dfeee3;color:#265f38}
+.agentStatus--completed{background:#dfeee3;color:#265f38}.agentStatus--rejected{background:#eee;color:#666}
+.agentResult{padding:12px 14px;background:#f8f3ec;color:#46362e;font-size:11px;line-height:1.6}
+.agentTaskActions{margin-top:16px}
+.agentTaskActions button{width:auto}
+
 .reveal-ready{
   opacity:0;
   transform:translateY(26px);
@@ -1464,6 +1493,12 @@ textarea{min-height:95px;resize:vertical}
   .bookingDesigns img{width:64px;height:64px}
   .websiteEditorGrid{grid-template-columns:1fr}
   .websiteAssetCard img{height:230px}
+  .agentGuardrail{align-items:flex-start;flex-direction:column}
+  .agentRoleGrid{grid-template-columns:1fr}
+  .agentRoleCard{min-height:160px}
+  .agentTaskForm{grid-template-columns:1fr;padding:16px}
+  .agentTaskForm>*{grid-column:1!important}
+  .agentTaskActions button{width:100%}
 }
 
 @media(prefers-reduced-motion:reduce){
