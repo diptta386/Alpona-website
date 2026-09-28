@@ -26,12 +26,13 @@
     document.querySelectorAll('#designAdminForm [name="artist_id"], #bulkDesignAdminForm [name="artist_id"]').forEach(select=>{const value=select.value;select.innerHTML=options;select.value=value;});
   }
   function status(active){return active?'<span class="catalogLive">Live</span>':'<span class="catalogHidden">Hidden</span>';}
+  function deleteButton(type,row){return row.active?"":`<button class="catalogDeleteButton" type="button" onclick="deleteCatalogRecord('${type}','${row.id}')">Delete</button>`;}
   function render(){
     artistOptions(); const root=document.getElementById("mehendiCatalogAdminList"); if(!root)return;
     root.innerHTML=`
-      <section class="catalogAdminListSection"><h4>Artists</h4>${state.artists.length?state.artists.map(x=>`<div class="catalogAdminRow"><div>${x.photo_url?`<img src="${escapeHtml(x.photo_url)}" alt="">`:""}<span><b>${escapeHtml(x.name)}</b><small>${escapeHtml(x.base_area)} · ${escapeHtml(x.public_address)}</small></span></div><div>${status(x.active)}<button class="secondary" onclick="editCatalogRecord('artist','${x.id}')">Edit</button></div></div>`).join(""):'<p class="analyticsEmpty">No artists yet.</p>'}</section>
-      <section class="catalogAdminListSection"><h4>Designs &amp; Services</h4>${state.designs.length?state.designs.map(x=>`<div class="catalogAdminRow"><div>${x.image_url?`<img src="${escapeHtml(x.image_url)}" alt="">`:""}<span><b>${escapeHtml(x.title)}</b><small>${escapeHtml(state.artists.find(a=>a.id===x.artist_id)?.name||"Unknown artist")} · ${money(x.price)} ${x.pricing_unit==="per_person"?"per person":"per booking"}</small></span></div><div>${status(x.active)}<button class="secondary" onclick="editCatalogRecord('design','${x.id}')">Edit</button></div></div>`).join(""):'<p class="analyticsEmpty">No designs yet.</p>'}</section>
-      <section class="catalogAdminListSection"><h4>Organic Mehendi / Add-ons</h4>${state.addons.length?state.addons.map(x=>`<div class="catalogAdminRow"><div>${x.image_url?`<img src="${escapeHtml(x.image_url)}" alt="">`:""}<span><b>${escapeHtml(x.name)}</b><small>${money(x.price)} / ${escapeHtml(x.unit_label)}</small></span></div><div>${status(x.active)}<button class="secondary" onclick="editCatalogRecord('addon','${x.id}')">Edit</button></div></div>`).join(""):'<p class="analyticsEmpty">No add-ons yet.</p>'}</section>
+      <section class="catalogAdminListSection"><h4>Artists</h4>${state.artists.length?state.artists.map(x=>`<div class="catalogAdminRow"><div>${x.photo_url?`<img src="${escapeHtml(x.photo_url)}" alt="">`:""}<span><b>${escapeHtml(x.name)}</b><small>${escapeHtml(x.base_area)} · ${escapeHtml(x.public_address)}</small></span></div><div>${status(x.active)}<button class="secondary" type="button" onclick="editCatalogRecord('artist','${x.id}')">Edit</button>${deleteButton("artist",x)}</div></div>`).join(""):'<p class="analyticsEmpty">No artists yet.</p>'}</section>
+      <section class="catalogAdminListSection"><h4>Designs &amp; Services</h4>${state.designs.length?state.designs.map(x=>`<div class="catalogAdminRow"><div>${x.image_url?`<img src="${escapeHtml(x.image_url)}" alt="">`:""}<span><b>${escapeHtml(x.title)}</b><small>${escapeHtml(state.artists.find(a=>a.id===x.artist_id)?.name||"Unknown artist")} · ${money(x.price)} ${x.pricing_unit==="per_person"?"per person":"per booking"}</small></span></div><div>${status(x.active)}<button class="secondary" type="button" onclick="editCatalogRecord('design','${x.id}')">Edit</button>${deleteButton("design",x)}</div></div>`).join(""):'<p class="analyticsEmpty">No designs yet.</p>'}</section>
+      <section class="catalogAdminListSection"><h4>Organic Mehendi / Add-ons</h4>${state.addons.length?state.addons.map(x=>`<div class="catalogAdminRow"><div>${x.image_url?`<img src="${escapeHtml(x.image_url)}" alt="">`:""}<span><b>${escapeHtml(x.name)}</b><small>${money(x.price)} / ${escapeHtml(x.unit_label)}</small></span></div><div>${status(x.active)}<button class="secondary" type="button" onclick="editCatalogRecord('addon','${x.id}')">Edit</button>${deleteButton("addon",x)}</div></div>`).join(""):'<p class="analyticsEmpty">No add-ons yet.</p>'}</section>
       <section class="catalogAdminListSection"><h4>Travel Zones</h4>${state.zones.length?state.zones.map(x=>`<div class="catalogAdminRow"><div><span><b>${escapeHtml(x.label)}</b><small>${Number(x.min_km)}–${Number(x.max_km)} km · ${money(x.fee)}</small></span></div><div>${status(x.active)}<button class="secondary" onclick="editCatalogRecord('zone','${x.id}')">Edit</button></div></div>`).join(""):'<p class="analyticsEmpty">No zones yet.</p>'}</section>`;
   }
 
@@ -50,6 +51,17 @@
     const [rows,formId]=map[type]||[];const row=rows?.find(x=>String(x.id)===String(id));const form=document.getElementById(formId);if(!row||!form)return;
     Object.entries(row).forEach(([key,value])=>{const field=form.elements[key];if(!field)return;if(field.type==="checkbox")field.checked=Boolean(value);else if(field.type!=="file")field.value=value??"";});
     form.scrollIntoView({behavior:"smooth",block:"start"});
+  };
+  window.deleteCatalogRecord=async function(type,id){
+    const map={artist:[state.artists,"mehendi_artists","photo_path","artist"],design:[state.designs,"mehendi_catalog_items","image_path","design"],addon:[state.addons,"mehendi_addons","image_path","add-on"]};
+    const [rows,table,pathField,label]=map[type]||[];const row=rows?.find(item=>String(item.id)===String(id));if(!row)return;
+    if(row.active){alert(`Hide this ${label} before deleting it.`);return;}
+    if(type==="artist"&&state.designs.some(design=>design.artist_id===row.id)){alert("Delete this artist's designs first, then delete the artist.");return;}
+    if(!confirm(`Permanently delete this hidden ${label}? This cannot be undone.`))return;
+    try{
+      await requireOwner();const {error}=await db.from(table).delete().eq("id",row.id);if(error)throw error;
+      if(row[pathField])await cleanup(row[pathField]);toast(`${label[0].toUpperCase()+label.slice(1)} deleted`);await window.loadMehendiCatalogAdmin();
+    }catch(error){fail(error);}
   };
 
   async function saveWithImage(form,table,folder,imageField,urlField,pathField,payload){
