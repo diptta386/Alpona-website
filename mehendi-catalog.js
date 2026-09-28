@@ -41,6 +41,11 @@
     document.getElementById("catalogArtistSelect").value = artistId;
     populateDesigns(artistId);
     document.getElementById("catalogDesignSelect").value = itemId;
+    document.querySelectorAll(".artistDesignCard").forEach(card => {
+      const selected = card.dataset.itemId === String(itemId);
+      card.classList.toggle("isSelected", selected);
+      card.setAttribute("aria-pressed", selected ? "true" : "false");
+    });
     updatePrice();
     document.querySelector(".catalogBuilder")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -57,12 +62,17 @@
     container.innerHTML = state.artists.map(artist => {
       const items = state.items.filter(item => item.artist_id === artist.id);
       return `<article class="artistCatalogCard">
-        ${artist.photo_url ? `<img class="artistPortrait" src="${escapeHtml(artist.photo_url)}" alt="${escapeHtml(artist.name)}" loading="lazy">` : '<div class="artistPortrait artistPortrait--empty">Alpona Artist</div>'}
-        <div class="artistInfo"><p class="kicker">${escapeHtml(artist.base_area)}</p><h3>${escapeHtml(artist.name)}</h3><p>${escapeHtml(artist.public_address)}</p>${artist.bio ? `<p class="artistBio">${escapeHtml(artist.bio)}</p>` : ""}</div>
-        <div class="artistDesignGrid">${items.length ? items.map(item => `<button type="button" class="artistDesignCard" onclick="chooseCatalogDesign('${escapeHtml(artist.id)}','${escapeHtml(item.id)}')">
-          ${item.image_url ? `<img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" loading="lazy">` : '<span class="designImageEmpty">Design image</span>'}
-          <span><b>${escapeHtml(item.title)}</b><small>${escapeHtml(item.service_type)} · ${money(item.price)}${item.pricing_unit === "per_person" ? " / person" : ""}</small></span>
-        </button>`).join("") : '<p class="analyticsEmpty">No active designs yet.</p>'}</div>
+        <div class="artistCatalogProfile">
+          ${artist.photo_url ? `<img class="artistPortrait" src="${escapeHtml(artist.photo_url)}" alt="${escapeHtml(artist.name)}" loading="lazy">` : '<div class="artistPortrait artistPortrait--empty">Alpona Artist</div>'}
+          <div class="artistInfo"><p class="kicker">${escapeHtml(artist.base_area)}</p><h3>${escapeHtml(artist.name)}</h3><p>${escapeHtml(artist.public_address)}</p>${artist.bio ? `<p class="artistBio">${escapeHtml(artist.bio)}</p>` : ""}</div>
+        </div>
+        <section class="artistPortfolio">
+          <div class="artistPortfolioHead"><div><p class="kicker">DESIGN CATALOG</p><h4>${items.length} ${items.length === 1 ? "design" : "designs"}</h4></div><span>Choose any design to calculate your appointment price.</span></div>
+          <div class="artistDesignGrid">${items.length ? items.map(item => `<button type="button" class="artistDesignCard" data-item-id="${escapeHtml(item.id)}" aria-pressed="false" onclick="chooseCatalogDesign('${escapeHtml(artist.id)}','${escapeHtml(item.id)}')">
+            <span class="artistDesignMedia">${item.image_url ? `<img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" loading="lazy">` : '<span class="designImageEmpty">Design image</span>'}</span>
+            <span class="artistDesignContent"><small class="artistDesignType">${escapeHtml(item.service_type)}</small><b>${escapeHtml(item.title)}</b>${item.description ? `<small class="artistDesignDescription">${escapeHtml(item.description)}</small>` : ""}<span class="artistDesignFooter"><strong>${money(item.price)}${item.pricing_unit === "per_person" ? " / person" : ""}</strong><em>Select</em></span></span>
+          </button>`).join("") : '<p class="analyticsEmpty">No active designs yet.</p>'}</div>
+        </section>
       </article>`;
     }).join("");
   }

@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=21">
+<link rel="stylesheet" href="styles.css?v=22">
 </head>
 <body>
 <div class="announcement">
@@ -1136,6 +1136,27 @@ Transaction ID
         <button class="primary" type="submit">Save Zone</button><button class="secondary" type="button" onclick="resetCatalogAdminForm('zoneAdminForm')">Clear</button>
       </form>
     </div>
+
+    <form id="bulkDesignAdminForm" class="catalogAdminForm catalogBulkForm" onsubmit="saveMehendiBulkDesigns(event)">
+      <div class="catalogBulkHead">
+        <div><p class="kicker">BUILD A REAL CATALOG</p><h4>Bulk Design Upload</h4></div>
+        <p>Add several designs for one artist in a single upload. Each photo becomes its own selectable catalog card; you can set its title and price before saving.</p>
+      </div>
+      <div class="catalogBulkControls">
+        <label>Artist<select name="artist_id" required></select></label>
+        <label>Type<select name="service_type" required><option>Mehendi</option><option>Kolka</option><option>Mehendi + Kolka</option></select></label>
+        <label>Pricing unit<select name="pricing_unit"><option value="per_booking">Per booking</option><option value="per_person">Per person</option></select></label>
+        <label>Default price (৳)<input name="default_price" type="number" min="0" step="1" required oninput="syncMehendiBulkPrices(this.value)"></label>
+        <label class="catalogBulkFiles">Design photos
+          <input name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple required onchange="prepareMehendiBulkCatalog(event)">
+          <small>Select up to 20 photos. JPG, PNG or WebP; maximum 5 MB per photo.</small>
+        </label>
+        <label class="inlineCheck"><input name="active" type="checkbox" checked> Show all on website after saving</label>
+      </div>
+      <div id="bulkDesignPreview" class="bulkDesignPreview"><p class="analyticsEmpty">Choose several design photos to prepare the catalog.</p></div>
+      <p id="bulkCatalogStatus" class="muted" aria-live="polite"></p>
+      <button class="primary" type="submit">Add All Designs</button><button class="secondary" type="button" onclick="resetMehendiBulkCatalog()">Clear</button>
+    </form>
     <div id="mehendiCatalogAdminList"><div class="analyticsEmpty">Open this tab to load catalog settings.</div></div>
   </div>
 
@@ -1248,7 +1269,7 @@ Transaction ID
   <script src="supabase-chat.js?v=2"></script>
   <script src="supabase-owner-chat.js"></script>
   <script src="mehendi.js?v=10"></script>
-  <script src="mehendi-catalog-admin.js?v=1"></script>
+  <script src="mehendi-catalog-admin.js?v=2"></script>
   <script src="damage-reports.js?v=3"></script>
   <script src="owner-agent.js?v=3"></script>
   <script src="agent-control.js?v=3"></script>
