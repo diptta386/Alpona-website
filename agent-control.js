@@ -1,7 +1,7 @@
 (function () {
   const OWNER_UID = "5beecdb3-5e80-4a35-9133-5fc01ab7a772";
   const ROLES = {
-    operations: ["Operations Manager", "Prepares order, booking and courier work. Never changes payment or order status automatically."],
+    operations: ["Operations Manager", "Prepares order and courier work. Never changes payment or order status automatically."],
     content: ["Content & SEO", "Drafts product and homepage copy. Publishing remains locked until owner approval."],
     design: ["Design Assistant", "Prepares visual and layout suggestions. Cannot publish website changes."],
     support: ["Customer Support", "Drafts customer replies. Cannot send messages without owner approval."],
@@ -16,11 +16,10 @@
     rejected: "Rejected"
   };
   const PRESET_DIRECTIONS = {
-    health: "Analyze Alpona Store's orders, revenue, top products, low stock, Mehendi bookings, damage reports and website errors. List the five most urgent issues in priority order. Support every recommendation with available numbers, do not guess missing information and do not change any store data.",
+    health: "Analyze Alpona Store's orders, revenue, top products, low stock, damage reports and website errors. List the five most urgent issues in priority order. Support every recommendation with available numbers, do not guess missing information and do not change any store data.",
     sales: "Analyze sales, revenue, units sold, top-selling products and low-stock products. Tell me which products should be restocked first and explain the recommendation using available numbers. Do not change any product or stock data.",
-    mehendi: "Summarize Mehendi booking requests, upcoming appointments and requests still needing attention. Identify anything urgent from the available data. Do not confirm, cancel or change any booking.",
-    errors: "Review recent website errors. Prioritize unresolved problems that may affect checkout, orders or Mehendi bookings. Explain what needs attention, but do not change code, data or mark any issue resolved.",
-    priorities: "Review current orders, sales, low stock, Mehendi bookings, damage reports and website errors. Give me a numbered list of the five tasks I should handle first today, with the available evidence for each. Do not make any changes."
+    errors: "Review recent website errors. Prioritize unresolved problems that may affect checkout or orders. Explain what needs attention, but do not change code, data or mark any issue resolved.",
+    priorities: "Review current orders, sales, low stock, damage reports and website errors. Give me a numbered list of the five tasks I should handle first today, with the available evidence for each. Do not make any changes."
   };
 
   function escapeHtml(value) {

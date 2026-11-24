@@ -58,12 +58,6 @@ function fallbackAnswer(question: string, snapshot: any) {
     return p.product_name + " is the top-selling product in this period with " + p.units + " unit" + (p.units === 1 ? "" : "s") + " sold.";
   }
 
-  if (q.includes("booking") || q.includes("mehendi")) {
-    return "There are " + snapshot.bookingCount + " Mehendi booking request" +
-      (snapshot.bookingCount === 1 ? "" : "s") + " in this period, with " +
-      snapshot.upcomingBookings + " upcoming request" + (snapshot.upcomingBookings === 1 ? "" : "s") + ".";
-  }
-
   if (q.includes("damage") || q.includes("claim") || q.includes("refund") || q.includes("broken")) {
     return "There are " + snapshot.damageReportCount + " damage report" +
       (snapshot.damageReportCount === 1 ? "" : "s") + " in this period, including " +
@@ -78,7 +72,6 @@ function fallbackAnswer(question: string, snapshot: any) {
 
   return "Alpona summary: " + snapshot.orderCount + " non-cancelled orders, " +
     money(snapshot.revenue) + " revenue, " + snapshot.unitsSold + " items sold, " +
-    snapshot.bookingCount + " Mehendi booking requests, " +
     snapshot.damageReportCount + " damage reports, and " + snapshot.errors.length +
     " recorded website errors in the selected period.";
 }
@@ -108,11 +101,6 @@ async function analyzeIssue(issue: any, service: any, publicClient: any) {
       diagnosis = "The public product query is still failing: " + String(error.message || "unknown database error").slice(0, 300);
       suggestedFix = "Check the products SELECT policy, Data API availability, and the public Supabase client configuration.";
     }
-  } else if (combined.includes("mehendi booking error")) {
-    diagnosis = details
-      ? "The Mehendi booking flow failed with this recorded detail: " + details.slice(0, 500)
-      : "The old monitor saved only the label ‘Mehendi booking error’ and discarded the real Supabase/function error, so an exact repair cannot be proven from this record.";
-    suggestedFix = "Re-test the Mehendi request form. New incidents now include the underlying error and stack information; use that evidence for a code fix. No fake booking was inserted during this check.";
   } else if (combined.includes("cannot read properties of undefined") || combined.includes("classlist")) {
     diagnosis = "Frontend code tried to use classList on an element or value that did not exist. This is a code defect, not a service outage.";
     suggestedFix = "Use the source line in Technical Details to find the exact selector, then add the missing-element guard or correct the selector. This requires a tested code change and will not be auto-deployed from the dashboard.";
@@ -220,23 +208,21 @@ Deno.serve(async (req) => {
     since.setUTCHours(0, 0, 0, 0);
     const sinceIso = since.toISOString();
 
-    const [ordersRes, eventsRes, errorsRes, bookingsRes, damageRes, productsRes] = await Promise.all([
+    const [ordersRes, eventsRes, errorsRes, damageRes, productsRes] = await Promise.all([
       service.from("orders").select("id,total,status,created_at,order_items(product_name,quantity,price)").gte("created_at", sinceIso),
       service.from("analytics_events").select("event_type,product_name,quantity,value,created_at").gte("created_at", sinceIso),
       service.from("site_errors").select("id,message,error_type,severity,page_url,created_at,resolved,resolution_status,diagnosis,suggested_fix").gte("created_at", sinceIso).order("created_at", { ascending: false }).limit(25),
-      service.from("mehendi_bookings").select("status,event_date,service_type,occasion,created_at").gte("created_at", sinceIso),
       service.from("damage_reports").select("status,issue_type,created_at").gte("created_at", sinceIso),
       service.from("products").select("name,stock,active").eq("active", true)
     ]);
 
-    const anyError = [ordersRes, eventsRes, errorsRes, bookingsRes, damageRes, productsRes]
+    const anyError = [ordersRes, eventsRes, errorsRes, damageRes, productsRes]
       .find((r: any) => r.error)?.error;
     if (anyError) throw anyError;
 
     const orders = (ordersRes.data || []).filter((o: any) => o.status !== "Cancelled");
     const events = eventsRes.data || [];
     const errors = errorsRes.data || [];
-    const bookings = bookingsRes.data || [];
     const damageReports = damageRes.data || [];
     const products = productsRes.data || [];
     const productMap = new Map<string, number>();
@@ -260,15 +246,6 @@ Deno.serve(async (req) => {
     }
 
     const revenue = orders.reduce((sum: number, order: any) => sum + Number(order.total || 0), 0);
-    const localToday = new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Asia/Dhaka",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
-    }).format(new Date());
-    const upcomingBookings = bookings.filter((booking: any) =>
-      booking.status !== "Cancelled" && booking.status !== "Completed" && String(booking.event_date) >= localToday
-    ).length;
     const lowStock = products
       .filter((product: any) => Number(product.stock || 0) <= 3)
       .map((product: any) => ({ name: product.name, stock: Number(product.stock || 0) }))
@@ -281,8 +258,6 @@ Deno.serve(async (req) => {
       unitsSold,
       topProducts,
       eventCounts,
-      bookingCount: bookings.length,
-      upcomingBookings,
       damageReportCount: damageReports.length,
       damageReportsNeedingReview: damageReports.filter((report: any) =>
         report.status === "Submitted" || report.status === "Reviewing"

@@ -9,8 +9,6 @@
     ".storyCopy",
     ".promiseGrid article",
     ".steps > div",
-    ".mehendiIntro",
-    ".mehendiBookingCard",
     ".damagePolicy",
     ".damageReportCard"
   ].join(",");

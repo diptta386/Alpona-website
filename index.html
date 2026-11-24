@@ -12,13 +12,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Alpona | Handmade Bangladeshi Handicrafts, Décor & Gifts</title>
-<meta name="description" content="Shop Alpona for handmade Bangladeshi handicrafts, hand-painted décor, gifts, bags and clothing, and request Mehendi or traditional Bengali Kolka bridal appointments in Chittagong (Chattogram).">
+<meta name="description" content="Shop Alpona for handmade Bangladeshi handicrafts, hand-painted décor, gifts, bags and clothing, delivered across Bangladesh.">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="https://alponastore.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Alpona">
 <meta property="og:title" content="Alpona | Handmade Bangladeshi Handicrafts, Décor & Gifts">
-<meta property="og:description" content="Handmade Bangladeshi décor, gifts, bags and clothing, plus Mehendi and traditional Bengali Kolka appointment requests in Chittagong.">
+<meta property="og:description" content="Handmade Bangladeshi décor, gifts, bags and clothing, delivered across Bangladesh.">
 <meta property="og:url" content="https://alponastore.com/">
 <meta property="og:image" content="https://alponastore.com/assets/decor.jpeg">
 <meta name="twitter:card" content="summary_large_image">
@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=23">
+<link rel="stylesheet" href="styles.css?v=24">
 </head>
 <body>
 <div class="announcement">
@@ -71,8 +71,6 @@
   </a>
   <nav>
     <a href="#shop">Shop</a>
-    <a href="#mehendi">Mehendi & Kolka</a>
-    <a href="mehendi-catalog.html">Artists</a>
     <a href="#report-issue">Report Issue</a>
     <a href="#story">Our Story</a>
     <a href="#promise">Our Craft</a>
@@ -89,7 +87,6 @@
     <p class="heroLead">Objects with a soul. Hand-painted pieces inspired by Bengali ritual, celebration and the quiet beauty of home.</p>
     <div class="heroActions">
       <a class="primary" href="#shop">Explore the Collection</a>
-      <a class="secondary" href="#mehendi">Book Mehendi / Kolka</a>
       <a class="textLink" href="#story">Discover our story <span>→</span></a>
     </div>
     <div class="heroMeta">
@@ -201,244 +198,6 @@
   </div>
 </section>
 
-<section id="mehendi" class="mehendiSection">
-  <div class="mehendiIntro">
-    <p class="kicker">MEHENDI & KOLKA APPOINTMENTS · CHITTAGONG</p>
-    <h2>Mehendi & Kolka for your special moments.</h2>
-    <p>Request an Alpona appointment for <strong>Mehendi</strong>, <strong>Kolka</strong>, or both for weddings and special occasions in Chittagong (Chattogram). Kolka is traditional Bengali bridal face decoration—often delicate white decorative patterns around the forehead, eyes, cheeks or face. Choose the service you want and describe your preferred design below. Alpona will contact you to confirm availability, timing and final arrangements.</p>
-    <div class="mehendiFacts">
-      <span><b>01</b> Chittagong appointments</span>
-      <span><b>02</b> Mehendi, Kolka & bridal services</span>
-      <span><b>03</b> Confirmation before booking</span>
-    </div>
-    <a class="primary mehendiCatalogCta" href="mehendi-catalog.html">Browse Artists, Designs &amp; Prices</a>
-  </div>
-
-  <div class="mehendiBookingCard">
-    <p class="kicker">REQUEST AN APPOINTMENT</p>
-    <h3>Tell us what you would like.</h3>
-
-    <div id="mehendiSuccess" class="mehendiSuccess" style="display:none;"></div>
-
-    <div id="catalogBookingSelection" class="catalogBookingSelection" style="display:none;">
-      <p class="kicker">YOUR CATALOG SELECTION</p>
-      <div id="catalogBookingSummary"></div>
-      <label class="catalogPolicyCheck">
-        <input id="catalogCancellationAck" name="cancellation_acknowledged" type="checkbox">
-        <span>I understand that Alpona will verify the artist, distance and appointment time first. Full payment will be requested only after approval, and a paid booking cannot be cancelled.</span>
-      </label>
-    </div>
-
-    <form id="mehendiBookingForm" onsubmit="submitMehendiBooking(event)">
-      <div class="websiteField" aria-hidden="true">
-        <label>Website<input name="website" tabindex="-1" autocomplete="off"></label>
-      </div>
-      <div class="two">
-        <label>
-          Your Name
-          <input name="customer_name" required maxlength="120" autocomplete="name">
-        </label>
-
-        <label>
-          Mobile Number
-          <input name="phone" required maxlength="25" autocomplete="tel" placeholder="+880...">
-        </label>
-      </div>
-
-      <label>
-        Email
-        <input name="customer_email" type="email" maxlength="180" autocomplete="email" required placeholder="Confirmation email will be sent here">
-      </label>
-
-      <div class="two">
-        <label>
-          Event Date
-          <input id="mehendiEventDate" name="event_date" type="date" required>
-        </label>
-
-        <label>
-          Preferred Time
-          <select id="mehendiPreferredTime" name="preferred_time" required>
-            <option value="">সময় বেছে নিন</option>
-            <option value="Morning">সকাল</option>
-            <option value="Afternoon">দুপুর</option>
-            <option value="Evening">বিকাল</option>
-            <option value="Night">রাত</option>
-          </select>
-          <small id="mehendiAvailabilityHelp" class="fieldHelp" aria-live="polite">তারিখ বেছে নিলে খালি সময়গুলো দেখা যাবে।</small>
-        </label>
-      </div>
-
-      <div class="two">
-        <label>
-          Occasion
-          <select name="occasion" required>
-            <option value="">Choose occasion</option>
-            <option>Wedding</option>
-            <option>Mehendi / Holud Night</option>
-            <option>Engagement</option>
-            <option>Festival / Religious Occasion</option>
-            <option>Birthday / Party</option>
-            <option>Photoshoot</option>
-            <option>Other Special Occasion</option>
-          </select>
-        </label>
-
-        <label>
-          What would you like?
-          <select name="service_type" id="mehendiServiceType" required>
-            <option value="">Choose service</option>
-            <optgroup label="Mehendi">
-              <option>Bridal Mehendi</option>
-              <option>Guest Mehendi</option>
-              <option>Bridal + Guests Mehendi</option>
-              <option>Group / Event Mehendi</option>
-              <option>Simple / Occasion Mehendi</option>
-            </optgroup>
-            <optgroup label="Kolka">
-              <option>Bridal Kolka</option>
-              <option>Simple / Occasion Kolka</option>
-            </optgroup>
-            <optgroup label="Mehendi + Kolka">
-              <option>Bridal Mehendi + Kolka</option>
-              <option>Mehendi + Kolka Package</option>
-            </optgroup>
-          </select>
-          <small class="fieldHelp">Kolka means traditional Bengali bridal face decoration, commonly created as decorative white patterns around the forehead, eyes, cheeks or face.</small>
-        </label>
-      </div>
-
-      <div id="mehendiCoveragePanel" class="mehendiCoveragePanel" style="display:none;">
-        <div class="mehendiGuideHead">
-          <p class="kicker">মেহেদির পরিমাণ বেছে নিন</p>
-          <h4>কতটুকু জায়গায় মেহেদি চান?</h4>
-          <p>ছবির বদলে নিচের বাংলা নির্দেশনা দেখে দৈর্ঘ্য, পাশ এবং হাতের সংখ্যা বেছে নিন। মূল্য পরে Alpona আপনার সঙ্গে নিশ্চিত করবে।</p>
-        </div>
-        <div class="mehendiTextGuide" aria-label="মেহেদির দৈর্ঘ্য নির্দেশিকা">
-          <div><b>তালু</b><span>শুধু হাতের তালু পর্যন্ত নকশা</span></div>
-          <div><b>কবজি</b><span>তালু থেকে কবজি পর্যন্ত নকশা</span></div>
-          <div><b>চুড়ি পর্যন্ত</b><span>কবজির ওপর চুড়ির অবস্থান পর্যন্ত</span></div>
-          <div><b>কনুই পর্যন্ত</b><span>হাতের আঙুল থেকে কনুই পর্যন্ত</span></div>
-          <div><b>পুরো হাত</b><span>কনুইয়ের ওপর বা বাহু পর্যন্ত নকশা</span></div>
-          <div><b>পায়ের নকশা</b><span>পায়ের পাতা, গোড়ালি বা হাঁটু পর্যন্ত</span></div>
-        </div>
-
-        <div class="two">
-          <label>
-            মেহেদির দৈর্ঘ্য
-            <select name="mehendi_coverage" id="mehendiCoverage">
-              <option value="">দৈর্ঘ্য বেছে নিন</option>
-              <option>তালু পর্যন্ত</option>
-              <option>কবজি পর্যন্ত</option>
-              <option>চুড়ির অবস্থান পর্যন্ত</option>
-              <option>কনুই পর্যন্ত</option>
-              <option>কনুইয়ের ওপরে / পুরো হাত</option>
-              <option>পায়ের পাতা</option>
-              <option>গোড়ালি পর্যন্ত</option>
-              <option>হাঁটু পর্যন্ত</option>
-              <option>কাস্টম দৈর্ঘ্য</option>
-            </select>
-          </label>
-
-          <label>
-            নকশার পাশ
-            <select name="mehendi_side" id="mehendiSide">
-              <option value="">পাশ বেছে নিন</option>
-              <option>এক পাশ</option>
-              <option>দুই পাশ</option>
-            </select>
-          </label>
-        </div>
-
-        <div class="two">
-          <label>
-            কয়টি হাত
-            <select name="mehendi_hands" id="mehendiHands">
-              <option value="">হাত বেছে নিন</option>
-              <option>এক হাত</option>
-              <option>দুই হাত</option>
-            </select>
-          </label>
-
-          <div class="mehendiChoiceNote">
-            <b>কীভাবে বেছে নেবেন</b>
-            <span>প্রথমে দৈর্ঘ্য, তারপর এক পাশ বা দুই পাশ এবং এক হাত বা দুই হাত নির্বাচন করুন।</span>
-          </div>
-        </div>
-
-        <small class="fieldHelp">নিজস্ব বা মিশ্র নকশার জন্য “কাস্টম দৈর্ঘ্য” বেছে নিয়ে নিচে রেফারেন্স ছবি দিন।</small>
-      </div>
-
-      <div id="kolkaChoicePanel" class="mehendiCoveragePanel" style="display:none;">
-        <div class="mehendiGuideHead">
-          <p class="kicker">কলকার ধরন বেছে নিন</p>
-          <h4>মুখের কোন অংশে কলকা চান?</h4>
-          <p>কপাল, ভ্রু, কপালের পাশ এবং গালের প্রচলিত জায়গা থেকে আপনার পছন্দ নির্বাচন করুন।</p>
-        </div>
-        <div class="two">
-          <label>
-            কলকার জায়গা
-            <select name="kolka_placement" id="kolkaPlacement">
-              <option value="">জায়গা বেছে নিন</option>
-              <option>শুধু কপালে</option>
-              <option>কপাল ও ভ্রুর চারপাশে</option>
-              <option>কপাল ও গালে</option>
-              <option>কপাল, গাল ও থুতনিতে</option>
-              <option>কাস্টম কলকা</option>
-            </select>
-          </label>
-          <label>
-            কলকার পাশ
-            <select name="kolka_side" id="kolkaSide">
-              <option value="">পাশ বেছে নিন</option>
-              <option>মাঝখানে</option>
-              <option>এক পাশে</option>
-              <option>দুই পাশে সমান</option>
-              <option>পুরো মুখে</option>
-            </select>
-          </label>
-        </div>
-        <small class="fieldHelp">কাস্টম কলকার জন্য নিচে আপনার পছন্দের রেফারেন্স ছবি আপলোড করতে পারেন।</small>
-      </div>
-
-      <div id="customDesignUpload" class="customDesignUpload" style="display:none;">
-        <label>
-          কাস্টম ডিজাইনের ছবি <span class="optionalText">(ঐচ্ছিক)</span>
-          <input id="mehendiDesignFiles" name="design_images" type="file" accept="image/jpeg,image/png,image/webp" multiple>
-        </label>
-        <small class="fieldHelp">সর্বোচ্চ ৩টি JPG, PNG বা WebP ছবি দিন। প্রতিটি ছবি ৫ MB-এর কম হতে হবে। ছবিগুলো ব্যক্তিগত থাকবে এবং শুধু Alpona-এর মালিক দেখতে পারবেন।</small>
-        <div id="mehendiFileSummary" class="fileSummary" aria-live="polite"></div>
-      </div>
-
-      <div class="two">
-        <label>
-          Number of People
-          <input name="number_of_people" type="number" min="1" max="100" value="1" required>
-        </label>
-
-        <label>
-          Area in Chittagong
-          <input name="venue_area" required maxlength="120" placeholder="e.g. GEC, Agrabad, Halishahar">
-        </label>
-      </div>
-
-      <label>
-        Event / Venue Address
-        <textarea name="address" required maxlength="500" placeholder="Full appointment address"></textarea>
-      </label>
-
-      <label>
-        Notes <span class="optionalText">(optional)</span>
-        <textarea name="notes" maxlength="1000" placeholder="Tell us the Mehendi style, Kolka pattern, placement, inspiration, colors, number of people, or any special request..."></textarea>
-      </label>
-
-      <p class="bookingPrivacy">Submitting this form sends your details privately to Alpona so we can contact you about this appointment request. Your appointment is not confirmed until Alpona contacts you.</p>
-
-      <button class="primary full" type="submit">Request Appointment</button>
-    </form>
-  </div>
-</section>
-
 <section id="report-issue" class="damageReportSection">
   <div class="damagePolicy">
     <p class="kicker">DAMAGED OR BROKEN PRODUCT?</p>
@@ -471,7 +230,7 @@
     <p class="kicker">SUBMIT A DAMAGE REPORT</p>
     <h3>Send your proof to Alpona.</h3>
 
-    <div id="damageReportSuccess" class="mehendiSuccess" style="display:none;"></div>
+    <div id="damageReportSuccess" class="formSuccess" style="display:none;"></div>
 
     <form id="damageReportForm" onsubmit="submitDamageReport(event)">
       <div class="websiteField" aria-hidden="true">
@@ -589,7 +348,7 @@
       </a>
     </div>
   </div>
-  <div><b>Explore</b><p><a href="#shop">Shop Collection</a><br><a href="#mehendi">Mehendi & Kolka Appointments</a><br><a href="#story">Our Story</a><br><a href="#promise">Our Craft</a></p></div>
+  <div><b>Explore</b><p><a href="#shop">Shop Collection</a><br><a href="#story">Our Story</a><br><a href="#promise">Our Craft</a></p></div>
   <div><b>Customer Care</b><p>Delivery Across Bangladesh<br>Secure Order Details<br>Customer Support Chat<br><a href="#report-issue">Report Damaged Product</a></p></div>
   <div><b>Bangladesh</b><p>Prices shown in BDT (৳)<br><br>Handmade with care & culture.</p></div>
 </footer>
@@ -845,8 +604,6 @@ Transaction ID
 <button onclick="setTab('analytics'); loadAnalyticsDashboard()" class="tab">Analytics</button>
 <button onclick="setTab('intelligence'); loadOwnerIntelligence()" class="tab">Intelligence</button>
 <button onclick="setTab('agents'); loadAgentControlCenter()" class="tab">Agents</button>
-<button onclick="setTab('mehendi'); loadMehendiBookings()" class="tab">Mehendi</button>
-<button onclick="setTab('mehendi-catalog-admin'); loadMehendiCatalogAdmin()" class="tab">Artist Catalog</button>
 <button onclick="setTab('damage'); loadDamageReports()" class="tab">Damage Reports</button>
 <button onclick="setTab('messages')" class="tab">Messages</button>
 </div>
@@ -966,7 +723,7 @@ Transaction ID
         <div>
           <span>ASK YOUR STORE</span>
           <h4>Alpona Owner Assistant</h4>
-          <p>Ask about sales, products, bookings or a specific website issue number. “Analyze &amp; Solve” only applies a change when recovery can be verified safely.</p>
+          <p>Ask about sales, products, orders or a specific website issue number. “Analyze &amp; Solve” only applies a change when recovery can be verified safely.</p>
         </div>
         <label>
           Analysis period
@@ -990,7 +747,6 @@ Transaction ID
       <div class="agentQuickQuestions">
         <button type="button" onclick="document.querySelector('#tab-intelligence [name=question]').value='What is selling most this week and what should I watch?';">Top products</button>
         <button type="button" onclick="document.querySelector('#tab-intelligence [name=question]').value='Is anything wrong with my website today?';">Website problems</button>
-        <button type="button" onclick="document.querySelector('#tab-intelligence [name=question]').value='Give me a summary of Mehendi bookings and upcoming requests.';">Mehendi bookings</button>
       </div>
 
       <div id="ownerAgentAnswer">
@@ -1040,7 +796,6 @@ Transaction ID
         <div>
           <button type="button" onclick="useAgentDirection('health')">Full Store Health</button>
           <button type="button" onclick="useAgentDirection('sales')">Sales &amp; Stock</button>
-          <button type="button" onclick="useAgentDirection('mehendi')">Mehendi Bookings</button>
           <button type="button" onclick="useAgentDirection('errors')">Website Problems</button>
           <button type="button" onclick="useAgentDirection('priorities')">Today's Priorities</button>
         </div>
@@ -1072,92 +827,6 @@ Transaction ID
       <div class="analyticsPanelHead"><div><span>CONTROLLED WORKFLOW</span><h4>Agent Tasks</h4></div></div>
       <div id="agentTaskList"><div class="analyticsEmpty">Open this tab to load agent tasks.</div></div>
     </section>
-  </div>
-
-  <div id="tab-mehendi" class="tabBody hidden">
-    <div class="panelHead">
-      <div>
-        <p class="kicker">CHITTAGONG APPOINTMENTS</p>
-        <h3>Mehendi Bookings</h3>
-      </div>
-      <button class="secondary" onclick="loadMehendiBookings()">Refresh</button>
-    </div>
-    <div id="mehendiBookingAdmin">
-      <div class="analyticsEmpty">Open this tab to load booking requests.</div>
-    </div>
-  </div>
-
-  <div id="tab-mehendi-catalog-admin" class="tabBody hidden">
-    <div class="panelHead"><div><p class="kicker">OWNER CATALOG MANAGER</p><h3>Mehendi Artists &amp; Pricing</h3><p class="muted">Add artists, portfolio designs, organic Mehendi and distance-zone prices. Keep an item inactive until it is ready for customers.</p></div><button class="secondary" type="button" onclick="loadMehendiCatalogAdmin()">Refresh</button></div>
-    <div class="catalogAdminGrid">
-      <form id="artistAdminForm" class="catalogAdminForm" onsubmit="saveMehendiArtist(event)">
-        <input name="id" type="hidden"><input name="photo_path" type="hidden"><input name="photo_url" type="hidden">
-        <h4>Artist</h4>
-        <label>Name<input name="name" required maxlength="120"></label>
-        <label>Public address<input name="public_address" required maxlength="240"></label>
-        <label>Base area<input name="base_area" required maxlength="120" placeholder="Distance starts here"></label>
-        <label>About<textarea name="bio" maxlength="1200"></textarea></label>
-        <label>Profile photo<input name="photo" type="file" accept="image/jpeg,image/png,image/webp"></label>
-        <label class="inlineCheck"><input name="active" type="checkbox"> Show on website</label>
-        <button class="primary" type="submit">Save Artist</button><button class="secondary" type="button" onclick="resetCatalogAdminForm('artistAdminForm')">Clear</button>
-      </form>
-
-      <form id="designAdminForm" class="catalogAdminForm" onsubmit="saveMehendiDesign(event)">
-        <input name="id" type="hidden"><input name="image_path" type="hidden"><input name="image_url" type="hidden">
-        <h4>Design / Service</h4>
-        <label>Artist<select name="artist_id" required></select></label>
-        <label>Title<input name="title" required maxlength="160"></label>
-        <label>Type<select name="service_type" required><option>Mehendi</option><option>Kolka</option><option>Mehendi + Kolka</option></select></label>
-        <div class="two"><label>Price (৳)<input name="price" type="number" min="0" step="1" required></label><label>Pricing unit<select name="pricing_unit"><option value="per_booking">Per booking</option><option value="per_person">Per person</option></select></label></div>
-        <label>Estimated minutes<input name="duration_minutes" type="number" min="15" max="1440"></label>
-        <label>Description<textarea name="description" maxlength="1600"></textarea></label>
-        <label>Design photo<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label>
-        <label class="inlineCheck"><input name="active" type="checkbox"> Show on website</label>
-        <button class="primary" type="submit">Save Design</button><button class="secondary" type="button" onclick="resetCatalogAdminForm('designAdminForm')">Clear</button>
-      </form>
-
-      <form id="addonAdminForm" class="catalogAdminForm" onsubmit="saveMehendiAddon(event)">
-        <input name="id" type="hidden"><input name="image_path" type="hidden"><input name="image_url" type="hidden">
-        <h4>Organic Mehendi / Add-on</h4>
-        <label>Name<input name="name" required maxlength="120"></label>
-        <div class="two"><label>Price (৳)<input name="price" type="number" min="0" step="1" required></label><label>Unit<input name="unit_label" required maxlength="40" placeholder="cone / pack"></label></div>
-        <label>Description<textarea name="description" maxlength="1200"></textarea></label>
-        <label>Photo<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label>
-        <label class="inlineCheck"><input name="active" type="checkbox"> Show on website</label>
-        <button class="primary" type="submit">Save Add-on</button><button class="secondary" type="button" onclick="resetCatalogAdminForm('addonAdminForm')">Clear</button>
-      </form>
-
-      <form id="zoneAdminForm" class="catalogAdminForm" onsubmit="saveMehendiTravelZone(event)">
-        <input name="id" type="hidden"><h4>Travel Zone</h4>
-        <label>Label<input name="label" required maxlength="80"></label>
-        <div class="two"><label>From km<input name="min_km" type="number" min="0" max="15" step="0.1" required></label><label>To km<input name="max_km" type="number" min="0.1" max="15" step="0.1" required></label></div>
-        <label>Travel fee (৳)<input name="fee" type="number" min="0" step="1" required></label>
-        <label class="inlineCheck"><input name="active" type="checkbox"> Available to customers</label>
-        <button class="primary" type="submit">Save Zone</button><button class="secondary" type="button" onclick="resetCatalogAdminForm('zoneAdminForm')">Clear</button>
-      </form>
-    </div>
-
-    <form id="bulkDesignAdminForm" class="catalogAdminForm catalogBulkForm" onsubmit="saveMehendiBulkDesigns(event)">
-      <div class="catalogBulkHead">
-        <div><p class="kicker">BUILD A REAL CATALOG</p><h4>Bulk Design Upload</h4></div>
-        <p>Add several designs for one artist in a single upload. Each photo becomes its own selectable catalog card; you can set its title and price before saving.</p>
-      </div>
-      <div class="catalogBulkControls">
-        <label>Artist<select name="artist_id" required></select></label>
-        <label>Type<select name="service_type" required><option>Mehendi</option><option>Kolka</option><option>Mehendi + Kolka</option></select></label>
-        <label>Pricing unit<select name="pricing_unit"><option value="per_booking">Per booking</option><option value="per_person">Per person</option></select></label>
-        <label>Default price (৳)<input name="default_price" type="number" min="0" step="1" required oninput="syncMehendiBulkPrices(this.value)"></label>
-        <label class="catalogBulkFiles">Design photos
-          <input name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple required onchange="prepareMehendiBulkCatalog(event)">
-          <small>Select up to 20 photos. JPG, PNG or WebP; maximum 5 MB per photo.</small>
-        </label>
-        <label class="inlineCheck"><input name="active" type="checkbox" checked> Show all on website after saving</label>
-      </div>
-      <div id="bulkDesignPreview" class="bulkDesignPreview"><p class="analyticsEmpty">Choose several design photos to prepare the catalog.</p></div>
-      <p id="bulkCatalogStatus" class="muted" aria-live="polite"></p>
-      <button class="primary" type="submit">Add All Designs</button><button class="secondary" type="button" onclick="resetMehendiBulkCatalog()">Clear</button>
-    </form>
-    <div id="mehendiCatalogAdminList"><div class="analyticsEmpty">Open this tab to load catalog settings.</div></div>
   </div>
 
   <div id="tab-damage" class="tabBody hidden">
@@ -1268,8 +937,6 @@ Transaction ID
 <script src="alpona-chat.js?v=2"></script>
   <script src="supabase-chat.js?v=2"></script>
   <script src="supabase-owner-chat.js"></script>
-  <script src="mehendi.js?v=10"></script>
-  <script src="mehendi-catalog-admin.js?v=3"></script>
   <script src="damage-reports.js?v=3"></script>
   <script src="owner-agent.js?v=3"></script>
   <script src="agent-control.js?v=3"></script>

@@ -130,7 +130,7 @@ Deno.serve(async (req) => {
 
       await telegram(botToken, "sendMessage", {
         chat_id: chatId,
-        text: "✅ Alpona alerts connected. New product orders and Mehendi/Kolka bookings will appear here.",
+        text: "✅ Alpona alerts connected. New product orders will appear here.",
         reply_markup: {
           inline_keyboard: [[{
             text: "Open Owner Dashboard",

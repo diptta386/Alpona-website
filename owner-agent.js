@@ -63,7 +63,6 @@
         errorsResult,
         productsResult,
         ordersResult,
-        bookingsResult,
         reportsResult
       ] = await Promise.all([
         db
@@ -81,10 +80,6 @@
           .select("id,status,payment_status,created_at")
           .gte("created_at", since24),
         db
-          .from("mehendi_bookings")
-          .select("id,status,event_date,created_at")
-          .order("event_date", { ascending: true }),
-        db
           .from("owner_reports")
           .select("*")
           .order("generated_at", { ascending: false })
@@ -95,7 +90,6 @@
         errorsResult,
         productsResult,
         ordersResult,
-        bookingsResult,
         reportsResult
       ].find(x => x.error)?.error;
 
@@ -104,7 +98,6 @@
       const errors = errorsResult.data || [];
       const products = productsResult.data || [];
       const orders = ordersResult.data || [];
-      const bookings = bookingsResult.data || [];
       const reports = reportsResult.data || [];
 
       const lowStock =
@@ -113,11 +106,6 @@
       const pendingPayments =
         orders.filter(
           o => o.payment_status === "pending_verification"
-        );
-
-      const waitingBookings =
-        bookings.filter(
-          b => b.status === "Request Received"
         );
 
       const criticalErrors =
@@ -132,8 +120,7 @@
         criticalErrors.length
           ? "Attention needed"
           : lowStock.length ||
-            pendingPayments.length ||
-            waitingBookings.length
+            pendingPayments.length
           ? "Things to review"
           : "Healthy";
 
@@ -159,11 +146,6 @@
             <span>Payments waiting</span>
             <b>${pendingPayments.length}</b>
             <small>Pending verification in the last 24h</small>
-          </article>
-          <article>
-            <span>Mehendi requests</span>
-            <b>${waitingBookings.length}</b>
-            <small>Waiting for contact</small>
           </article>
         </div>
 
@@ -291,7 +273,7 @@
       const data = await telegramAction("status");
       if (data.connected) {
         status.innerHTML =
-          '<b>Connected</b> — new product orders and Mehendi/Kolka bookings will be sent to your private Telegram chat.';
+          '<b>Connected</b> — new product orders will be sent to your private Telegram chat.';
         connectButton.textContent = "Reconnect";
         testButton.disabled = false;
       } else {
@@ -518,8 +500,6 @@
       ["Orders", lastSnapshot.orderCount],
       ["Revenue (BDT)", lastSnapshot.revenue],
       ["Units sold", lastSnapshot.unitsSold],
-      ["Mehendi bookings", lastSnapshot.bookingCount],
-      ["Upcoming Mehendi bookings", lastSnapshot.upcomingBookings],
       ["Recorded website errors", lastSnapshot.errors?.length || 0],
       ["Product views", lastSnapshot.eventCounts?.product_view || 0],
       ["Add to cart", lastSnapshot.eventCounts?.add_to_cart || 0],
