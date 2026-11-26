@@ -3,7 +3,7 @@
   const OWNER = "5beecdb3-5e80-4a35-9133-5fc01ab7a772";
   const FACEBOOK = "https://www.facebook.com/share/1HgJa8dnXX/?mibextid=wwXIfr";
   const INSTAGRAM = "https://www.instagram.com/al.po.na/";
-  let offers = [], messenger = "", currentProduct = null, applyVersion = 0;
+  let offers = [], messenger = "https://m.me/allartscreat", currentProduct = null, applyVersion = 0;
   const esc = value => String(value ?? "").replace(/[&<>"']/g, x => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[x]));
   const subtotal = () => cart.reduce((sum, item) => {
     const p = products().find(x => Number(x.id) === Number(item.id));
@@ -113,6 +113,12 @@
     ]);
     if (!a.error) offers = (a.data || []).filter(c => (!c.starts_at || Date.parse(c.starts_at) <= Date.now()) && (!c.expires_at || Date.parse(c.expires_at) > Date.now()));
     if (!b.error) messenger = b.data?.messenger_url || "";
+    const direct = /^https:\/\/m\.me\/[A-Za-z0-9.]+$/.test(messenger);
+    window.alponaMessengerUrl = direct ? messenger : FACEBOOK;
+    document.querySelectorAll(".cardMessenger").forEach(link => {
+      link.href = window.alponaMessengerUrl;
+      link.textContent = direct ? "Messenger · কাস্টম ডিজাইন" : "Facebook · কাস্টম ডিজাইন";
+    });
     if (currentProduct && document.getElementById("productModal")?.classList.contains("show")) window.renderProductExtras(currentProduct);
   }
   async function owner() {
