@@ -74,8 +74,8 @@ window.placeOrder = async function(event) {
       return;
     }
 
-    if (!payload.advance_method) {
-      alert("Please select bKash or Nagad.");
+    if (payload.advance_method !== "bKash") {
+      alert("Only bKash payments are accepted.");
       return;
     }
 
@@ -86,7 +86,7 @@ window.placeOrder = async function(event) {
 
     if (!/^[A-Za-z0-9]{6,40}$/.test(payload.advance_transaction_id)) {
       alert(
-        "Please enter a valid bKash/Nagad Transaction ID (6–40 letters and numbers)."
+        "Please enter a valid bKash Transaction ID (6–40 letters and numbers)."
       );
       return;
     }

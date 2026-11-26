@@ -461,9 +461,7 @@ Payment Option
 <label>
 Payment Method
 <select name="advance_method" id="advanceMethod" required>
-  <option value="">Select payment method</option>
   <option value="bKash">bKash</option>
-  <option value="Nagad">Nagad</option>
 </select>
 </label>
 
@@ -477,7 +475,6 @@ Payment Method
   <b>Payment Number</b><br><br>
 
   bKash: <b>+880 1812-368844</b><br>
-  Nagad: <b>+880 1812-368844</b><br><br>
 
   <br>
 <b>Order Total:</b> <span id="paymentTotal">৳0</span><br>
@@ -500,8 +497,8 @@ Transaction ID
   maxlength="40"
   pattern="[A-Za-z0-9]{6,40}"
   autocomplete="off"
-  title="Enter the 6–40 character Transaction ID from bKash or Nagad."
-  placeholder="Enter bKash/Nagad Transaction ID">
+  title="Enter the 6–40 character Transaction ID from bKash."
+  placeholder="Enter bKash Transaction ID">
 </label>
 <button class="primary full" type="submit">Place Order</button>
 </form></div></div>
@@ -960,7 +957,7 @@ Transaction ID
 <script src="analytics.js?v=2"></script>
 <script src="app.js?v=10"></script>
 <script src="product-offers.js?v=3"></script>
-  <script src="supabase-orders.js?v=6"></script>
+  <script src="supabase-orders.js?v=7"></script>
  <script src="supabase-owner.js?v=42"></script>
 <script src="image-upload-patch.js?v=2"></script>
  <script src="supabase-products.js?v=5"></script>

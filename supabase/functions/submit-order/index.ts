@@ -139,8 +139,8 @@ Deno.serve(async (req) => {
       return json(req, { error: "Invalid delivery speed." }, 400);
     }
 
-    if (!["bKash","Nagad"].includes(advanceMethod)) {
-      return json(req, { error: "Invalid payment method." }, 400);
+    if (advanceMethod !== "bKash") {
+      return json(req, { error: "Only bKash payments are accepted." }, 400);
     }
 
     if (!/^[A-Za-z0-9]{6,40}$/.test(txn)) {
