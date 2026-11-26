@@ -1362,3 +1362,19 @@ textarea{min-height:95px;resize:vertical}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   .reveal-ready{opacity:1;transform:none}
 }
+.productContactActions{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.productContactActions p{font-size:12px;line-height:1.7}
+.productContactActions small,.couponOffers small,.checkoutCoupon small{display:block;font-size:10px;line-height:1.6;color:var(--muted);margin-top:9px}
+.productMessageButtons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.productMessageButtons a{display:flex;align-items:center;justify-content:center;min-height:48px;padding:12px;border-radius:12px;color:#fff;text-decoration:none;font-size:12px;font-weight:600;text-align:center}
+.messageMessenger{background:#3565bd}.messageInstagram{background:linear-gradient(110deg,#843ab5,#cc386e,#b66b14)}
+.productMessageButtons a:focus-visible,.couponChip:focus-visible{outline:3px solid var(--terracotta);outline-offset:3px}
+.couponOffers{margin:18px 0}.couponOffers:empty{display:none}.couponOffers h4{margin:0 0 9px;font-size:20px}
+.couponChip{display:block;max-width:100%;margin:7px 0;padding:10px 14px;border:1px solid #d9aaa3;border-radius:16px;background:#fff7f2;color:var(--maroon);font:500 12px/1.5 "DM Sans",sans-serif;text-align:left;cursor:pointer}
+.checkoutCoupon,.offersAdminForm{padding:20px;border:1px solid var(--line);background:#fffaf3;margin:20px 0}
+.couponInputRow{display:flex;gap:8px;align-items:center}.couponInputRow input{min-width:0;flex:1}.couponInputRow button{width:auto;padding:12px}
+.offersAdminForm{max-width:850px}.offersAdminForm h4{font-size:26px;margin:0 0 16px}
+.offersAdminForm label{display:block;margin:12px 0}.couponActiveCheck{display:flex!important;gap:10px;align-items:center}.couponActiveCheck input{width:auto}
+.couponAdminRow{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px;border:1px solid var(--line);margin:10px 0;background:#fff}
+.couponAdminRow p{margin:6px 0}.couponAdminRow small{color:var(--muted)}
+@media(max-width:480px){.couponInputRow{flex-wrap:wrap}.couponInputRow input{flex-basis:100%}.couponInputRow button{flex:1}.productMessageButtons{grid-template-columns:1fr}.couponAdminRow{align-items:flex-start;flex-direction:column}.checkoutCoupon,.offersAdminForm{padding:14px}}

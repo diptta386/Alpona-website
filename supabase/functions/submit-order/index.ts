@@ -297,17 +297,29 @@ Deno.serve(async (req) => {
 
     if (!(baseDeliveryFee > 0)) throw new Error("Invalid delivery fee");
 
+    const couponCode = cleanText(body.coupon_code, 30).toUpperCase();
+    let discountAmount = 0;
+    if (couponCode) {
+      const { data: quote, error: couponError } = await service.rpc("quote_coupon", { p_code: couponCode, p_subtotal: subtotal });
+      if (couponError) throw couponError;
+      if (!quote?.valid) return json(req, { error: quote?.error || "Invalid coupon." }, 400);
+      discountAmount = Number(quote.discount);
+    }
+    if (body.expected_discount != null && Number(body.expected_discount) !== discountAmount) {
+      return json(req, { error: "The coupon or cart has changed. Apply the coupon again and check the payment amount before submitting." }, 409);
+    }
+    const discountedSubtotal = Number((subtotal - discountAmount).toFixed(2));
     let deliveryFee = baseDeliveryFee;
     if (paymentOption === "delivery_only") {
-      deliveryFee = Math.ceil(baseDeliveryFee + subtotal * codPercentage);
+      deliveryFee = Math.ceil(baseDeliveryFee + discountedSubtotal * codPercentage);
     }
 
     const expressFee = deliverySpeed === "express" ? EXPRESS_FEE : 0;
-    const total = subtotal + deliveryFee + expressFee;
+    const total = Number((discountedSubtotal + deliveryFee + expressFee).toFixed(2));
     const securedAdvanceAmount = paymentOption === "full_payment"
       ? total
       : deliveryFee + expressFee;
-    const remainingCOD = paymentOption === "full_payment" ? 0 : subtotal;
+    const remainingCOD = paymentOption === "full_payment" ? 0 : discountedSubtotal;
     const orderNumber = "ALP-" + Date.now() + "-" + Math.random().toString(36).slice(2,5).toUpperCase();
 
     const order = {
@@ -326,6 +338,8 @@ Deno.serve(async (req) => {
       payment_method: advanceMethod,
       payment_option: paymentOption,
       subtotal,
+      coupon_code: couponCode || null,
+      discount_amount: discountAmount,
       delivery_fee: deliveryFee,
       delivery_speed: deliverySpeed,
       express_fee: expressFee,
@@ -341,7 +355,10 @@ Deno.serve(async (req) => {
       { p_order: order, p_items: items }
     );
 
-    if (createError) throw createError;
+    if (createError) {
+      if (/Coupon|coupon|total mismatch/.test(createError.message || "")) return json(req, { error: "The coupon changed. Apply it again and check the updated total." }, 409);
+      throw createError;
+    }
 
     const finalOrderNumber = created?.order_number || orderNumber;
     const itemLines = items
@@ -356,6 +373,7 @@ Deno.serve(async (req) => {
         "",
         `Order: ${finalOrderNumber}`,
         itemLines,
+        ...(couponCode ? [`Coupon: ${couponCode} · Discount: ৳${discountAmount}`] : []),
         "",
         `Total: ৳${Number(total).toLocaleString("en-US")}`,
         `Pay now: ৳${Number(securedAdvanceAmount).toLocaleString("en-US")}`,
@@ -367,6 +385,8 @@ Deno.serve(async (req) => {
 
     return json(req, {
       success: true,
+      coupon_code: couponCode || null,
+      discount_amount: discountAmount,
       order_number: finalOrderNumber,
       total,
       advance_amount: securedAdvanceAmount,

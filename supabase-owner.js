@@ -513,6 +513,7 @@ if (
 
               <td>
                 ${money(o.total)}
+                ${o.coupon_code ? `<br><span class="muted">Coupon: ${escapeHtml(o.coupon_code)} · Saved ${money(o.discount_amount || 0)}</span>` : ""}
                 ${o.delivery_speed === "express" ? `
                   <br><span class="expressOrderBadge">EXPRESS</span>
                   <br><span class="muted">Rush fee: ${money(o.express_fee || 0)} · Dispatch within 1 business day</span>

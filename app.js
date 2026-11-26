@@ -53,7 +53,10 @@ if (window.alponaTrack) {
 }
  document.getElementById("productDetails").innerHTML=`<div class="productDetailGrid"><img src="${p.image}" alt="${p.name}">
  <div><p class="kicker">${p.category}</p><h2>${p.name}</h2><h3 class="price">${money(p.price)}</h3><p>${p.description}</p><p class="stock">${p.stock} in stock</p>
- <button class="primary full" ${p.stock<1?"disabled":""} onclick="addToCart(${p.id});closeModal('productModal')">Add to cart</button></div></div>`;
+ <div id="productCouponOffers" class="couponOffers"></div>
+ <button class="primary full" ${p.stock<1?"disabled":""} onclick="addToCart(${p.id});closeModal('productModal')">Add to cart</button>
+ <div id="productContactActions" class="productContactActions"></div></div></div>`;
+ window.renderProductExtras?.(p);
  document.getElementById("productModal").classList.add("show");
 }
 function addToCart(id) {

@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=24">
+<link rel="stylesheet" href="styles.css?v=25">
 </head>
 <body>
 <div class="announcement">
@@ -467,6 +467,12 @@ Payment Method
 </select>
 </label>
 
+<section class="checkoutCoupon" aria-label="Coupon code">
+  <label for="checkoutCouponCode">কুপন কোড / Coupon code</label>
+  <div class="couponInputRow"><input id="checkoutCouponCode" maxlength="30" autocomplete="off" placeholder="Enter coupon code"><button type="button" class="secondary" id="couponApplyButton" onclick="applyCheckoutCoupon()">Apply</button><button type="button" class="secondary" onclick="clearCheckoutCoupon()">Remove</button></div>
+  <p id="couponMessage" class="fieldHelp" role="status" aria-live="polite"></p>
+  <small>একটি অর্ডারে একটি কুপন। ছাড় শুধু পণ্যের দামে; delivery ও express charge-এ নয়। Apply করার পর payment amount দেখুন।</small>
+</section>
 <div id="paymentInfo" style="padding:12px;margin:10px 0;background:#fff4df;border:1px solid #e5cda7;">
   <b>Payment Number</b><br><br>
 
@@ -475,6 +481,7 @@ Payment Method
 
   <br>
 <b>Order Total:</b> <span id="paymentTotal">৳0</span><br>
+<b>Coupon Discount:</b> <span id="paymentDiscount">৳0</span><br>
 <b>Delivery Charge:</b> <span id="paymentDelivery">৳0</span><br>
 <b>Express Charge:</b> <span id="paymentExpress">৳0</span><br>
 <b>Pay Now:</b> <span id="paymentNow">৳0</span><br>
@@ -496,7 +503,7 @@ Transaction ID
   title="Enter the 6–40 character Transaction ID from bKash or Nagad."
   placeholder="Enter bKash/Nagad Transaction ID">
 </label>
-<button class="primary full">Place Order</button>
+<button class="primary full" type="submit">Place Order</button>
 </form></div></div>
 
 <!-- Owner login -->
@@ -600,6 +607,7 @@ Transaction ID
 <button onclick="setTab('orders')" class="tab active">Orders</button>
 <button onclick="setTab('products')" class="tab">Products</button>
 <button onclick="setTab('website'); loadWebsiteEditor()" class="tab">Website</button>
+<button onclick="setTab('offers'); loadOffersAdmin()" class="tab">Coupons & Contact</button>
 <button onclick="setTab('expenses')" class="tab">Expenses</button>
 <button onclick="setTab('analytics'); loadAnalyticsDashboard()" class="tab">Analytics</button>
 <button onclick="setTab('intelligence'); loadOwnerIntelligence()" class="tab">Intelligence</button>
@@ -609,6 +617,26 @@ Transaction ID
 </div>
 
 <div id="tab-orders" class="tabBody"></div>
+<div id="tab-offers" class="tabBody hidden">
+  <div class="panelHead"><div><p class="kicker">OFFERS & CUSTOM REQUESTS</p><h3>Coupons & Contact</h3></div><button type="button" class="secondary" onclick="loadOffersAdmin()">Refresh</button></div>
+  <form class="offersAdminForm" onsubmit="saveMessengerContact(event)">
+    <h4>Custom design Messenger</h4>
+    <label>Direct Messenger link<input name="messenger_url" type="url" placeholder="https://m.me/your.page.username" maxlength="180"></label>
+    <p class="fieldHelp">Use your own page's m.me link, not a Facebook share-link. Leave blank to show the Facebook-page fallback. Customers attach their design images inside Messenger; nothing is sent automatically.</p>
+    <button class="primary" type="submit">Save Contact Link</button>
+  </form>
+  <form id="couponAdminForm" class="offersAdminForm" onsubmit="saveCouponOffer(event)">
+    <h4>Add / Edit Coupon</h4>
+    <div class="two"><label>Code<input name="code" required pattern="[A-Za-z0-9_-]{3,30}" maxlength="30" placeholder="Example: ALPONA50"></label><label>Discount type<select name="discount_type"><option value="fixed">Fixed amount (৳)</option><option value="percent">Percentage (%)</option></select></label></div>
+    <div class="two"><label>Discount amount<input name="amount" type="number" min="0.01" max="1000000" step="0.01" required></label><label>Minimum product total (৳)<input name="min_order" type="number" min="0" step="0.01" value="0" required></label></div>
+    <label>Maximum discount (৳, optional)<input name="max_discount" type="number" min="0.01" step="0.01"></label>
+    <div class="two"><label>Start — Bangladesh time (optional)<input name="starts_at" type="datetime-local"></label><label>Expiry — Bangladesh time (optional)<input name="expires_at" type="datetime-local"></label></div>
+    <label class="couponActiveCheck"><input name="active" type="checkbox"> Activate and show to customers</label>
+    <p class="fieldHelp">Blank dates mean no start/expiry limit. A coupon applies once per order, not once per customer. No offer is activated until you tick the box and save. To change a code, turn off the old coupon and create a new one.</p>
+    <button class="primary" type="submit">Save Coupon</button><button type="button" class="secondary" onclick="resetCouponForm()">Clear Form</button>
+  </form>
+  <div id="couponAdminList" aria-live="polite"></div>
+</div>
 
 <div id="tab-products" class="tabBody hidden">
   <div class="panelHead"><h3>Products</h3><button class="primary" onclick="openProductForm()">+ Add Product</button></div>
@@ -925,12 +953,13 @@ Transaction ID
 <div id="toast" class="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
-<script src="site-settings.js?v=1"></script>
+<script src="site-settings.js?v=2"></script>
 <script src="monitoring.js?v=3"></script>
 <script src="analytics.js?v=2"></script>
-<script src="app.js?v=7"></script>
-  <script src="supabase-orders.js?v=5"></script>
- <script src="supabase-owner.js?v=41"></script>
+<script src="app.js?v=8"></script>
+<script src="product-offers.js?v=1"></script>
+  <script src="supabase-orders.js?v=6"></script>
+ <script src="supabase-owner.js?v=42"></script>
 <script src="image-upload-patch.js?v=2"></script>
  <script src="supabase-products.js?v=4"></script>
   
@@ -1424,7 +1453,7 @@ function updatePaymentAmounts() {
     products();
 
 
-  const subtotal =
+  const grossSubtotal =
     cart.reduce(
       (sum, item) => {
 
@@ -1450,6 +1479,9 @@ function updatePaymentAmounts() {
     );
 
 
+  const discount = window.alponaCouponDiscount?.() || 0;
+  const subtotal = Math.max(0, grossSubtotal - discount);
+  document.getElementById("paymentDiscount").textContent = money(discount);
   const baseDeliveryFee =
     Number(
       currentPathaoDeliveryFee || 0

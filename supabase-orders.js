@@ -58,6 +58,8 @@ window.placeOrder = async function(event) {
         pathao_area_name: fd.get("pathao_area_name")
       },
       delivery_speed: fd.get("delivery_speed") || "standard",
+      coupon_code: window.alponaCoupon?.code || "",
+      expected_discount: window.alponaCouponDiscount?.() || 0,
       payment_option: fd.get("payment_option"),
       advance_method: fd.get("advance_method"),
       advance_transaction_id: String(
@@ -169,6 +171,7 @@ window.placeOrder = async function(event) {
     }
 
     cart = [];
+    window.clearCheckoutCoupon?.();
     set("alpona_cart", cart);
     renderCart();
     form.reset();

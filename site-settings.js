@@ -168,6 +168,7 @@
       }
 
       next.updated_at = new Date().toISOString();
+      delete next.messenger_url;
       const { data, error } = await db
         .from("site_settings")
         .upsert(next, { onConflict: "id" })
