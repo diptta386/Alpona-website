@@ -53,7 +53,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=26">
+<link rel="stylesheet" href="styles.css?v=27">
 </head>
 <body>
 <div class="announcement">
@@ -902,6 +902,8 @@ Transaction ID
 <input type="hidden" name="id">
 <label>Product Name<input name="name" required></label>
 <label>Category<input name="category" required placeholder="Bags, Clothing, Home Décor..."></label>
+<label class="customizableProductToggle"><input name="customizable" type="checkbox"> Allow custom design requests</label>
+<small class="fieldHelp">Off = ready-made, sold as pictured. On = show the custom-design contact option. New products are ready-made by default.</small>
 <div class="two"><label>Selling Price (৳)<input name="price" type="number" min="0" required></label><label>Cost (৳)<input name="cost" type="number" min="0" required></label></div>
 <div class="two">
 
@@ -956,12 +958,12 @@ Transaction ID
 <script src="site-settings.js?v=2"></script>
 <script src="monitoring.js?v=3"></script>
 <script src="analytics.js?v=2"></script>
-<script src="app.js?v=9"></script>
-<script src="product-offers.js?v=2"></script>
+<script src="app.js?v=10"></script>
+<script src="product-offers.js?v=3"></script>
   <script src="supabase-orders.js?v=6"></script>
  <script src="supabase-owner.js?v=42"></script>
 <script src="image-upload-patch.js?v=2"></script>
- <script src="supabase-products.js?v=4"></script>
+ <script src="supabase-products.js?v=5"></script>
   
 <script src="alpona-chat.js?v=2"></script>
   <script src="supabase-chat.js?v=2"></script>

@@ -24,6 +24,7 @@
       cost: Number(p.cost || 0),
       stock: Number(p.stock || 0),
       weight_kg: Number(p.weight_kg || 0.5),
+      customizable: p.customizable === true,
 
       // Your old website expects "image"
       image: p.image_url || "assets/logo.jpeg",
@@ -516,6 +517,8 @@
     function (id) {
 
       oldOpenProductForm(id);
+      const customField = document.getElementById("productForm")?.elements.customizable;
+      if (customField) customField.checked = id ? products().find(p => Number(p.id) === Number(id))?.customizable === true : false;
 
       ensureSupabaseUploader();
 
@@ -615,6 +618,7 @@
 
 
         const record = {
+          customizable: fd.get("customizable") === "on",
 
           name:
             fd.get("name"),

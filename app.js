@@ -31,7 +31,9 @@ function renderProducts(){
  <div class="cardContent"><small>${p.category}</small><h3>${p.name}</h3>
  <div class="priceRow"><strong class="price">${money(p.price)}</strong><span class="stock">${p.stock>0?p.stock+" available":"Out of stock"}</span></div>
  <button class="primary full" ${p.stock<1?"disabled":""} onclick="addToCart(${p.id})">${p.stock>0?"Add to cart":"Out of stock"}</button>
- <a class="cardMessenger" href="${window.alponaMessengerUrl || 'https://m.me/allartscreat'}" target="_blank" rel="noopener noreferrer">Messenger · কাস্টম ডিজাইন</a>
+ ${p.customizable === true
+   ? `<a class="cardMessenger" href="${window.alponaMessengerUrl || 'https://m.me/allartscreat'}" target="_blank" rel="noopener noreferrer"><span>কাস্টম ডিজাইনের অনুরোধ</span><span aria-hidden="true">↗</span></a>`
+   : '<p class="readyMadeNote">রেডিমেড · ছবির ডিজাইনেই পাওয়া যাবে</p>'}
  </div></article>`).join("");
 }
 function openProduct(id){

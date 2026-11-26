@@ -68,7 +68,7 @@
       (c.max_discount ? " · সর্বোচ্চ " + money(c.max_discount) : "");
   }
   window.copyProductForCustom = async function () {
-    if (!currentProduct) return;
+    if (!currentProduct || currentProduct.customizable !== true) return;
     const text = "Alpona custom design request\nProduct: " + currentProduct.name +
       "\nListed price: " + money(currentProduct.price) + "\nWebsite: https://alponastore.com/\nProduct ID: " + currentProduct.id;
     try { await navigator.clipboard.writeText(text); toast("Product details copied — paste into your message"); }
@@ -98,6 +98,12 @@
     }
     const root = document.getElementById("productContactActions");
     if (!root) return;
+    if (p.customizable !== true) {
+      root.classList.add("productContactActions--ready");
+      root.innerHTML = '<p class="readyMadeDetail"><b>রেডিমেড পণ্য</b><br>এই পণ্যটি আগে থেকেই তৈরি। ছবিতে দেখানো ডিজাইনেই কিনতে পারবেন; কাস্টম ডিজাইন করা যাবে না।</p>';
+      return;
+    }
+    root.classList.remove("productContactActions--ready");
     const direct = /^https:\/\/m\.me\/[A-Za-z0-9.]+$/.test(messenger);
     root.innerHTML = '<p><b>নিজের পছন্দের ডিজাইন চান?</b><br>প্রথমে পণ্যের তথ্য কপি করুন, তারপর মেসেজে paste করে আপনার ডিজাইনের ছবি পাঠান। Custom কাজের দাম ও সময় আলাদা করে নিশ্চিত করা হবে।</p>' +
       '<button type="button" class="secondary full" onclick="copyProductForCustom()">পণ্যের তথ্য কপি করুন</button>' +
@@ -117,7 +123,7 @@
     window.alponaMessengerUrl = direct ? messenger : FACEBOOK;
     document.querySelectorAll(".cardMessenger").forEach(link => {
       link.href = window.alponaMessengerUrl;
-      link.textContent = direct ? "Messenger · কাস্টম ডিজাইন" : "Facebook · কাস্টম ডিজাইন";
+      link.innerHTML = '<span>কাস্টম ডিজাইনের অনুরোধ</span><span aria-hidden="true">↗</span>';
     });
     if (currentProduct && document.getElementById("productModal")?.classList.contains("show")) window.renderProductExtras(currentProduct);
   }
